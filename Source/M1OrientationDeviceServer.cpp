@@ -135,3 +135,12 @@ void M1OrientationManagerServer::timerCallback()
         }
     }
 }
+
+void M1OrientationManagerServer::setupOutputOSCIP(juce::String address, int port) {
+    if (outputOSCIPAddress != address || outputOSCPort != port) {
+        outputOSCIPAddress = address;
+        outputOSCPort = port;
+        output_to_custom_osc.disconnect();
+        output_to_custom_osc.connect(outputOSCIPAddress, outputOSCPort);
+    }
+}

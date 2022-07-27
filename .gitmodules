@@ -10,3 +10,6 @@
 [submodule "modules/juce_murka"]
 	path = modules/juce_murka
 	url = git@github.com:Kiberchaika/juce_murka.git
+[submodule "JUCE"]
+	path = JUCE
+	url = git@github.com:juce-framework/JUCE.git

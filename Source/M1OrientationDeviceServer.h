@@ -34,22 +34,49 @@ struct GlobalOrientation
     Quaternion quat;
     
     YPR getYPR() {
-        double t0, t1, t2, t3, t4;
-        t0 = 2.0 * (quat.qw * quat.qx + quat.qy * quat.qz);
-        t1 = 1.0 - 2.0 * (quat.qx * quat.qx + quat.qy * quat.qy);
-        ypr.roll = atan2(t0, t1);
-        t2 = 2.0 * (quat.qw * quat.qy - quat.qz * quat.qx);
-        if (t2 > 1){
-            t2 = 1.0;
-        } else if (t2 < -1) {
-            t2 = -1.0;
-        } else {
-            t2 = t2;
+        double qW, qX, qY, qZ;
+        float y, p, r;
+        const juce::Array<float> quats = { quat.qw, quat.qx, quat.qy, quat.qz };
+
+        qW = quats[0];
+        qX = quats[2];
+        qY = quats[1];
+        qZ = quats[3];
+
+        double test = qX * qZ + qY * qW;
+        if (test > 0.499999) {
+            // singularity at north pole
+            ypr.yaw = 2 * atan2(qX, qW);
+            ypr.pitch = juce::MathConstants<double>::pi / 2;
+            ypr.roll = 0;
+            ypr.custom_output_yaw = (float)juce::jmap(ypr.yaw, (float)-180, (float)180, ypr.yaw_min, ypr.yaw_max);
+            ypr.custom_output_pitch = (float)juce::jmap(ypr.pitch, (float)-180, (float)180, ypr.pitch_min, ypr.pitch_max);
+            ypr.custom_output_roll = (float)juce::jmap(ypr.roll, (float)-180, (float)180, ypr.roll_min, ypr.roll_max);
+            return ypr;
         }
-        ypr.pitch = asin(t2);
-        t3 = 2.0 * (quat.qw * quat.qz + quat.qx * quat.qy);
-        t4 = 1.0 - 2.0 * (quat.qy * quat.qy + quat.qz * quat.qz);
-        ypr.yaw = atan2(t3, t4);
+        if (test < -0.499999) {
+            // singularity at south pole
+            ypr.yaw = -2 * atan2(qX, qW);
+            ypr.pitch = -juce::MathConstants<double>::pi / 2;
+            ypr.roll = 0;
+            ypr.custom_output_yaw = (float)juce::jmap(ypr.yaw, (float)-180, (float)180, ypr.yaw_min, ypr.yaw_max);
+            ypr.custom_output_pitch = (float)juce::jmap(ypr.pitch, (float)-180, (float)180, ypr.pitch_min, ypr.pitch_max);
+            ypr.custom_output_roll = (float)juce::jmap(ypr.roll, (float)-180, (float)180, ypr.roll_min, ypr.roll_max);
+            return ypr;
+        }
+        double sqx = qX * qX;
+        double sqy = qZ * qZ;
+        double sqz = qY * qY;
+
+        y = atan2(2 * qZ*qW - 2 * qX*qY, 1 - 2 * sqy - 2 * sqz);
+        p = asin(2 * test);
+        r = atan2(2 * qX*qW - 2 * qZ*qY, 1 - 2 * sqx - 2 * sqz);
+
+        y *= -1.0f;
+
+        ypr.yaw = juce::radiansToDegrees(y);
+        ypr.pitch = juce::radiansToDegrees(p);
+        ypr.roll = juce::radiansToDegrees(r);
         
         // remap output ypr
         ypr.custom_output_yaw = (float)juce::jmap(ypr.yaw, (float)-180, (float)180, ypr.yaw_min, ypr.yaw_max);
@@ -58,7 +85,7 @@ struct GlobalOrientation
 
         return ypr;
     };
-
+    
     Quaternion getQuaternion() {
         // best to avoid this and stick to updating quat and calculating best YPR
         quat.qx = sin(ypr.roll/2) * cos(ypr.pitch/2) * cos(ypr.yaw/2) - cos(ypr.roll/2) * sin(ypr.pitch/2) * sin(ypr.yaw/2);
@@ -66,6 +93,10 @@ struct GlobalOrientation
         quat.qz = cos(ypr.roll/2) * cos(ypr.pitch/2) * sin(ypr.yaw/2) - sin(ypr.roll/2) * sin(ypr.pitch/2) * cos(ypr.yaw/2);
         quat.qw = cos(ypr.roll/2) * cos(ypr.pitch/2) * cos(ypr.yaw/2) + sin(ypr.roll/2) * sin(ypr.pitch/2) * sin(ypr.yaw/2);
         return quat;
+    };
+    
+    void resetOrientation() {
+        // TODO: setup reset logic here
     };
 };
 
@@ -90,9 +121,6 @@ public:
     void disconnectSerial();
     bool isSerialConnected();
     void timerCallback() override;
-//    void setGlobalOrientation();
-//    void getGlobalOrientation();
-//    void resetGlobalOrientation();
 
     std::string currentDevice;
     std::vector<std::string> devices;
@@ -165,13 +193,13 @@ public:
     juce::OSCSender output_to_monitor;
     juce::OSCSender output_to_m1hpctrl;
     
-    
     // Setup for output OSC component
     // Description: this copies the current orientation to output to other peripherals if needed
     bool outputOSCActive = false;
     juce::OSCSender output_to_custom_osc;
     juce::String outputOSCIPAddress;
     int outputOSCPort = 9999;
+    void setupOutputOSCIP(juce::String address, int port);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(M1OrientationManagerServer)
 };
