@@ -11,8 +11,10 @@
       <FILE id="QGuvaD" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="OlQIDF" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
-      <FILE id="YXBs8f" name="M1OrientationDeviceOSCServer.h" compile="0"
-            resource="0" file="Source/M1OrientationDeviceOSCServer.h"/>
+      <FILE id="YXBs8f" name="M1OrientationDeviceServer.h" compile="0" resource="0"
+            file="Source/M1OrientationDeviceServer.h"/>
+      <FILE id="XkUZEO" name="M1OrientationDeviceServer.cpp" compile="1"
+            resource="0" file="Source/M1OrientationDeviceServer.cpp"/>
       <GROUP id="{3408C695-D15B-0835-76B6-90EEC61F719D}" name="rs232">
         <FILE id="oLwVMk" name="rs232-linux.c" compile="1" resource="0" file="Source/rs232/rs232-linux.c"/>
         <FILE id="gddPgR" name="rs232-win.c" compile="1" resource="0" file="Source/rs232/rs232-win.c"/>

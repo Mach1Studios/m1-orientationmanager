@@ -1,10 +1,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-
 #include "juce_murka/JuceMurkaBaseComponent.h"
-
-#include "M1OrientationDeviceOSCServer.h"
+#include "M1OrientationDeviceServer.h"
 
 using namespace murka;
 
