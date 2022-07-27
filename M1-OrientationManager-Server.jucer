@@ -3,7 +3,8 @@
 <JUCERPROJECT id="mysBU8" name="M1-OrientationManager" projectType="guiapp"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="0"
               jucerFormatVersion="1" companyName="Mach1" version="0.0.1" companyEmail="whatsup@mach1.tech"
-              companyWebsite="https://www.mach1.tech" companyCopyright="Mach1, Corp.">
+              companyWebsite="https://www.mach1.tech" companyCopyright="Mach1, Corp."
+              bundleIdentifier="com.mach1.orientationmanager">
   <MAINGROUP id="Z4KsZJ" name="M1-OrientationManager">
     <GROUP id="{10C53C35-6078-FD9E-4A16-6DCD8AE44EEF}" name="Source">
       <FILE id="S5sGdi" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
@@ -13,8 +14,6 @@
       <FILE id="YXBs8f" name="M1OrientationDeviceOSCServer.h" compile="0"
             resource="0" file="Source/M1OrientationDeviceOSCServer.h"/>
     </GROUP>
-    <FILE id="QNmFin" name="ProximaNova-Reg.ttf" compile="0" resource="1"
-          file="Resources/ProximaNova-Reg.ttf"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
@@ -36,7 +35,7 @@
         <MODULEPATH id="juce_core" path="../../juce"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2019 targetFolder="Builds/VisualStudio2019" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3&#10;MURKA_JUCE JUCE_OPENGL3&#10;MURKA_JUCE JUCE_OPENGL3">
+    <VS2019 targetFolder="Builds/VisualStudio2019" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="m1orientationmanagerserver"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="m1orientationmanagerserver"/>

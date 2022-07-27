@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="xUG2YD" name="m1orientationmanagerclient_test" projectType="guiapp"
+<JUCERPROJECT id="xUG2YD" name="M1-Orientation-TestClient" projectType="guiapp"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1">
-  <MAINGROUP id="ChS6iJ" name="m1orientationmanagerclient_test">
+              jucerFormatVersion="1" bundleIdentifier="com.mach1.orientation.testclient">
+  <MAINGROUP id="ChS6iJ" name="M1-Orientation-TestClient">
     <GROUP id="{BC60B410-BD00-7BDD-673D-241847D2BE6B}" name="Source">
       <FILE id="pr4zBT" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="s3n7J9" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="T4kPBp" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
-    <FILE id="HQOD7B" name="ProximaNova-Reg.ttf" compile="0" resource="1"
-          file="Resources/ProximaNova-Reg.ttf"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
@@ -33,10 +31,10 @@
         <MODULEPATH id="juce_core" path="../../juce"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2019 targetFolder="Builds/VisualStudio2019" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3&#10;MURKA_JUCE JUCE_OPENGL3&#10;MURKA_JUCE JUCE_OPENGL3">
+    <VS2019 targetFolder="Builds/VisualStudio2019" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="m1orientationmanagerclient_test"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="m1orientationmanagerclient_test"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="M1-Orientation-TestClient"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="M1-Orientation-TestClient"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../../M1/JUCE-6.1.6/modules"/>
