@@ -1,0 +1,9 @@
+[submodule "modules/m1_orientation_manager"]
+	path = modules/m1_orientation_manager
+	url = git@github.com:Mach1Studios/m1_orientation_manager.git
+[submodule "Source/SimpleBLE"]
+	path = Source/SimpleBLE
+	url = git@github.com:OpenBluetoothToolbox/SimpleBLE.git
+[submodule "Source/rs232"]
+	path = Source/rs232
+	url = git@github.com:Marzac/rs232.git
