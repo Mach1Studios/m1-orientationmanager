@@ -96,14 +96,14 @@ void MainComponent::render()
 	offsetX = 400;
 	offsetY = 20;
 
-	auto& refreshDeviceButton = m.draw<Button>({ offsetX, offsetY, 130, 30 }).text("refresh devices");
+	auto& refreshDeviceButton = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("refresh devices");
 	refreshDeviceButton.commit();
 	if (refreshDeviceButton.pressed) {
 		m1OrientationOSCServer.command_refreshDevices();
 	}
 	offsetY += 50;
 
-	auto& selectDevice1Button = m.draw<Button>({ offsetX, offsetY, 130, 30 }).text("select device 1");
+	auto& selectDevice1Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 1");
 	selectDevice1Button.commit();
 	if (selectDevice1Button.pressed) {
 		std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevices();
@@ -113,7 +113,7 @@ void MainComponent::render()
 	}
 	offsetY += 50;
 
-	auto& selectDevice2Button = m.draw<Button>({ offsetX, offsetY, 130, 30 }).text("select device 2");
+	auto& selectDevice2Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 2");
 	selectDevice2Button.commit();
 	if (selectDevice2Button.pressed) {
 		std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevices();
@@ -123,21 +123,21 @@ void MainComponent::render()
 	}
 	offsetY += 50;
 
-	auto& toogleYawButton = m.draw<Button>({ offsetX, offsetY, 130, 30 }).text("toogle yaw");
+	auto& toogleYawButton = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toogle yaw");
 	toogleYawButton.commit();
 	if (toogleYawButton.pressed) {
 		m1OrientationOSCServer.command_setTrackingYawEnabled(!m1OrientationOSCServer.getTrackingYawEnabled());
 	}
 	offsetY += 50;
 
-	auto& tooglePitchButton = m.draw<Button>({ offsetX, offsetY, 130, 30 }).text("toogle pitch");
+	auto& tooglePitchButton = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toogle pitch");
 	tooglePitchButton.commit();
 	if (tooglePitchButton.pressed) {
 		m1OrientationOSCServer.command_setTrackingPitchEnabled(!m1OrientationOSCServer.getTrackingPitchEnabled());
 	}
 	offsetY += 50;
 
-	auto& toogleRollButton = m.draw<Button>({ offsetX, offsetY, 130, 30 }).text("toogle roll");
+	auto& toogleRollButton = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toogle roll");
 	toogleRollButton.commit();
 	if (toogleRollButton.pressed) {
 		m1OrientationOSCServer.command_setTrackingRollEnabled(!m1OrientationOSCServer.getTrackingRollEnabled());

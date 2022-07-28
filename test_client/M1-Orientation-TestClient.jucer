@@ -19,16 +19,16 @@
         <CONFIGURATION isDebug="0" name="Release"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="m1_orientation_manager" path="../../juce"/>
         <MODULEPATH id="juce_osc" path="../../juce"/>
         <MODULEPATH id="juce_opengl" path="../../juce"/>
-        <MODULEPATH id="juce_murka" path="../../juce"/>
         <MODULEPATH id="juce_gui_extra" path="../../juce"/>
         <MODULEPATH id="juce_gui_basics" path="../../juce"/>
         <MODULEPATH id="juce_graphics" path="../../juce"/>
         <MODULEPATH id="juce_events" path="../../juce"/>
         <MODULEPATH id="juce_data_structures" path="../../juce"/>
         <MODULEPATH id="juce_core" path="../../juce"/>
+        <MODULEPATH id="juce_murka" path="Modules"/>
+        <MODULEPATH id="m1_orientation_client" path="Modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2019 targetFolder="Builds/VisualStudio2019" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
@@ -42,11 +42,11 @@
         <MODULEPATH id="juce_events" path="../../M1/JUCE-6.1.6/modules"/>
         <MODULEPATH id="juce_graphics" path="../../M1/JUCE-6.1.6/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../../M1/JUCE-6.1.6/modules"/>
-        <MODULEPATH id="juce_murka" path="../../M1/JUCE_modules"/>
         <MODULEPATH id="juce_opengl" path="../../M1/JUCE-6.1.6/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../M1/JUCE-6.1.6/modules"/>
         <MODULEPATH id="juce_osc" path="../../M1/JUCE-6.1.6/modules"/>
-        <MODULEPATH id="m1_orientation_manager" path="../../M1/JUCE_modules"/>
+        <MODULEPATH id="juce_murka" path="Modules"/>
+        <MODULEPATH id="m1_orientation_client" path="Modules"/>
       </MODULEPATHS>
     </VS2019>
   </EXPORTFORMATS>
@@ -57,10 +57,9 @@
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="juce_murka" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_murka" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_osc" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="m1_orientation_manager" showAllCode="1" useLocalCopy="0"
-            useGlobalPath="1"/>
+    <MODULE id="m1_orientation_client" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
 </JUCERPROJECT>
