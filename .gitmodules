@@ -4,6 +4,6 @@
 [submodule "Source/rs232"]
 	path = Source/rs232
 	url = git@github.com:Marzac/rs232.git
-[submodule "modules/juce_murka"]
-	path = modules/juce_murka
-	url = git@github.com:Kiberchaika/juce_murka.git
+[submodule "Modules/m1_orientation_client"]
+	path = Modules/m1_orientation_client
+	url = git@github.com:Mach1Studios/m1_orientation_client.git
