@@ -27,12 +27,12 @@ public:
     {
         // This method is where you should put your application's initialisation code..
         if (commandLine == "--no-gui") {
-            M1OrientationManagerOSCServer m1OrientationManagerOSCServer;
+            M1OrientationManagerServer m1OrientationManagerServer;
 
             std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
-            if (m1OrientationManagerOSCServer.initFromSettings(settingsFilePath)) {
+            if (m1OrientationManagerServer.initFromSettings(settingsFilePath)) {
                 while (true) {
-                    m1OrientationManagerOSCServer.update();
+                    m1OrientationManagerServer.update();
                     juce::Thread::sleep(30);
                 }
             }

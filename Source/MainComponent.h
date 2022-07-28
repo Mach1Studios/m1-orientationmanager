@@ -29,7 +29,7 @@ private:
     //==============================================================================
     // Your private member variables go here...
 
-    M1OrientationManagerOSCServer m1OrientationManagerOSCServer;
+    M1OrientationManagerServer m1OrientationManagerServer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

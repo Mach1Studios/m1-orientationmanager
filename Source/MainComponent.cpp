@@ -30,7 +30,7 @@ void MainComponent::render()
 
 	m.clear(20);
 	m.setColor(255);
-	m.setFontFromRawData("Proxima Nova Reg.ttf", BinaryData::ProximaNovaReg_ttf, BinaryData::ProximaNovaReg_ttfSize, 10);
+//	m.setFontFromRawData("Proxima Nova Reg.ttf", juce::BinaryData::ProximaNovaReg_ttf, juce::BinaryData::ProximaNovaReg_ttfSize, 10);
 
 	m.begin();
 

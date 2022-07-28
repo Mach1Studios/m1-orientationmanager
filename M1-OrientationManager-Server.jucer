@@ -20,151 +20,14 @@
         <FILE id="gddPgR" name="rs232-win.c" compile="1" resource="0" file="Source/rs232/rs232-win.c"/>
         <FILE id="hnRYcS" name="rs232.h" compile="0" resource="0" file="Source/rs232/rs232.h"/>
       </GROUP>
-      <GROUP id="{4A991FA6-ABFB-B57A-2150-26F2992087B7}" name="SimpleBLE">
-        <GROUP id="{52D854A2-DBAD-5BA8-A2BE-915CC153AF48}" name="cmake">
-          <GROUP id="{EAB0B602-0704-A7B1-8FE6-21F253E593BB}" name="find">
-            <FILE id="PABMGw" name="Findfmt.cmake" compile="0" resource="1" file="Source/SimpleBLE/cmake/find/Findfmt.cmake"/>
-            <FILE id="qY4tnt" name="Findsimplebluez.cmake" compile="0" resource="1"
-                  file="Source/SimpleBLE/cmake/find/Findsimplebluez.cmake"/>
-          </GROUP>
-        </GROUP>
-        <GROUP id="{A4A54A5F-248C-DB25-E936-B9BCC426A315}" name="include">
-          <GROUP id="{3E5F4266-EDB2-52E6-3096-77B6CB68FAB0}" name="simpleble">
-            <FILE id="s0topH" name="Adapter.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/Adapter.h"/>
-            <FILE id="dv309P" name="AdapterSafe.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/AdapterSafe.h"/>
-            <FILE id="fHBcPt" name="Characteristic.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/include/simpleble/Characteristic.h"/>
-            <FILE id="bfKlS0" name="Descriptor.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/Descriptor.h"/>
-            <FILE id="P9Q2HF" name="Exceptions.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/Exceptions.h"/>
-            <FILE id="hEo4gp" name="Logging.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/Logging.h"/>
-            <FILE id="le32qn" name="Peripheral.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/Peripheral.h"/>
-            <FILE id="mYF7hm" name="PeripheralSafe.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/include/simpleble/PeripheralSafe.h"/>
-            <FILE id="BHATiU" name="Service.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/Service.h"/>
-            <FILE id="WN3n1D" name="SimpleBLE.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/SimpleBLE.h"/>
-            <FILE id="kunFFH" name="Types.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/Types.h"/>
-            <FILE id="wKHCdc" name="Utils.h" compile="0" resource="0" file="Source/SimpleBLE/include/simpleble/Utils.h"/>
-          </GROUP>
-        </GROUP>
-        <GROUP id="{9DBE0ED6-2A2C-8290-4555-DB6C22BCC2EE}" name="scripts">
-          <GROUP id="{92A38CD8-5366-270F-4B66-0D6F1C4CCDE9}" name="linux">
-            <FILE id="N5d22w" name="build_lib.sh" compile="0" resource="1" file="Source/SimpleBLE/scripts/linux/build_lib.sh"/>
-          </GROUP>
-          <GROUP id="{45F1ABE0-5E3C-311F-AD1D-42325B54B00C}" name="macos">
-            <FILE id="bkz3qU" name="build_lib.sh" compile="0" resource="1" file="Source/SimpleBLE/scripts/macos/build_lib.sh"/>
-            <FILE id="HcJiI7" name="build_test.sh" compile="0" resource="1" file="Source/SimpleBLE/scripts/macos/build_test.sh"/>
-          </GROUP>
-          <GROUP id="{09E0AB62-7A9E-6588-5BFD-A6DAC98FAD5B}" name="windows">
-            <FILE id="hZuzun" name="build_lib.bat" compile="0" resource="1" file="Source/SimpleBLE/scripts/windows/build_lib.bat"/>
-            <FILE id="VuntVq" name="build_lib.ps1" compile="0" resource="1" file="Source/SimpleBLE/scripts/windows/build_lib.ps1"/>
-          </GROUP>
-        </GROUP>
-        <GROUP id="{ECFD4E6D-9CB9-8AEF-064A-77B7075E6D27}" name="src">
-          <GROUP id="{7933DA52-B5EF-2D2D-AB8D-DA401D9D42BB}" name="builders">
-            <FILE id="hTXEQw" name="AdapterBuilder.cpp" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/builders/AdapterBuilder.cpp"/>
-            <FILE id="UZ8QQG" name="AdapterBuilder.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/builders/AdapterBuilder.h"/>
-            <FILE id="LSOCMo" name="CharacteristicBuilder.cpp" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/builders/CharacteristicBuilder.cpp"/>
-            <FILE id="CNwiCO" name="CharacteristicBuilder.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/builders/CharacteristicBuilder.h"/>
-            <FILE id="ZRvDK5" name="DescriptorBuilder.cpp" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/builders/DescriptorBuilder.cpp"/>
-            <FILE id="v21wMh" name="DescriptorBuilder.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/builders/DescriptorBuilder.h"/>
-            <FILE id="oUcusI" name="PeripheralBuilder.cpp" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/builders/PeripheralBuilder.cpp"/>
-            <FILE id="C2nQ10" name="PeripheralBuilder.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/builders/PeripheralBuilder.h"/>
-            <FILE id="qO1NJV" name="ServiceBuilder.cpp" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/builders/ServiceBuilder.cpp"/>
-            <FILE id="Ef7KSw" name="ServiceBuilder.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/builders/ServiceBuilder.h"/>
-          </GROUP>
-          <GROUP id="{9169DBF0-E61F-A727-8FBD-26B3468598A5}" name="external">
-            <FILE id="f6g9zx" name="kvn_safe_callback.hpp" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/external/kvn_safe_callback.hpp"/>
-            <FILE id="vHMlNJ" name="logfwd.hpp" compile="0" resource="0" file="Source/SimpleBLE/src/external/logfwd.hpp"/>
-          </GROUP>
-          <GROUP id="{C4C111C6-D6D9-74B4-B3FB-F76FAFCC5EF0}" name="linux">
-            <FILE id="AKDuD6" name="AdapterBase.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/linux/AdapterBase.cpp"/>
-            <FILE id="R5PA77" name="AdapterBase.h" compile="0" resource="0" file="Source/SimpleBLE/src/linux/AdapterBase.h"/>
-            <FILE id="vN5YqD" name="Bluez.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/linux/Bluez.cpp"/>
-            <FILE id="EY5aZi" name="Bluez.h" compile="0" resource="0" file="Source/SimpleBLE/src/linux/Bluez.h"/>
-            <FILE id="VgcsD9" name="PeripheralBase.cpp" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/linux/PeripheralBase.cpp"/>
-            <FILE id="ArqadC" name="PeripheralBase.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/linux/PeripheralBase.h"/>
-          </GROUP>
-          <GROUP id="{BC751701-5C12-7A9C-1954-0D85B5BE431F}" name="macos">
-            <FILE id="JQfjTV" name="AdapterBase.h" compile="0" resource="0" file="Source/SimpleBLE/src/macos/AdapterBase.h"/>
-            <FILE id="tXiEVB" name="AdapterBase.mm" compile="1" resource="0" file="Source/SimpleBLE/src/macos/AdapterBase.mm"/>
-            <FILE id="Ynvu89" name="AdapterBaseMacOS.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/macos/AdapterBaseMacOS.h"/>
-            <FILE id="UUrQmR" name="AdapterBaseMacOS.mm" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/macos/AdapterBaseMacOS.mm"/>
-            <FILE id="GPh9ut" name="PeripheralBase.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/macos/PeripheralBase.h"/>
-            <FILE id="cBMI99" name="PeripheralBase.mm" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/macos/PeripheralBase.mm"/>
-            <FILE id="zeoCus" name="PeripheralBaseMacOS.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/macos/PeripheralBaseMacOS.h"/>
-            <FILE id="ud160s" name="PeripheralBaseMacOS.mm" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/macos/PeripheralBaseMacOS.mm"/>
-            <FILE id="EJKFkk" name="Utils.h" compile="0" resource="0" file="Source/SimpleBLE/src/macos/Utils.h"/>
-            <FILE id="gqhcSh" name="Utils.mm" compile="1" resource="0" file="Source/SimpleBLE/src/macos/Utils.mm"/>
-          </GROUP>
-          <GROUP id="{F732D695-F26A-3AC4-4883-A8D53CE37315}" name="windows">
-            <FILE id="GcXk2i" name="AdapterBase.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/windows/AdapterBase.cpp"/>
-            <FILE id="uxI23n" name="AdapterBase.h" compile="0" resource="0" file="Source/SimpleBLE/src/windows/AdapterBase.h"/>
-            <FILE id="VnZWte" name="PeripheralBase.cpp" compile="1" resource="0"
-                  file="Source/SimpleBLE/src/windows/PeripheralBase.cpp"/>
-            <FILE id="vEUWnF" name="PeripheralBase.h" compile="0" resource="0"
-                  file="Source/SimpleBLE/src/windows/PeripheralBase.h"/>
-            <FILE id="fbR2Bx" name="Utils.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/windows/Utils.cpp"/>
-            <FILE id="XOdN0P" name="Utils.h" compile="0" resource="0" file="Source/SimpleBLE/src/windows/Utils.h"/>
-          </GROUP>
-          <FILE id="Jaru1o" name="Adapter.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/Adapter.cpp"/>
-          <FILE id="rgdM0d" name="AdapterBaseTypes.h" compile="0" resource="0"
-                file="Source/SimpleBLE/src/AdapterBaseTypes.h"/>
-          <FILE id="IQAnE7" name="AdapterSafe.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/AdapterSafe.cpp"/>
-          <FILE id="Tdo30Z" name="Characteristic.cpp" compile="1" resource="0"
-                file="Source/SimpleBLE/src/Characteristic.cpp"/>
-          <FILE id="zKDSgr" name="CharacteristicBase.cpp" compile="1" resource="0"
-                file="Source/SimpleBLE/src/CharacteristicBase.cpp"/>
-          <FILE id="nrfLyE" name="CharacteristicBase.h" compile="0" resource="0"
-                file="Source/SimpleBLE/src/CharacteristicBase.h"/>
-          <FILE id="ArktON" name="CommonUtils.h" compile="0" resource="0" file="Source/SimpleBLE/src/CommonUtils.h"/>
-          <FILE id="OOhqib" name="Descriptor.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/Descriptor.cpp"/>
-          <FILE id="bcA2W4" name="DescriptorBase.cpp" compile="1" resource="0"
-                file="Source/SimpleBLE/src/DescriptorBase.cpp"/>
-          <FILE id="hArpX0" name="DescriptorBase.h" compile="0" resource="0"
-                file="Source/SimpleBLE/src/DescriptorBase.h"/>
-          <FILE id="AiRorI" name="Exceptions.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/Exceptions.cpp"/>
-          <FILE id="iTpeKV" name="Logging.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/Logging.cpp"/>
-          <FILE id="aakBYN" name="LoggingInternal.h" compile="0" resource="0"
-                file="Source/SimpleBLE/src/LoggingInternal.h"/>
-          <FILE id="hnewDW" name="Peripheral.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/Peripheral.cpp"/>
-          <FILE id="suM7Nw" name="PeripheralSafe.cpp" compile="1" resource="0"
-                file="Source/SimpleBLE/src/PeripheralSafe.cpp"/>
-          <FILE id="IFQRyO" name="Service.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/Service.cpp"/>
-          <FILE id="VhaIVR" name="ServiceBase.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/ServiceBase.cpp"/>
-          <FILE id="JxEg7e" name="ServiceBase.h" compile="0" resource="0" file="Source/SimpleBLE/src/ServiceBase.h"/>
-          <FILE id="uG5FA0" name="Utils.cpp" compile="1" resource="0" file="Source/SimpleBLE/src/Utils.cpp"/>
-        </GROUP>
-        <FILE id="QGYYY1" name="CMakeLists.txt" compile="0" resource="1" file="Source/SimpleBLE/CMakeLists.txt"/>
-        <FILE id="z52MSW" name="LICENSE.md" compile="0" resource="1" file="Source/SimpleBLE/LICENSE.md"/>
-        <FILE id="btAOez" name="README.rst" compile="0" resource="1" file="Source/SimpleBLE/README.rst"/>
-      </GROUP>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug"/>
-        <CONFIGURATION isDebug="0" name="Release"/>
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="../../Source/SimpleBLE/include/simpleble"/>
+        <CONFIGURATION isDebug="0" name="Release" headerPath="../../Source/SimpleBLE/include/simpleble"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="m1_orientation_manager" path="../../juce"/>
@@ -181,8 +44,10 @@
     </XCODE_MAC>
     <VS2019 targetFolder="Builds/VisualStudio2019" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="m1orientationmanagerserver"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="m1orientationmanagerserver"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="m1orientationmanagerserver"
+                       headerPath="..\..\Source\SimpleBLE\include\simpleble"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="m1orientationmanagerserver"
+                       headerPath="..\..\Source\SimpleBLE\include\simpleble"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../../M1/JUCE-6.1.6/modules"/>

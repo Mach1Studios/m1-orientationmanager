@@ -138,8 +138,10 @@ public:
     bool bTrackingPitch = true;
     bool bTrackingRoll = true;
     
-    void update() override;
-
+    void update() override {
+        
+    }
+    
     void setTrackingYaw(bool enable) override {
         bTrackingYaw = enable;
     }
