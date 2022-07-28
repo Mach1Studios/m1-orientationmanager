@@ -29,6 +29,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Rr]elease-builds/
+[Cc][Mm]ake-[Bb]uild/
 
 # Xcode
 #
