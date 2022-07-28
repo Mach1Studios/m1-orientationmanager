@@ -86,16 +86,21 @@ void M1OrientationManagerServer::oscBundleReceived(const juce::OSCBundle& bundle
     oscMessageReceived(elem.getMessage());
 }
 
-juce::StringArray M1OrientationManagerServer::getPortInfo() {
-    port_number = comEnumerate();
-    for(port_index=0; port_index < port_number; port_index++)
-        portlist.set(comGetInternalName(port_index),comGetPortName(port_index));
-    return portlist.getAllValues();
+std::vector<SerialDeviceInfo> M1OrientationManagerServer::getSerialDevices() {
+    number_of_serial_devices = comEnumerate();
+    for(int i=0; i < number_of_serial_devices; i++){
+        SerialDeviceInfo newDevice;
+        newDevice.deviceID = i;
+        newDevice.deviceName = comGetPortName(i);
+        newDevice.devicePath = comGetInternalName(i);
+        serialList.at(i) = newDevice;
+    }
+    return serialList;
 }
 
-bool M1OrientationManagerServer::connectSerial() {
-    port_state = comOpen(serialPortNumber, serialBaudRate);
-    if (port_state == 1) {
+bool M1OrientationManagerServer::connectSerial(SerialDeviceInfo device) {
+    device.deviceState = comOpen(device.deviceID, serialBaudRate);
+    if (device.deviceState == 1) {
         serialDeviceConnected = true;
         startTimer(10);
         return true;

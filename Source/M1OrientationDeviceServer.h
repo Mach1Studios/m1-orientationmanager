@@ -17,8 +17,9 @@
 #define OUTPUT_OSC_MONITOR_TRANSPORT_PORT 9003
 #define OUTPUT_OSC_M1HPCTRL_PORT 9004
 
-struct GlobalOrientation
-{
+/// Class for orientation and orientation utilities
+/// Designed to aggregate all orientation handling to a single collection point
+struct GlobalOrientation {
     struct YPR {
         float yaw, pitch, roll = 0.0f;
         float yaw_min, pitch_min, roll_min = -180.0f;
@@ -87,7 +88,7 @@ struct GlobalOrientation
     };
     
     Quaternion getQuaternion() {
-        // best to avoid this and stick to updating quat and calculating best YPR
+        /// It is better to avoid this function and stick to updating quat and calculating best YPR
         quat.qx = sin(ypr.roll/2) * cos(ypr.pitch/2) * cos(ypr.yaw/2) - cos(ypr.roll/2) * sin(ypr.pitch/2) * sin(ypr.yaw/2);
         quat.qy = cos(ypr.roll/2) * sin(ypr.pitch/2) * cos(ypr.yaw/2) + sin(ypr.roll/2) * cos(ypr.pitch/2) * sin(ypr.yaw/2);
         quat.qz = cos(ypr.roll/2) * cos(ypr.pitch/2) * sin(ypr.yaw/2) - sin(ypr.roll/2) * sin(ypr.pitch/2) * cos(ypr.yaw/2);
@@ -97,7 +98,41 @@ struct GlobalOrientation
     
     void resetOrientation() {
         // TODO: setup reset logic here
+        // Ideally use last quat values
     };
+};
+
+/// Class for collecting devices
+class SerialDeviceInfo {
+public:
+    std::string devicePath;
+    std::string deviceName;
+    // index for device, connection state for device
+    int deviceID, deviceState;
+    
+    SerialDeviceInfo(std::string devicePathIn, std::string deviceNameIn, int deviceIDIn, int deviceStateIn){
+        devicePath = devicePathIn;
+        deviceName = deviceNameIn;
+        deviceID = deviceIDIn;
+        deviceState = deviceStateIn;
+    }
+    SerialDeviceInfo(){
+        deviceName = "device undefined";
+        deviceID = -1;
+        deviceState = -1;
+    }
+    std::string getDevicePath(){
+        return devicePath;
+    }
+    std::string getDeviceName(){
+        return deviceName;
+    }
+    int getDeviceID(){
+        return deviceID;
+    }
+    int getDeviceState(){
+        return deviceState;
+    }
 };
 
 class M1OrientationManagerServer :  public M1OrientationManagerOSCServerBase,
@@ -116,20 +151,20 @@ public:
     void oscBundleReceived(const juce::OSCBundle& bundle) override;
     
     // Setup for input serial listener
-    juce::StringArray getPortInfo();
-    bool connectSerial();
+    std::vector<SerialDeviceInfo> getSerialDevices();
+    bool connectSerial(SerialDeviceInfo device);
     void disconnectSerial();
     bool isSerialConnected();
     void timerCallback() override;
 
-    std::string currentDevice;
-    std::vector<std::string> devices;
+    SerialDeviceInfo currentDevice;
+    std::vector<SerialDeviceInfo> devices;
 
     int serialBaudRate = 115200;
     int serialPortNumber;
     bool serialDeviceConnected = false;
-    juce::StringPairArray portlist;
-    int port_number, port_index, port_state;
+    std::vector<SerialDeviceInfo> serialList;
+    int number_of_serial_devices;
 
     // Setup global orientation
     GlobalOrientation currentOrientation;
@@ -139,7 +174,6 @@ public:
     bool bTrackingRoll = true;
     
     void update() override {
-        
     }
     
     void setTrackingYaw(bool enable) override {
@@ -168,19 +202,48 @@ public:
 
     void refreshDevices() override {
         // add/remove to list of discovered devices of all connection types
-        devices = { "device1", "device2" };
+        
+        // Get Serial Device List
+        devices.insert(std::end(devices), std::begin(getSerialDevices()), std::end(getSerialDevices()));
+        
+        // Get BLE Device List
+        
+        // TODO: Get Camera Device List
     }
-
+    
     std::vector<std::string> getDevices() override {
-        return devices;
+        refreshDevices();
+        std::vector<std::string> templist;
+        
+        for (auto &device_index : devices){
+            templist.push_back(device_index.deviceName);
+        }
+        return templist;
+    }
+    
+    // TODO: block this if no device connected
+    std::string getCurrentDevice() override {
+        //TODO: fix this so it uses unique IDs?
+        for (auto &device_index : devices){
+            if (device_index.deviceState == 1){
+                currentDevice = device_index;
+                return currentDevice.deviceName;
+            }
+        }
+        return "";
     }
     
     void selectDevice(std::string device) override {
-        currentDevice = device;
+        //TODO: fix this so it uses unique IDs?
+        for (auto &device_index : devices){
+            if (device_index.deviceName == device){
+                currentDevice = device_index;
+            }
+        }
     }
-
-    std::string getCurrentDevice() override {
-        return currentDevice;
+    
+    void selectDevice(int device) {
+        currentDevice = devices[device];
     }
 
     void setTracking(bool enable)  override {
