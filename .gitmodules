@@ -1,3 +1,9 @@
+[submodule "Modules/m1_orientation_manager"]
+	path = Modules/m1_orientation_manager
+	url = git@github.com:Mach1Studios/m1_orientation_manager.git
+[submodule "Modules/juce_murka"]
+	path = Modules/juce_murka
+	url = git@github.com:Kiberchaika/juce_murka.git
 [submodule "Source/SimpleBLE"]
 	path = Source/SimpleBLE
 	url = git@github.com:OpenBluetoothToolbox/SimpleBLE.git
