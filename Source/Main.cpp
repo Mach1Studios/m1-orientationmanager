@@ -7,9 +7,9 @@
 */
 
 #include <JuceHeader.h>
-#include "MainComponent.h"
-
 #include <thread>
+
+#include "MainComponent.h"
 
 //==============================================================================
 class M1OrientationDeviceServerApplication  : public juce::JUCEApplication
@@ -26,17 +26,22 @@ public:
     void initialise (const juce::String& commandLine) override
     {
         // This method is where you should put your application's initialisation code..
-        if (commandLine == "--no-gui") {
-            M1OrientationManagerOSCServer m1OrientationManagerOSCServer;
+        if (JUCEApplicationBase::getCommandLineParameterArray().indexOf("--no-gui") >= 0) {
+            M1OrientationHardwareBluetooth m1OrientationHardwareBluetooth;
+            M1OrientationOSCServer m1OrientationOSCServer;
+
 
             std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
-            if (m1OrientationManagerOSCServer.initFromSettings(settingsFilePath)) {
+            if (m1OrientationOSCServer.initFromSettings(settingsFilePath)) {
+                m1OrientationHardwareBluetooth.setup();
+                m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &m1OrientationHardwareBluetooth);
                 while (true) {
-                    m1OrientationManagerOSCServer.update();
+                    m1OrientationHardwareBluetooth.update();
                     juce::Thread::sleep(30);
                 }
             }
-        } else {
+        }
+        else {
             mainWindow.reset(new MainWindow(getApplicationName()));
         }
     }
