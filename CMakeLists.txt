@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(M1-OrientationManager)
+project(M1-OrientationManager VERSION 0.0.1)
 
 #First, we'll add the CMake folder, incase we'll need to find_package later:
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -39,7 +39,6 @@ juce_generate_juce_header(${TargetName})
 target_sources(${TargetName} PRIVATE
         Source/Main.cpp
         Source/MainComponent.cpp
-        Source/MainWindow.cpp
         Source/M1OrientationDeviceServer.cpp)
 
 target_compile_definitions(${TargetName} PRIVATE
