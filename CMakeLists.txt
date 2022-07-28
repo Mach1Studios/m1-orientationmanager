@@ -37,9 +37,9 @@ juce_add_gui_app(${TargetName} PRODUCT_NAME "${TargetName}")
 juce_generate_juce_header(${TargetName})
 
 target_sources(${TargetName} PRIVATE
-        Source/Main.cpp
-        Source/MainComponent.cpp
-        Source/M1OrientationDeviceServer.cpp)
+        ${PROJECT_SOURCE_DIR}/Source/Main.cpp
+        ${PROJECT_SOURCE_DIR}/Source/MainComponent.cpp
+        ${PROJECT_SOURCE_DIR}/Source/M1OrientationDeviceServer.cpp)
 
 target_compile_definitions(${TargetName} PRIVATE
         JUCE_WEB_BROWSER=0
@@ -59,6 +59,8 @@ target_link_libraries(${TargetName} PRIVATE
         juce::juce_gui_extra
         juce::juce_opengl
         juce::juce_osc
+        juce_murka
+        m1_orientation_manager
         shared_processing_code)
 
 option(BUILD_UNIT_TESTS "Build JUCE prototype examples" OFF)
