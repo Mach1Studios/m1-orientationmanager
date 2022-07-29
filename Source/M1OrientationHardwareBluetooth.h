@@ -31,7 +31,7 @@ public:
 
     M1OrientationTrackingResult getOrientation() override {
         M1OrientationTrackingResult result;
-        result.orientation = orientation;
+        result.currentOrientation = orientation;
         result.success = true;
         return result;
     }

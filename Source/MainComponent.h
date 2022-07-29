@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "juce_murka/JuceMurkaBaseComponent.h"
 #include "M1OrientationHardwareBluetooth.h"
+#include "M1OrientationOSCServer.h"
 
 using namespace murka;
 

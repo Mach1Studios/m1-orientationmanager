@@ -1,8 +1,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "M1OrientationTypes.h"
-#include "M1OrientationSettings.h"
+#include "m1_orientation_client/M1OrientationTypes.h"
+#include "m1_orientation_client/M1OrientationSettings.h"
 #include "M1OrientationHardwareAbstract.h"
 
 struct M1OrientationClientConnection {

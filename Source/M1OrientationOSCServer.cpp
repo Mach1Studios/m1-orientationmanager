@@ -174,7 +174,7 @@ void M1OrientationOSCServer::update() {
     if (currentDevice.type != M1OrientationManagerDeviceTypeNone) {
         hardwareImpl[currentDevice.type]->update();
 
-        M1OrientationYPR ypr = hardwareImpl[currentDevice.type]->getOrientation().orientation.getYPR(); // todo
+        M1OrientationYPR ypr = hardwareImpl[currentDevice.type]->getOrientation().currentOrientation.getYPR(); // todo
         if (!getTrackingYawEnabled()) ypr.yaw = 0;
         if (!getTrackingPitchEnabled()) ypr.pitch = 0;
         if (!getTrackingRollEnabled()) ypr.roll = 0;
