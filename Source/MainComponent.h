@@ -1,9 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-
 #include "juce_murka/JuceMurkaBaseComponent.h"
-
 #include "M1OrientationHardwareBluetooth.h"
 
 using namespace murka;

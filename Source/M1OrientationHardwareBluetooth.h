@@ -2,8 +2,7 @@
 
 #include <JuceHeader.h>
 #include <juce_events/juce_events.h>
-
-#include "m1_orientation_manager/M1OrientationHardwareAbstract.h"
+#include "M1OrientationHardwareAbstract.h"
 
 class M1OrientationHardwareBluetooth : public M1OrientationHardwareAbstract {
     
