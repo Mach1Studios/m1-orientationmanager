@@ -36,7 +36,7 @@ class M1OrientationOSCServer :
 
     std::map<M1OrientationDeviceType, M1OrientationHardwareAbstract*> hardwareImpl;
     M1OrientationDevice currentDevice = { "", M1OrientationManagerDeviceTypeNone };
-    M1GlobalOrientation orientation;
+    Orientation orientation;
 
 public:
     
@@ -46,7 +46,7 @@ public:
 
     void update();
 
-    M1GlobalOrientation getOrientation();
+    Orientation getOrientation();
 
     void addHardwareImplementation(M1OrientationDeviceType type, M1OrientationHardwareAbstract* impl);
 

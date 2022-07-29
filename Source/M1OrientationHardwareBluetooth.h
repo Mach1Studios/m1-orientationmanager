@@ -6,7 +6,7 @@
 
 class M1OrientationHardwareBluetooth : public M1OrientationHardwareAbstract {
     
-    M1GlobalOrientation orientation;
+    Orientation orientation;
 
     std::string currentDevice;
     std::vector<std::string> devices;

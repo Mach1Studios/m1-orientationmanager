@@ -45,7 +45,7 @@ void MainComponent::render()
 	offsetX = 10;
 	offsetY = 20;
 
-	M1GlobalOrientation orientation = m1OrientationOSCServer.getOrientation();
+	Orientation orientation = m1OrientationOSCServer.getOrientation();
 
 	m.getCurrentFont()->drawString("orientation: ", offsetX, offsetY);
 	offsetY += 30;

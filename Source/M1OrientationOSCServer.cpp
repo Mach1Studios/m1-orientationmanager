@@ -188,7 +188,7 @@ void M1OrientationOSCServer::update() {
     }
 }
 
-M1GlobalOrientation M1OrientationOSCServer::getOrientation() {
+Orientation M1OrientationOSCServer::getOrientation() {
     return orientation;
 }
 
