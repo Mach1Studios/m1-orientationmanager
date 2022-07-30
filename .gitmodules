@@ -10,3 +10,6 @@
 [submodule "Modules/juce_murka"]
 	path = Modules/juce_murka
 	url = git@github.com:Kiberchaika/juce_murka.git
+[submodule "Source/Devices/ht-api-juce"]
+	path = Source/Devices/ht-api-juce
+	url = https://github.com/Supperware/ht-api-juce

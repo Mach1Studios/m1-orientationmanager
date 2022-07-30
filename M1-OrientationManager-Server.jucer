@@ -26,6 +26,9 @@
         <FILE id="gddPgR" name="rs232-win.c" compile="1" resource="0" file="Source/rs232/rs232-win.c"/>
         <FILE id="hnRYcS" name="rs232.h" compile="0" resource="0" file="Source/rs232/rs232.h"/>
       </GROUP>
+      <GROUP id="{23B1F584-398A-80C9-C7C9-F9B427DA1E76}" name="Devices">
+        <FILE id="UNEFdj" name="HeadMatrix.h" compile="0" resource="0" file="Source/Devices/ht-api-juce/supperware/HeadMatrix.h"/>
+      </GROUP>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
