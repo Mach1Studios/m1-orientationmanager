@@ -53,9 +53,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         command_setTrackingRollEnabled(enable);
     }
     else {
-        if (callback) {
-            callback(message);
-        }
+        std::cout << "not implemented!" << std::endl;
     }
 }
 
@@ -149,10 +147,6 @@ bool M1OrientationOSCServer::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
-void M1OrientationOSCServer::setCallback(std::function<void(const juce::OSCMessage& message)> callback) {
-    this->callback = callback;
-}
-
 bool M1OrientationOSCServer::init(int serverPort) {
     // check the port
     juce::DatagramSocket socket(false);
@@ -213,17 +207,17 @@ void M1OrientationOSCServer::command_refreshDevices() {
 void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDevice device) {
     currentDevice = device;
     
-    hardwareImpl[device.type]->startTrackingUsingDevice(device.name);
+    hardwareImpl[device.type]->startTrackingUsingDevice(device.name, [&](bool success, std::string errorMessage) {
+        if (success) {
+            send_getCurrentDevice(clients);
+        }
 
-    // todo
-    /*
-    impl->startTrackingUsingDevice(device, [](Implementation* impl, bool success, std::string errorMessage) {
-        // if success, register in log or w.e.
-        // if not success, let the user know via a status message (register error)
-        
-        });
-    */
-    send_getCurrentDevice(clients);
+        juce::OSCMessage msg("/getStatus");
+        msg.addInt32(success);
+        msg.addString(errorMessage);
+        send(clients, msg);
+    });
+   
 }
 
 

@@ -17,20 +17,33 @@ void MainComponent::initialise()
 {
 	murka::JuceMurkaBaseComponent::initialise();
 
+	std::string resourcesPath;
+	if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+		resourcesPath = juce::File::getSpecialLocation(juce::File::SpecialLocationType::userApplicationDataDirectory).getChildFile("Application Support/Mach1 Spatial System/resources").getFullPathName().toStdString();
+	}
+	else {
+		resourcesPath = juce::File::getSpecialLocation(juce::File::SpecialLocationType::userApplicationDataDirectory).getChildFile("Mach1 Spatial System/resources").getFullPathName().toStdString();
+	}
+	printf("Resources Loaded From: %s \n", resourcesPath.c_str());
+	m.setResourcesPath(resourcesPath);
+
 	//std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
 	//m1OrientationManagerOSCClient.initFromSettings(settingsFilePath);
 	m1OrientationOSCClient.init(6345);
+
+	m1OrientationOSCClient.setStatusCallback(std::bind(&MainComponent::setStatus, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 //==============================================================================
 void MainComponent::render()
 {
+	m.setFont("Proxima Nova Reg.ttf", 10);
+
 	m.startFrame();
 	m.setScreenScale((float)openGLContext.getRenderingScale());
 
 	m.clear(20);
 	m.setColor(255);
-	m.setFontFromRawData("Proxima Nova Reg.ttf", BinaryData::ProximaNovaReg_ttf, BinaryData::ProximaNovaReg_ttfSize, 10);
 
 	m.begin();
 
@@ -45,7 +58,7 @@ void MainComponent::render()
 
 	offsetY += 20;
 
-	M1GlobalOrientation orientation = m1OrientationOSCClient.getOrientation();
+	Orientation orientation = m1OrientationOSCClient.getOrientation();
 
 	m.getCurrentFont()->drawString("orientation: ", offsetX, offsetY);
 	offsetY += 30;
@@ -132,8 +145,16 @@ void MainComponent::render()
 	}
 	offsetY += 50;
 
+	m.drawString("status: " + this->status, offsetX, offsetY);
+	offsetY += 50;
 
 	m.end();
+}
+
+void MainComponent::setStatus(bool success, std::string message)
+{
+	this->status = message;
+	std::cout << success << " , " << message << std::endl;
 }
 
 void MainComponent::paint(juce::Graphics& g)

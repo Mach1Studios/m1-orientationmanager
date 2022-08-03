@@ -47,8 +47,9 @@ public:
         return devices;
     }
     
-    void startTrackingUsingDevice(std::string device) override {
+    void startTrackingUsingDevice(std::string device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
         currentDevice = device;
+        statusCallback(true, "ok");
     }
 
     std::string getCurrentDevice() override {

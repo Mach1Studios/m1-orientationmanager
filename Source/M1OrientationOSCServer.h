@@ -22,8 +22,6 @@ class M1OrientationOSCServer :
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
 
-    std::function<void(const juce::OSCMessage& message)> callback = nullptr;
-
     void oscMessageReceived(const juce::OSCMessage& message) override;
     void send(const std::vector<M1OrientationClientConnection>& clients, std::string str);
     void send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg);
@@ -65,6 +63,5 @@ public:
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
 
-    void setCallback(std::function<void(const juce::OSCMessage& message)> callback);
     void close();
 };

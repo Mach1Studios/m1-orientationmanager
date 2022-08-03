@@ -16,5 +16,5 @@ public:
     virtual std::vector<std::string> getDevices() = 0;
 
     virtual std::string getCurrentDevice() = 0;
-    virtual void startTrackingUsingDevice(std::string device) = 0;
+    virtual void startTrackingUsingDevice(std::string device, std::function<void(bool success, std::string errorMessage)> callback) = 0;
 };

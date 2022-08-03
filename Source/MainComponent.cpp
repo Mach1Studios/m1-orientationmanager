@@ -17,6 +17,17 @@ void MainComponent::initialise()
 {
     murka::JuceMurkaBaseComponent::initialise();
 
+	std::string resourcesPath;
+	if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+		resourcesPath = juce::File::getSpecialLocation(juce::File::SpecialLocationType::userApplicationDataDirectory).getChildFile("Application Support/Mach1 Spatial System/resources").getFullPathName().toStdString();
+	}
+	else {
+		resourcesPath = juce::File::getSpecialLocation(juce::File::SpecialLocationType::userApplicationDataDirectory).getChildFile("Mach1 Spatial System/resources").getFullPathName().toStdString();
+	}
+	printf("Resources Loaded From: %s \n", resourcesPath.c_str());
+	m.setResourcesPath(resourcesPath);
+
+
 	//std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
 	m1OrientationOSCServer.init(6345);
@@ -28,6 +39,8 @@ void MainComponent::initialise()
 //==============================================================================
 void MainComponent::render()
 {
+	m.setFont("Proxima Nova Reg.ttf", 10);
+
 	m.startFrame();
 	m.setScreenScale((float)openGLContext.getRenderingScale());
 

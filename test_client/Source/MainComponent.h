@@ -25,10 +25,13 @@ public:
     void initialise() override;
     void render() override;
 
+    std::string status;
+
 private:
     //==============================================================================
     // Your private member variables go here...
 
+    void setStatus(bool success, std::string message);
     M1OrientationOSCClient m1OrientationOSCClient;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
