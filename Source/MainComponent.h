@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "juce_murka/JuceMurkaBaseComponent.h"
 #include "M1OrientationHardwareBluetooth.h"
+#include "M1OrientationHardwareSerial.h"
 #include "M1OrientationOSCServer.h"
 
 using namespace murka;
@@ -31,6 +32,7 @@ private:
     // Your private member variables go here...
 
     M1OrientationHardwareBluetooth m1OrientationHardwareBluetooth;
+    M1OrientationHardwareSerial m1OrientationHardwareSerial;
     M1OrientationOSCServer m1OrientationOSCServer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

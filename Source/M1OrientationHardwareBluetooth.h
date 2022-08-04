@@ -1,7 +1,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include <juce_events/juce_events.h>
 #include "M1OrientationHardwareAbstract.h"
 
 class M1OrientationHardwareBluetooth : public M1OrientationHardwareAbstract {
@@ -38,8 +37,7 @@ public:
 
     void refreshDevices() override {
         devices = { 
-		    "device1", 
-		    "device2",
+		    "ble 1", 
         };
     }
 
