@@ -33,7 +33,7 @@ class M1OrientationOSCServer :
     void send_getTrackingRollEnabled(const std::vector<M1OrientationClientConnection>& clients);
 
     std::map<M1OrientationDeviceType, HardwareAbstract*> hardwareImpl;
-    M1OrientationDevice currentDevice = { "", M1OrientationManagerDeviceTypeNone };
+    M1OrientationDevice currentDevice = { "", M1OrientationDeviceType::M1OrientationManagerDeviceTypeNone };
     Orientation orientation;
 
 public:

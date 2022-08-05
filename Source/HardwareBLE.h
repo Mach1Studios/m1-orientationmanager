@@ -31,7 +31,7 @@ class HardwareBLE : public HardwareAbstract {
 public:
     Orientation orientation;
     std::string currentDevice;
-    std::vector<HardwareDeviceInfo> bleDeviceList;
+    std::vector<M1OrientationDevice> bleDeviceList;
     std::vector<SimpleBLE::Peripheral> discovered_ble_devices;
     SimpleBLE::Adapter ble;
     std::vector<SimpleBLE::Adapter> ble_list;
@@ -42,11 +42,7 @@ public:
     }
 
     void update() override {
-        // generate random angles
-//        float yaw = 180 * sin(juce::Time::currentTimeMillis() / 100000.0);
-//        float pitch = 180 * cos(juce::Time::currentTimeMillis() / 100000.0 - 0.3);
-//        float roll = 180 * sin(juce::Time::currentTimeMillis() / 100000.0 + 0.1);
-//        orientation.setYPR({ yaw, pitch, roll });
+
     }
 
     void close() override {
@@ -93,13 +89,12 @@ public:
             
             // SHOW METAWEAR BLE ONLY
             if (discovered_ble_devices[i].identifier().find("MetaWear") != std::string::npos || discovered_ble_devices[i].identifier().find("Mach1-M") != std::string::npos) {
-                HardwareDeviceInfo newDevice;
+                M1OrientationDevice newDevice;
                 newDevice.type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE;
                 newDevice.name = discovered_ble_devices[i].identifier();
                 newDevice.path = discovered_ble_devices[i].address();
                 newDevice.rssi = discovered_ble_devices[i].rssi();
                 newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
-                newDevice.index = (int)bleDeviceList.size();
                 
                 M1OrientationDevice uiDeviceListing;
                 uiDeviceListing.name = discovered_ble_devices[i].identifier();
@@ -119,7 +114,7 @@ public:
     }
     
     void startTrackingUsingDevice(std::string device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
-        auto matchedBLEDevice = std::find_if(bleDeviceList.begin(), bleDeviceList.end(), find_id(device));
+        auto matchedBLEDevice = std::find_if(bleDeviceList.begin(), bleDeviceList.end(), M1OrientationDevice::find_id(device));
         currentDevice = matchedBLEDevice->name;
         statusCallback(true, "ok");
     }

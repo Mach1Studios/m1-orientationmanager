@@ -1,7 +1,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "HardwareDeviceInfo.h"
 #include "m1_orientation_client/M1OrientationTypes.h"
 #include "m1_orientation_client/M1OrientationSettings.h"
 
