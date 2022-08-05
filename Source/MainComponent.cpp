@@ -1,3 +1,8 @@
+//
+//  M1-OrientationManager
+//  Copyright © 2022 Mach1. All rights reserved.
+//
+
 #include "MainComponent.h"
 
 //==============================================================================
@@ -32,6 +37,7 @@ void MainComponent::initialise()
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
 	m1OrientationOSCServer.init(6345);
 
+    hardwareBLE.displayOnlyKnownIMUs = true; // For debug testing you can set this to false to list all connectable BLE devices
     hardwareBLE.setup();
 	hardwareSerial.setup();
 

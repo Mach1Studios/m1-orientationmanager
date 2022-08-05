@@ -1,5 +1,4 @@
 //
-//  MetaMotion.h
 //  M1-OrientationManager
 //  Copyright © 2022 Mach1. All rights reserved.
 //

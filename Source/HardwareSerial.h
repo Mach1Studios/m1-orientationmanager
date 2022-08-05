@@ -1,8 +1,20 @@
+//
+//  M1-OrientationManager
+//  Copyright © 2022 Mach1. All rights reserved.
+//
+
 #pragma once
 
 #include <JuceHeader.h>
 #include "HardwareAbstract.h"
 #include "rs232/rs232.h"
+
+// include device specific
+//#include "Devices/supperware/HeadMatrix.h"
+//#include "Devices/supperware/Tracker.h"
+//#include "Devices/supperware/midi/midi.h"
+//#include "Devices/supperware/configpanel/configPanel.h"
+//#include "Devices/supperware/headpanel/headPanel.h"
 
 class HardwareSerial : public HardwareAbstract {
 public:
@@ -43,10 +55,11 @@ public:
         }
     }
 
-    bool connectSerial(int serialIndex) {
-        int port_state = comOpen(serialIndex, baudRate);
+    bool connect(int deviceIndex) {
+        int port_state = comOpen(deviceIndex, baudRate);
         if (port_state == 1) {
-            connectedSerialPortIndex = serialIndex;
+            // Set global ref for device's index (used for disconnect)
+            connectedSerialPortIndex = deviceIndex;
             isConnected = true;
             return true;
         } else {
@@ -69,7 +82,9 @@ public:
     void refreshDevices() override {
         int port_number = comEnumerate();
         for(int port_index=0; port_index < port_number; port_index++) {
+            std::cout << "[Serial] Found device: " << comGetPortName(port_index) << std::endl;
             portlist.set(comGetInternalName(port_index),comGetPortName(port_index));
+            //TODO: create an easy to maintain string search list instead of listing them all here
             // push back name, path, index, type
         }
     }

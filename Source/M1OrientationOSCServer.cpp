@@ -1,3 +1,8 @@
+//
+//  M1-OrientationManager
+//  Copyright © 2022 Mach1. All rights reserved.
+//
+
 #include "M1OrientationOSCServer.h"
 
 void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message) {

@@ -1,3 +1,8 @@
+//
+//  M1-OrientationManager
+//  Copyright © 2022 Mach1. All rights reserved.
+//
+
 #pragma once
 
 #include <JuceHeader.h>
@@ -36,6 +41,7 @@ public:
     SimpleBLE::Adapter ble;
     std::vector<SimpleBLE::Adapter> ble_list;
     bool isConnected = false;
+    bool displayOnlyKnownIMUs = true;
     
     void setup() override {
         // Setup callback functions
@@ -68,17 +74,17 @@ public:
         }
         
         if (ble_list.size() == 0) {
-            std::cout << "No adapter was found." << std::endl;
+            std::cout << "[BLE] No adapter was found." << std::endl;
             return;
         }
         
         try {
             SimpleBLE::Adapter adapter = ble_list[0];
 
-            adapter.set_callback_on_scan_start([]() { std::cout << "Scan started." << std::endl; });
-            adapter.set_callback_on_scan_stop([]() { std::cout << "Scan stopped." << std::endl; });
+            adapter.set_callback_on_scan_start([]() { std::cout << "[BLE] Scan started." << std::endl; });
+            adapter.set_callback_on_scan_stop([]() { std::cout << "[BLE] Scan stopped." << std::endl; });
             adapter.set_callback_on_scan_found([this](SimpleBLE::Peripheral peripheral) {
-                std::cout << "Found device: " << peripheral.identifier() << " [" << peripheral.address() << "] " << peripheral.rssi() << " dBm" << std::endl;
+                std::cout << "[BLE] Found device: " << peripheral.identifier() << " [" << peripheral.address() << "] " << peripheral.rssi() << " dBm" << std::endl;
                 discovered_ble_devices.push_back(peripheral);
             });
             adapter.scan_for(SCAN_TIMEOUT_MS);
@@ -88,36 +94,37 @@ public:
         
         // TODO: create a switch UI for filtering only known IMU devices vs showing all BLE
         for (int i = 0; i < discovered_ble_devices.size(); ++i){
-            // SHOW ALL BLE
-            if (discovered_ble_devices[i].is_connectable()) {
-                M1OrientationDevice newDevice;
-                newDevice.type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE;
-                newDevice.name = discovered_ble_devices[i].identifier();
-                newDevice.path = discovered_ble_devices[i].address();
-                newDevice.rssi = discovered_ble_devices[i].rssi();
-                newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
-                bleDeviceList.push_back(newDevice);
-            }
-            // SHOW BLE WITH "IMU" IN NAME
-            else if (discovered_ble_devices[i].identifier().find("IMU") != std::string::npos) {
-                M1OrientationDevice newDevice;
-                newDevice.type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE;
-                newDevice.name = discovered_ble_devices[i].identifier();
-                newDevice.path = discovered_ble_devices[i].address();
-                newDevice.rssi = discovered_ble_devices[i].rssi();
-                newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
-                bleDeviceList.push_back(newDevice);
-            }
-                
-            // SHOW METAWEAR BLE ONLY
-             else if (discovered_ble_devices[i].identifier().find("MetaWear") != std::string::npos || discovered_ble_devices[i].identifier().find("Mach1-M") != std::string::npos) {
-                M1OrientationDevice newDevice;
-                newDevice.type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE;
-                newDevice.name = discovered_ble_devices[i].identifier();
-                newDevice.path = discovered_ble_devices[i].address();
-                newDevice.rssi = discovered_ble_devices[i].rssi();
-                newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
-                bleDeviceList.push_back(newDevice);
+            if (!displayOnlyKnownIMUs){
+                // SHOW ALL CONNECTABLE BLE
+                if (discovered_ble_devices[i].is_connectable()) {
+                    M1OrientationDevice newDevice;
+                    newDevice.type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE;
+                    newDevice.name = discovered_ble_devices[i].identifier();
+                    newDevice.path = discovered_ble_devices[i].address();
+                    newDevice.rssi = discovered_ble_devices[i].rssi();
+                    newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
+                    bleDeviceList.push_back(newDevice);
+                }
+            } else {
+                if (discovered_ble_devices[i].identifier().find("IMU") != std::string::npos) {
+                    // SHOW BLE WITH "IMU" IN NAME
+                    M1OrientationDevice newDevice;
+                    newDevice.type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE;
+                    newDevice.name = discovered_ble_devices[i].identifier();
+                    newDevice.path = discovered_ble_devices[i].address();
+                    newDevice.rssi = discovered_ble_devices[i].rssi();
+                    newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
+                    bleDeviceList.push_back(newDevice);
+                } else if (discovered_ble_devices[i].identifier().find("MetaWear") != std::string::npos || discovered_ble_devices[i].identifier().find("Mach1-M") != std::string::npos) {
+                    // SHOW METAWEAR BLE ONLY
+                    M1OrientationDevice newDevice;
+                    newDevice.type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE;
+                    newDevice.name = discovered_ble_devices[i].identifier();
+                    newDevice.path = discovered_ble_devices[i].address();
+                    newDevice.rssi = discovered_ble_devices[i].rssi();
+                    newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
+                    bleDeviceList.push_back(newDevice);
+                }
             }
         }
     }

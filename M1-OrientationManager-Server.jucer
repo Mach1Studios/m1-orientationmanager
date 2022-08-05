@@ -15,8 +15,6 @@
             file="Source/M1OrientationOSCServer.h"/>
       <FILE id="cVA4Oq" name="M1OrientationOSCServer.cpp" compile="1" resource="0"
             file="Source/M1OrientationOSCServer.cpp"/>
-      <FILE id="xaEJBC" name="HardwareDeviceInfo.h" compile="0" resource="0"
-            file="Source/HardwareDeviceInfo.h"/>
       <FILE id="BHP8bV" name="HardwareAbstract.h" compile="0" resource="0"
             file="Source/HardwareAbstract.h"/>
       <FILE id="Ep6Kdf" name="HardwareSerial.h" compile="0" resource="0"
@@ -29,7 +27,49 @@
       </GROUP>
       <GROUP id="{23B1F584-398A-80C9-C7C9-F9B427DA1E76}" name="Devices">
         <FILE id="HYh37g" name="MetaWear.h" compile="0" resource="0" file="Source/Devices/MetaWear.h"/>
-        <FILE id="UNEFdj" name="HeadMatrix.h" compile="0" resource="0" file="Source/Devices/ht-api-juce/supperware/HeadMatrix.h"/>
+        <GROUP id="{8C5F57FE-36A1-82B3-2552-3143A4F0AC7F}" name="supperware">
+          <GROUP id="{5671CE3D-60B5-0ACE-6138-363C8DD9221E}" name="configpanel">
+            <FILE id="vtwHaC" name="configPanel-BasePanel.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/configpanel/configPanel-BasePanel.h"/>
+            <FILE id="C8r9Qf" name="configPanel-LookAndFeelRadio.h" compile="0"
+                  resource="0" file="Source/Devices/ht-api-juce/supperware/configpanel/configPanel-LookAndFeelRadio.h"/>
+            <FILE id="PVyPZk" name="configPanel-SettingsPanel.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/configpanel/configPanel-SettingsPanel.h"/>
+            <FILE id="qEMpYU" name="configPanel.h" compile="0" resource="0" file="Source/Devices/ht-api-juce/supperware/configpanel/configPanel.h"/>
+          </GROUP>
+          <GROUP id="{14BF1E88-C038-E863-0B23-4ADEB8F40CE8}" name="headpanel">
+            <GROUP id="{9B92258E-836A-9E90-AFA5-16BC80C584FF}" name="generators">
+              <FILE id="HFP8Fp" name="generateHeadPoints.py" compile="0" resource="1"
+                    file="Source/Devices/ht-api-juce/supperware/headpanel/generators/generateHeadPoints.py"/>
+              <FILE id="xhOJLv" name="mini_tile.png" compile="0" resource="1" file="Source/Devices/ht-api-juce/supperware/headpanel/generators/mini_tile.png"/>
+            </GROUP>
+            <FILE id="JvZ4hZ" name="headpanel-BinaryData.cpp" compile="1" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/headpanel/headpanel-BinaryData.cpp"/>
+            <FILE id="DSStAm" name="headpanel-BinaryData.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/headpanel/headpanel-BinaryData.h"/>
+            <FILE id="YnoKFN" name="headpanel-Component.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/headpanel/headpanel-Component.h"/>
+            <FILE id="n0T9r0" name="headpanel-HeadButton.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/headpanel/headpanel-HeadButton.h"/>
+            <FILE id="vam8cB" name="headpanel-Plotter.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/headpanel/headpanel-Plotter.h"/>
+            <FILE id="S8XjHg" name="headpanel-PointList.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/headpanel/headpanel-PointList.h"/>
+            <FILE id="Cfcd4b" name="headpanel-Points.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/headpanel/headpanel-Points.h"/>
+            <FILE id="UJGbLR" name="headPanel.h" compile="0" resource="0" file="Source/Devices/ht-api-juce/supperware/headpanel/headPanel.h"/>
+          </GROUP>
+          <GROUP id="{B50BDF2A-4E84-9A8D-3F39-BEDEAA028570}" name="midi">
+            <FILE id="JjNOKk" name="midi-MidiDuplex.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/midi/midi-MidiDuplex.h"/>
+            <FILE id="rm0ywd" name="midi-TrackerDriver.h" compile="0" resource="0"
+                  file="Source/Devices/ht-api-juce/supperware/midi/midi-TrackerDriver.h"/>
+            <FILE id="MJeOUC" name="midi.h" compile="0" resource="0" file="Source/Devices/ht-api-juce/supperware/midi/midi.h"/>
+          </GROUP>
+          <FILE id="q2XGch" name="HeadMatrix.h" compile="0" resource="0" file="Source/Devices/ht-api-juce/supperware/HeadMatrix.h"/>
+          <FILE id="tiJ8uE" name="LICENSE" compile="0" resource="1" file="Source/Devices/ht-api-juce/supperware/LICENSE"/>
+          <FILE id="bR9rtf" name="Tracker.h" compile="0" resource="0" file="Source/Devices/ht-api-juce/supperware/Tracker.h"/>
+        </GROUP>
       </GROUP>
     </GROUP>
   </MAINGROUP>
