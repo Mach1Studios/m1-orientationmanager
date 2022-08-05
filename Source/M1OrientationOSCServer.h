@@ -3,7 +3,7 @@
 #include <JuceHeader.h>
 #include "m1_orientation_client/M1OrientationTypes.h"
 #include "m1_orientation_client/M1OrientationSettings.h"
-#include "M1OrientationHardwareAbstract.h"
+#include "HardwareAbstract.h"
 
 struct M1OrientationClientConnection {
     int port;
@@ -32,7 +32,7 @@ class M1OrientationOSCServer :
     void send_getTrackingPitchEnabled(const std::vector<M1OrientationClientConnection>& clients);
     void send_getTrackingRollEnabled(const std::vector<M1OrientationClientConnection>& clients);
 
-    std::map<M1OrientationDeviceType, M1OrientationHardwareAbstract*> hardwareImpl;
+    std::map<M1OrientationDeviceType, HardwareAbstract*> hardwareImpl;
     M1OrientationDevice currentDevice = { "", M1OrientationManagerDeviceTypeNone };
     Orientation orientation;
 
@@ -46,7 +46,7 @@ public:
 
     Orientation getOrientation();
 
-    void addHardwareImplementation(M1OrientationDeviceType type, M1OrientationHardwareAbstract* impl);
+    void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
 
     std::vector<M1OrientationClientConnection> getClients();
 

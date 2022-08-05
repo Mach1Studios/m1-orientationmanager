@@ -1,52 +1,15 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "M1OrientationHardwareAbstract.h"
+#include "HardwareAbstract.h"
 
-/// Class for collecting devices
-class SerialDeviceInfo {
+class HardwareSerial : public HardwareAbstract {
 public:
-    std::string devicePath;
-    std::string deviceName;
-    // index for device, connection state for device
-    int deviceID, deviceState;
-    
-    SerialDeviceInfo(std::string devicePathIn, std::string deviceNameIn, int deviceIDIn, int deviceStateIn){
-        devicePath = devicePathIn;
-        deviceName = deviceNameIn;
-        deviceID = deviceIDIn;
-        deviceState = deviceStateIn;
-    }
-    SerialDeviceInfo(){
-        deviceName = "device undefined";
-        deviceID = -1;
-        deviceState = -1;
-    }
-    std::string getDevicePath(){
-        return devicePath;
-    }
-    std::string getDeviceName(){
-        return deviceName;
-    }
-    int getDeviceID(){
-        return deviceID;
-    }
-    int getDeviceState(){
-        return deviceState;
-    }
-};
-
-
-class M1OrientationHardwareSerial : public M1OrientationHardwareAbstract {
-
     Orientation orientation;
-
     std::string currentDevice;
     std::vector<std::string> devices;
 
-public:
     void setup() override {
-
     }
 
     void update() override {

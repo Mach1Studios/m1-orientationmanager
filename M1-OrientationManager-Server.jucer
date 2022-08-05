@@ -4,7 +4,7 @@
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="0"
               jucerFormatVersion="1" companyName="Mach1" version="0.0.1" companyEmail="whatsup@mach1.tech"
               companyWebsite="https://www.mach1.tech" companyCopyright="Mach1, Corp."
-              bundleIdentifier="com.mach1.orientationmanager">
+              bundleIdentifier="com.mach1.orientationmanager" cppLanguageStandard="17">
   <MAINGROUP id="Z4KsZJ" name="M1-OrientationManager">
     <GROUP id="{10C53C35-6078-FD9E-4A16-6DCD8AE44EEF}" name="Source">
       <FILE id="S5sGdi" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
@@ -15,18 +15,20 @@
             file="Source/M1OrientationOSCServer.h"/>
       <FILE id="cVA4Oq" name="M1OrientationOSCServer.cpp" compile="1" resource="0"
             file="Source/M1OrientationOSCServer.cpp"/>
-      <FILE id="BHP8bV" name="M1OrientationHardwareAbstract.h" compile="0"
-            resource="0" file="Source/M1OrientationHardwareAbstract.h"/>
-      <FILE id="eziKrU" name="M1OrientationHardwareBluetooth.h" compile="0"
-            resource="0" file="Source/M1OrientationHardwareBluetooth.h"/>
-      <FILE id="Ep6Kdf" name="M1OrientationHardwareSerial.h" compile="0"
-            resource="0" file="Source/M1OrientationHardwareSerial.h"/>
+      <FILE id="xaEJBC" name="HardwareDeviceInfo.h" compile="0" resource="0"
+            file="Source/HardwareDeviceInfo.h"/>
+      <FILE id="BHP8bV" name="HardwareAbstract.h" compile="0" resource="0"
+            file="Source/HardwareAbstract.h"/>
+      <FILE id="Ep6Kdf" name="HardwareSerial.h" compile="0" resource="0"
+            file="Source/HardwareSerial.h"/>
+      <FILE id="gn1DTm" name="HardwareBLE.h" compile="0" resource="0" file="Source/HardwareBLE.h"/>
       <GROUP id="{3408C695-D15B-0835-76B6-90EEC61F719D}" name="rs232">
         <FILE id="oLwVMk" name="rs232-linux.c" compile="1" resource="0" file="Source/rs232/rs232-linux.c"/>
         <FILE id="gddPgR" name="rs232-win.c" compile="1" resource="0" file="Source/rs232/rs232-win.c"/>
         <FILE id="hnRYcS" name="rs232.h" compile="0" resource="0" file="Source/rs232/rs232.h"/>
       </GROUP>
       <GROUP id="{23B1F584-398A-80C9-C7C9-F9B427DA1E76}" name="Devices">
+        <FILE id="HYh37g" name="MetaWear.h" compile="0" resource="0" file="Source/Devices/MetaWear.h"/>
         <FILE id="UNEFdj" name="HeadMatrix.h" compile="0" resource="0" file="Source/Devices/ht-api-juce/supperware/HeadMatrix.h"/>
       </GROUP>
     </GROUP>
@@ -34,12 +36,13 @@
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" prebuildCommand="cmake ${SRCROOT}/../../Source/SimpleBLE -B${SRCROOT}/../../Source/SimpleBLE -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;10.13&quot;&#10;cmake --build ${SRCROOT}/../../Source/SimpleBLE"
-               externalLibraries="simpleble" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
+               externalLibraries="simpleble" iosBluetoothPermissionNeeded="1"
+               cameraPermissionNeeded="1" extraFrameworks="CoreBluetooth" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" headerPath="../../Source/SimpleBLE/include"
-                       libraryPath="../../Source/SimpleBLE/bin" macOSDeploymentTarget="10.13"
-                       osxCompatibility="10.13 SDK"/>
-        <CONFIGURATION isDebug="0" name="Release" headerPath="../../Source/SimpleBLE/include"
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="../../Source/SimpleBLE/include&#10;../../Source/Devices/MetaWear/src"
+                       libraryPath="../../Source/SimpleBLE/bin" osxCompatibility="10.13 SDK"
+                       macOSDeploymentTarget="10.13"/>
+        <CONFIGURATION isDebug="0" name="Release" headerPath="../../Source/SimpleBLE/include&#10;../../Source/Devices/MetaWear/src"
                        libraryPath="../../Source/SimpleBLE/bin" macOSDeploymentTarget="10.13"
                        osxCompatibility="10.13 SDK"/>
       </CONFIGURATIONS>

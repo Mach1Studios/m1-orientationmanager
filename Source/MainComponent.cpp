@@ -32,11 +32,11 @@ void MainComponent::initialise()
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
 	m1OrientationOSCServer.init(6345);
 
-	m1OrientationHardwareBluetooth.setup();
-	m1OrientationHardwareSerial.setup();
+    hardwareBLE.setup();
+	hardwareSerial.setup();
 
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &m1OrientationHardwareBluetooth);
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &m1OrientationHardwareSerial);
+	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
+	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
 }
 
 //==============================================================================

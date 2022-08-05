@@ -26,16 +26,15 @@ public:
     {
         // This method is where you should put your application's initialisation code..
         if (JUCEApplicationBase::getCommandLineParameterArray().indexOf("--no-gui") >= 0) {
-            M1OrientationHardwareBluetooth m1OrientationHardwareBluetooth;
+            HardwareBLE hardwareBLE;
             M1OrientationOSCServer m1OrientationOSCServer;
-
 
             std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
             if (m1OrientationOSCServer.initFromSettings(settingsFilePath)) {
-                m1OrientationHardwareBluetooth.setup();
-                m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &m1OrientationHardwareBluetooth);
+                hardwareBLE.setup();
+                m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
                 while (true) {
-                    m1OrientationHardwareBluetooth.update();
+                    hardwareBLE.update();
                     juce::Thread::sleep(30);
                 }
             }

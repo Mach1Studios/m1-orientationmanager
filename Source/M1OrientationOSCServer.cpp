@@ -186,7 +186,7 @@ Orientation M1OrientationOSCServer::getOrientation() {
     return orientation;
 }
 
-void M1OrientationOSCServer::addHardwareImplementation(M1OrientationDeviceType type, M1OrientationHardwareAbstract* impl) {
+void M1OrientationOSCServer::addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl) {
     hardwareImpl[type] = impl;
 }
 

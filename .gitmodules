@@ -13,3 +13,6 @@
 [submodule "Source/Devices/ht-api-juce"]
 	path = Source/Devices/ht-api-juce
 	url = https://github.com/Supperware/ht-api-juce
+[submodule "Source/Devices/MetaWear"]
+	path = Source/Devices/MetaWear
+	url = git@github.com:mbientlab/MetaWear-SDK-Cpp.git
