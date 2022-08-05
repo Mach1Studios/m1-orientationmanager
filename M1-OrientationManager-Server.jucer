@@ -27,6 +27,10 @@
       </GROUP>
       <GROUP id="{23B1F584-398A-80C9-C7C9-F9B427DA1E76}" name="Devices">
         <FILE id="HYh37g" name="MetaWear.h" compile="0" resource="0" file="Source/Devices/MetaWear.h"/>
+        <FILE id="t3w8Gl" name="SupperwareInterface.h" compile="0" resource="0"
+              file="Source/Devices/SupperwareInterface.h"/>
+        <FILE id="uJyV9V" name="SupperwareInterface.cpp" compile="1" resource="0"
+              file="Source/Devices/SupperwareInterface.cpp"/>
         <GROUP id="{8C5F57FE-36A1-82B3-2552-3143A4F0AC7F}" name="supperware">
           <GROUP id="{5671CE3D-60B5-0ACE-6138-363C8DD9221E}" name="configpanel">
             <FILE id="vtwHaC" name="configPanel-BasePanel.h" compile="0" resource="0"
@@ -77,7 +81,8 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" prebuildCommand="cmake ${SRCROOT}/../../Source/SimpleBLE -B${SRCROOT}/../../Source/SimpleBLE -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;10.13&quot;&#10;cmake --build ${SRCROOT}/../../Source/SimpleBLE"
                externalLibraries="simpleble" iosBluetoothPermissionNeeded="1"
-               cameraPermissionNeeded="1" extraFrameworks="CoreBluetooth" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
+               cameraPermissionNeeded="1" extraFrameworks="CoreBluetooth" extraCompilerFlags="-I ../../Source/Devices/ht-api-juce/supperware&#10;-I ../../Source/Devices/ht-api-juce/supperware/configpanel&#10;-I ../../Source/Devices/ht-api-juce/supperware/headpanel&#10;-I ../../Source/Devices/ht-api-juce/supperware/midi"
+               extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="../../Source/SimpleBLE/include&#10;../../Source/Devices/MetaWear/src"
                        libraryPath="../../Source/SimpleBLE/bin" osxCompatibility="10.13 SDK"
@@ -97,9 +102,12 @@
         <MODULEPATH id="juce_core" path="../../juce"/>
         <MODULEPATH id="juce_murka" path="Modules"/>
         <MODULEPATH id="m1_orientation_client" path="Modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2019 targetFolder="Builds/VisualStudio2019" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
+    <VS2019 targetFolder="Builds/VisualStudio2019" extraCompilerFlags="-I ..\..\Source\Devices\ht-api-juce\supperware&#10;-I ..\..\Source\Devices\ht-api-juce\supperware\configpanel&#10;-I ..\..\Source\Devices\ht-api-juce\supperware\headpanel&#10;-I ..\..\Source\Devices\ht-api-juce\supperware\midi"
+            extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="..\..\Source\SimpleBLE\include"/>
         <CONFIGURATION isDebug="0" name="Release" headerPath="..\..\Source\SimpleBLE\include"/>
@@ -115,10 +123,14 @@
         <MODULEPATH id="juce_osc" path="../../M1/JUCE-6.1.6/modules"/>
         <MODULEPATH id="juce_murka" path="Modules"/>
         <MODULEPATH id="m1_orientation_client" path="Modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </VS2019>
   </EXPORTFORMATS>
   <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

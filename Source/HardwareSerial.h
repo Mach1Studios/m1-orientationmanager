@@ -10,11 +10,7 @@
 #include "rs232/rs232.h"
 
 // include device specific
-//#include "Devices/supperware/HeadMatrix.h"
-//#include "Devices/supperware/Tracker.h"
-//#include "Devices/supperware/midi/midi.h"
-//#include "Devices/supperware/configpanel/configPanel.h"
-//#include "Devices/supperware/headpanel/headPanel.h"
+#include "Devices/SupperwareInterface.h"
 
 class HardwareSerial : public HardwareAbstract {
 public:

@@ -12,7 +12,7 @@
 	url = git@github.com:Kiberchaika/juce_murka.git
 [submodule "Source/Devices/ht-api-juce"]
 	path = Source/Devices/ht-api-juce
-	url = https://github.com/Supperware/ht-api-juce
+	url = git@github.com:himwho/ht-api-juce.git
 [submodule "Source/Devices/MetaWear"]
 	path = Source/Devices/MetaWear
 	url = git@github.com:mbientlab/MetaWear-SDK-Cpp.git

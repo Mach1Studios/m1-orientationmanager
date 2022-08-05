@@ -3,8 +3,7 @@
 //  Copyright © 2022 Mach1. All rights reserved.
 //
 
-#ifndef MetaMotion_h
-#define MetaMotion_h
+#pragma once
 
 #include "metawear/core/metawearboard.h"
 #include "metawear/core/module.h"
@@ -59,5 +58,3 @@
 //
 //static void on_disconnect(void *context, const void *caller, MblMwFnVoidVoidPtrInt handler);
 //
-
-#endif /* MetaMotion_h */
