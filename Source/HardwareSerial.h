@@ -74,7 +74,7 @@ public:
         }
     }
 
-    std::vector<std::string> getDevices() override {
+    std::vector<std::string> getDevicesNames() override {
         return devices;
     }
 

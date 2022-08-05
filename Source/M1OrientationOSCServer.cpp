@@ -27,7 +27,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         }
 
         std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, 0 } };
-        send_getDevices(clients);
+        send_getDevicesNames(clients);
         send_getCurrentDevice(clients);
         send_getTrackingYawEnabled(clients);
         send_getTrackingPitchEnabled(clients);
@@ -71,8 +71,8 @@ void M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnectio
     }
 }
 
-void M1OrientationOSCServer::send_getDevices(const std::vector<M1OrientationClientConnection>& clients) {
-    std::vector<M1OrientationDevice> devices = getDevices();
+void M1OrientationOSCServer::send_getDevicesNames(const std::vector<M1OrientationClientConnection>& clients) {
+    std::vector<M1OrientationDevice> devices = getDevicesNames();
 
     juce::OSCMessage msg("/getDevices");
     for (auto& device : devices) {
@@ -119,11 +119,11 @@ std::vector<M1OrientationClientConnection> M1OrientationOSCServer::getClients() 
     return clients;
 }
 
-std::vector<M1OrientationDevice> M1OrientationOSCServer::getDevices() {
+std::vector<M1OrientationDevice> M1OrientationOSCServer::getDevicesNames() {
     std::vector<M1OrientationDevice> devices;
     for (const auto& v : hardwareImpl) {
         M1OrientationDeviceType type = v.first;
-        std::vector<std::string> devs = hardwareImpl[type]->getDevices();
+        std::vector<std::string> devs = hardwareImpl[type]->getDevicesNames();
         for (auto& dev : devs) {
             devices.push_back({ dev , v.first });
         }
@@ -201,7 +201,7 @@ void M1OrientationOSCServer::command_refreshDevices() {
         v.second->refreshDevices();
     }
 
-    send_getDevices(clients);
+    send_getDevicesNames(clients);
 }
 
 void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDevice device) {
