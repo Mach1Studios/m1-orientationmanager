@@ -35,8 +35,8 @@
 class HardwareBLE : public HardwareAbstract {
 public:
     Orientation orientation;
-    std::string currentDevice;
-    std::vector<M1OrientationDevice> bleDeviceList;
+    M1OrientationDevice currentDevice;
+    std::vector<M1OrientationDevice> devices;
     std::vector<SimpleBLE::Peripheral> discovered_ble_devices;
     SimpleBLE::Adapter ble;
     std::vector<SimpleBLE::Adapter> ble_list;
@@ -55,6 +55,20 @@ public:
     }
 
     void close() override {
+        for (int i = 0; i < discovered_ble_devices.size(); ++i) {
+            if (discovered_ble_devices[i].address() == currentDevice.path) {
+                discovered_ble_devices[i].disconnect();
+                
+                auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDevice::find_id(currentDevice.name));
+                if (matchedDevice != devices.end()) {
+                    matchedDevice->state = M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable;
+                    currentDevice = *matchedDevice;
+                }
+
+                isConnected = false;
+            }
+        }
+
         //TODO: improve this, i dont think this works
         ble.scan_stop();
     }
@@ -92,6 +106,8 @@ public:
             throw;
         }
         
+        devices.clear();
+
         // TODO: create a switch UI for filtering only known IMU devices vs showing all BLE
         for (int i = 0; i < discovered_ble_devices.size(); ++i){
             if (!displayOnlyKnownIMUs){
@@ -103,7 +119,7 @@ public:
                     newDevice.path = discovered_ble_devices[i].address();
                     newDevice.rssi = discovered_ble_devices[i].rssi();
                     newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
-                    bleDeviceList.push_back(newDevice);
+                    devices.push_back(newDevice);
                 }
             } else {
                 if (discovered_ble_devices[i].identifier().find("IMU") != std::string::npos) {
@@ -114,7 +130,7 @@ public:
                     newDevice.path = discovered_ble_devices[i].address();
                     newDevice.rssi = discovered_ble_devices[i].rssi();
                     newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
-                    bleDeviceList.push_back(newDevice);
+                    devices.push_back(newDevice);
                 } else if (discovered_ble_devices[i].identifier().find("MetaWear") != std::string::npos || discovered_ble_devices[i].identifier().find("Mach1-M") != std::string::npos) {
                     // SHOW METAWEAR BLE ONLY
                     M1OrientationDevice newDevice;
@@ -123,52 +139,36 @@ public:
                     newDevice.path = discovered_ble_devices[i].address();
                     newDevice.rssi = discovered_ble_devices[i].rssi();
                     newDevice.state = discovered_ble_devices[i].is_connectable() ? M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable :  M1OrientationStatusType::M1OrientationManagerStatusTypeNotConnectable;
-                    bleDeviceList.push_back(newDevice);
+                    devices.push_back(newDevice);
                 }
             }
         }
     }
 
-    std::vector<std::string> getDevicesNames() override {
-        std::vector<std::string> nameList;
-        for (int i = 0; i < bleDeviceList.size(); ++i){
-            nameList.push_back(bleDeviceList[i].name);
-        }
-        return nameList;
+    std::vector<M1OrientationDevice> getDevices() override {
+        return devices;
     }
     
-    void startTrackingUsingDevice(std::string device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
-        auto matchedBLEDevice = std::find_if(bleDeviceList.begin(), bleDeviceList.end(), M1OrientationDevice::find_id(device));
-        currentDevice = matchedBLEDevice->name;
-        statusCallback(true, "ok");
-    }
+    void startTrackingUsingDevice(M1OrientationDevice device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
+        auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDevice::find_id(device.name));
+        if (matchedDevice != devices.end()) {
+            for (int i = 0; i < discovered_ble_devices.size(); ++i) {
+                if (discovered_ble_devices[i].address() == matchedDevice->path) {
+                    discovered_ble_devices[i].connect();
+                    matchedDevice->state = M1OrientationStatusType::M1OrientationManagerStatusTypeConnected;
+                    currentDevice = *matchedDevice;
+                    isConnected = true;
+                    
+                    statusCallback(true, "ok");
+                    return;
+                }
+            }
+        }
 
-    bool connect(int deviceIndex) {
-        for (int i = 0; i < discovered_ble_devices.size(); ++i) {
-            if (discovered_ble_devices[i].address() == bleDeviceList[deviceIndex].path){
-                discovered_ble_devices[i].connect();
-                bleDeviceList[deviceIndex].state = M1OrientationStatusType::M1OrientationManagerStatusTypeConnected;
-                currentDevice = bleDeviceList[deviceIndex].name;
-                isConnected = true;
-                return true;
-            }
-        }
-        isConnected = false;
-        return false;
+        statusCallback(false , "not connected");
     }
-    
-    void disconnect(int deviceIndex) {
-        for (int i = 0; i < discovered_ble_devices.size(); ++i) {
-            if (discovered_ble_devices[i].address() == bleDeviceList[deviceIndex].path){
-                discovered_ble_devices[i].disconnect();
-                bleDeviceList[deviceIndex].state = M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable;
-                currentDevice = "";
-                isConnected = false;
-            }
-        }
-    }
-    
-    std::string getCurrentDevice() override {
+     
+    M1OrientationDevice getCurrentDevice() override {
         return currentDevice;
     }
 };

@@ -32,7 +32,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         }
 
         std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, 0 } };
-        send_getDevicesNames(clients);
+        send_getDevices(clients);
         send_getCurrentDevice(clients);
         send_getTrackingYawEnabled(clients);
         send_getTrackingPitchEnabled(clients);
@@ -76,8 +76,8 @@ void M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnectio
     }
 }
 
-void M1OrientationOSCServer::send_getDevicesNames(const std::vector<M1OrientationClientConnection>& clients) {
-    std::vector<M1OrientationDevice> devices = getDevicesNames();
+void M1OrientationOSCServer::send_getDevices(const std::vector<M1OrientationClientConnection>& clients) {
+    std::vector<M1OrientationDevice> devices = getDevices();
 
     juce::OSCMessage msg("/getDevices");
     for (auto& device : devices) {
@@ -88,10 +88,10 @@ void M1OrientationOSCServer::send_getDevicesNames(const std::vector<M1Orientatio
 }
 
 void M1OrientationOSCServer::send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients) {
-    M1OrientationDevice currentDevice = getCurrentDevice();
+    M1OrientationDevice device = getCurrentDevice();
     juce::OSCMessage msg("/getCurrentDevice");
-    msg.addString(currentDevice.name);
-    msg.addInt32(currentDevice.type);
+    msg.addString(device.name);
+    msg.addInt32(device.type);
     send(clients, msg);
 }
 
@@ -124,14 +124,11 @@ std::vector<M1OrientationClientConnection> M1OrientationOSCServer::getClients() 
     return clients;
 }
 
-std::vector<M1OrientationDevice> M1OrientationOSCServer::getDevicesNames() {
+std::vector<M1OrientationDevice> M1OrientationOSCServer::getDevices() {
     std::vector<M1OrientationDevice> devices;
     for (const auto& v : hardwareImpl) {
         M1OrientationDeviceType type = v.first;
-        std::vector<std::string> devs = hardwareImpl[type]->getDevicesNames();
-        for (auto& dev : devs) {
-            devices.push_back({ dev , v.first });
-        }
+        devices = hardwareImpl[type]->getDevices();
     }
     return devices;
 }
@@ -206,13 +203,13 @@ void M1OrientationOSCServer::command_refreshDevices() {
         v.second->refreshDevices();
     }
 
-    send_getDevicesNames(clients);
+    send_getDevices(clients);
 }
 
 void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDevice device) {
     currentDevice = device;
     
-    hardwareImpl[device.type]->startTrackingUsingDevice(device.name, [&](bool success, std::string errorMessage) {
+    hardwareImpl[device.type]->startTrackingUsingDevice(device, [&](bool success, std::string errorMessage) {
         if (success) {
             send_getCurrentDevice(clients);
         }

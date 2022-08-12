@@ -18,8 +18,8 @@ public:
     virtual M1OrientationTrackingResult getOrientation() = 0;
     
     virtual void refreshDevices() = 0;
-    virtual std::vector<std::string> getDevicesNames() = 0;
+    virtual std::vector<M1OrientationDevice> getDevices() = 0;
 
-    virtual std::string getCurrentDevice() = 0;
-    virtual void startTrackingUsingDevice(std::string device, std::function<void(bool success, std::string errorMessage)> callback) = 0;
+    virtual M1OrientationDevice getCurrentDevice() = 0;
+    virtual void startTrackingUsingDevice(M1OrientationDevice device, std::function<void(bool success, std::string errorMessage)> callback) = 0;
 };

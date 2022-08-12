@@ -31,7 +31,7 @@ class M1OrientationOSCServer :
     void send(const std::vector<M1OrientationClientConnection>& clients, std::string str);
     void send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg);
 
-    void send_getDevicesNames(const std::vector<M1OrientationClientConnection>& clients);
+    void send_getDevices(const std::vector<M1OrientationClientConnection>& clients);
     void send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients);
     void send_getTrackingYawEnabled(const std::vector<M1OrientationClientConnection>& clients);
     void send_getTrackingPitchEnabled(const std::vector<M1OrientationClientConnection>& clients);
@@ -55,7 +55,7 @@ public:
 
     std::vector<M1OrientationClientConnection> getClients();
 
-    std::vector<M1OrientationDevice> getDevicesNames();
+    std::vector<M1OrientationDevice> getDevices();
     M1OrientationDevice getCurrentDevice();
 
     bool getTrackingYawEnabled();

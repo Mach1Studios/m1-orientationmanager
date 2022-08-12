@@ -15,8 +15,8 @@
 class HardwareSerial : public HardwareAbstract {
 public:
     Orientation orientation;
-    std::string currentDevice;
-    std::vector<std::string> devices;
+    M1OrientationDevice currentDevice;
+    std::vector<M1OrientationDevice> devices;
     int baudRate = 115200;
     int connectedSerialPortIndex;
     bool isConnected = false;
@@ -51,17 +51,6 @@ public:
         }
     }
 
-    bool connect(int deviceIndex) {
-        int port_state = comOpen(deviceIndex, baudRate);
-        if (port_state == 1) {
-            // Set global ref for device's index (used for disconnect)
-            connectedSerialPortIndex = deviceIndex;
-            isConnected = true;
-            return true;
-        } else {
-            return false;
-        }
-    }
     
     void close() override {
         comClose(connectedSerialPortIndex);
@@ -85,16 +74,32 @@ public:
         }
     }
 
-    std::vector<std::string> getDevicesNames() override {
+    std::vector<M1OrientationDevice> getDevices() override {
         return devices;
     }
 
-    void startTrackingUsingDevice(std::string device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
-        currentDevice = device;
-        statusCallback(true, "ok");
+    void startTrackingUsingDevice(M1OrientationDevice device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
+        auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDevice::find_id(device.name));
+        if (matchedDevice != devices.end()) {
+            // todo com port
+            int comPort = std::stoi(matchedDevice->path);
+
+            int port_state = comOpen(comPort, baudRate);
+            if (port_state == 1) {
+                // Set global ref for device's index (used for disconnect)
+                connectedSerialPortIndex = comPort;
+                currentDevice = *matchedDevice;
+
+                isConnected = true;
+
+                statusCallback(true, "ok");
+                return;
+            }
+        }
+        statusCallback(false, "not found");
     }
 
-    std::string getCurrentDevice() override {
+    M1OrientationDevice getCurrentDevice() override {
         return currentDevice;
     }
 

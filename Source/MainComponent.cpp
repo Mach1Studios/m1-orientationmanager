@@ -96,7 +96,7 @@ void MainComponent::render()
 
 	m.getCurrentFont()->drawString("devices: ", offsetX, offsetY);
 	offsetY += 40;
-	std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevicesNames();
+	std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevices();
 	for (auto& device : devices) {
 		m.getCurrentFont()->drawString("> " + device.name + ":" + M1OrientationDeviceTypeName[device.type], offsetX, offsetY);
 		offsetY += 40;
@@ -127,7 +127,7 @@ void MainComponent::render()
 	auto& selectDevice1Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 1");
 	selectDevice1Button.commit();
 	if (selectDevice1Button.pressed) {
-		std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevicesNames();
+		std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevices();
 		if (devices.size() > 0) {
 			m1OrientationOSCServer.command_startTrackingUsingDevice(devices[0]);
 		}
@@ -137,8 +137,8 @@ void MainComponent::render()
 	auto& selectDevice2Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 2");
 	selectDevice2Button.commit();
 	if (selectDevice2Button.pressed) {
-		std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevicesNames();
-		if (devices.size() > 0) {
+		std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevices();
+		if (devices.size() > 1) {
 			m1OrientationOSCServer.command_startTrackingUsingDevice(devices[1]);
 		}
 	}
