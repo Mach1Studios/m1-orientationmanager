@@ -37,9 +37,11 @@ void MainComponent::initialise()
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
 	m1OrientationOSCServer.init(6345);
 
-    hardwareBLE.displayOnlyKnownIMUs = true; // For debug testing you can set this to false to list all connectable BLE devices
+    // For debug testing you can set this to false to list all connectable BLE devices
+    hardwareBLE.displayOnlyKnownIMUs = true;
+    hardwareSerial.displayOnlyKnownIMUs = false;
     hardwareBLE.setup();
-	hardwareSerial.setup();
+    hardwareSerial.setup();
 
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
@@ -90,15 +92,15 @@ void MainComponent::render()
 
 	offsetY += 20;
 
-	M1OrientationDevice device = m1OrientationOSCServer.getCurrentDevice();
-	m.getCurrentFont()->drawString("device: " + device.name + ":" + M1OrientationDeviceTypeName[device.type], offsetX, offsetY);
+    M1OrientationDeviceInfo device = m1OrientationOSCServer.getConnectedDevice();
+	m.getCurrentFont()->drawString("device: " + device.getDeviceName() + ":" + M1OrientationDeviceTypeName[device.getDeviceType()], offsetX, offsetY);
 	offsetY += 40;
 
 	m.getCurrentFont()->drawString("devices: ", offsetX, offsetY);
 	offsetY += 40;
-	std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevices();
+	std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
 	for (auto& device : devices) {
-		m.getCurrentFont()->drawString("> " + device.name + ":" + M1OrientationDeviceTypeName[device.type], offsetX, offsetY);
+		m.getCurrentFont()->drawString("> ["+M1OrientationDeviceTypeName[device.getDeviceType()]+"]: "+device.getDeviceName(), offsetX, offsetY);
 		offsetY += 40;
 	}
 
@@ -120,6 +122,8 @@ void MainComponent::render()
 	auto& refreshDeviceButton = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("refresh devices");
 	refreshDeviceButton.commit();
 	if (refreshDeviceButton.pressed) {
+        // TODO: clear the previous list of devices?
+        // should clear be handled 
 		m1OrientationOSCServer.command_refreshDevices();
 	}
 	offsetY += 50;
@@ -127,7 +131,7 @@ void MainComponent::render()
 	auto& selectDevice1Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 1");
 	selectDevice1Button.commit();
 	if (selectDevice1Button.pressed) {
-		std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevices();
+		std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
 		if (devices.size() > 0) {
 			m1OrientationOSCServer.command_startTrackingUsingDevice(devices[0]);
 		}
@@ -137,7 +141,7 @@ void MainComponent::render()
 	auto& selectDevice2Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 2");
 	selectDevice2Button.commit();
 	if (selectDevice2Button.pressed) {
-		std::vector<M1OrientationDevice> devices = m1OrientationOSCServer.getDevices();
+		std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
 		if (devices.size() > 1) {
 			m1OrientationOSCServer.command_startTrackingUsingDevice(devices[1]);
 		}

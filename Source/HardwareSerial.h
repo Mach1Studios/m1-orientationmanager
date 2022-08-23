@@ -15,12 +15,13 @@
 class HardwareSerial : public HardwareAbstract {
 public:
     Orientation orientation;
-    M1OrientationDevice currentDevice;
-    std::vector<M1OrientationDevice> devices;
+    M1OrientationDeviceInfo connectedDevice;
+    std::vector<M1OrientationDeviceInfo> devices;
     int baudRate = 115200;
     int connectedSerialPortIndex;
     bool isConnected = false;
     juce::StringPairArray portlist;
+    bool displayOnlyKnownIMUs = true;
 
     void setup() override {
         refreshDevices();
@@ -49,8 +50,8 @@ public:
                 }
             }
         }
+        // TODO: This has to handle loosing the device. What if it's disconnected?
     }
-
     
     void close() override {
         comClose(connectedSerialPortIndex);
@@ -69,26 +70,34 @@ public:
         for(int port_index=0; port_index < port_number; port_index++) {
             std::cout << "[Serial] Found device: " << comGetPortName(port_index) << std::endl;
             portlist.set(comGetInternalName(port_index),comGetPortName(port_index));
-            //TODO: create an easy to maintain string search list instead of listing them all here
-            // push back name, path, index, type
+            if (!displayOnlyKnownIMUs){
+            // SHOW ALL CONNECTABLE BLE
+                devices.push_back({ comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, comGetInternalName(port_index)});
+            } else {
+                std::string searchName = comGetPortName(port_index);
+                if (searchName.find("Mach1-") != std::string::npos) {
+                    // SHOW MACH1 ONLY
+                    devices.push_back({ comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, comGetInternalName(port_index)});
+                }
+            }
         }
     }
 
-    std::vector<M1OrientationDevice> getDevices() override {
+    std::vector<M1OrientationDeviceInfo> getDevices() override {
         return devices;
     }
 
-    void startTrackingUsingDevice(M1OrientationDevice device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
-        auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDevice::find_id(device.name));
+    void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
+        auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
             // todo com port
-            int comPort = std::stoi(matchedDevice->path);
+            int comPort = std::stoi(matchedDevice->getDeviceAddress());
 
             int port_state = comOpen(comPort, baudRate);
             if (port_state == 1) {
                 // Set global ref for device's index (used for disconnect)
                 connectedSerialPortIndex = comPort;
-                currentDevice = *matchedDevice;
+                connectedDevice = *matchedDevice;
 
                 isConnected = true;
 
@@ -99,8 +108,8 @@ public:
         statusCallback(false, "not found");
     }
 
-    M1OrientationDevice getCurrentDevice() override {
-        return currentDevice;
+    M1OrientationDeviceInfo getConnectedDevice() override {
+        return connectedDevice;
     }
 
 };

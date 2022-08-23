@@ -42,7 +42,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         command_refreshDevices();
     }
     else if (message.getAddressPattern() == "/startTrackingUsingDevice") {
-        M1OrientationDevice device = { message[0].getString().toStdString(), (M1OrientationDeviceType)message[1].getInt32() };
+        M1OrientationDeviceInfo device = { message[0].getString().toStdString(), (M1OrientationDeviceType)message[1].getInt32(), message[2].getString().toStdString() };
         command_startTrackingUsingDevice(device);
     }
     else if (message.getAddressPattern() == "/setTrackingYawEnabled") {
@@ -77,21 +77,32 @@ void M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnectio
 }
 
 void M1OrientationOSCServer::send_getDevices(const std::vector<M1OrientationClientConnection>& clients) {
-    std::vector<M1OrientationDevice> devices = getDevices();
+    std::vector<M1OrientationDeviceInfo> devices = getDevices();
 
     juce::OSCMessage msg("/getDevices");
     for (auto& device : devices) {
-        msg.addString(device.name);
-        msg.addInt32(device.type);
+        msg.addString(device.getDeviceName());
+        msg.addInt32(device.getDeviceType());
+        msg.addString(device.getDeviceAddress());
+        bool hasStrength = std::holds_alternative<bool>(device.getDeviceSignalStrength());
+        msg.addInt32(hasStrength ? 1 : 0);
+        if (hasStrength) msg.addInt32(std::get<int>(device.getDeviceSignalStrength()));
+            else msg.addInt32(0);
     }
     send(clients, msg);
 }
 
 void M1OrientationOSCServer::send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients) {
-    M1OrientationDevice device = getCurrentDevice();
+    M1OrientationDeviceInfo device = getConnectedDevice();
     juce::OSCMessage msg("/getCurrentDevice");
-    msg.addString(device.name);
-    msg.addInt32(device.type);
+    msg.addString(device.getDeviceName());
+    msg.addInt32(device.getDeviceType());
+    msg.addString(device.getDeviceAddress());
+    bool hasStrength = std::holds_alternative<bool>(device.getDeviceSignalStrength());
+    msg.addInt32(hasStrength ? 1 : 0);
+    if (hasStrength) msg.addInt32(std::get<int>(device.getDeviceSignalStrength()));
+        else msg.addInt32(0);
+
     send(clients, msg);
 }
 
@@ -124,16 +135,16 @@ std::vector<M1OrientationClientConnection> M1OrientationOSCServer::getClients() 
     return clients;
 }
 
-std::vector<M1OrientationDevice> M1OrientationOSCServer::getDevices() {
-    std::vector<M1OrientationDevice> devices;
-    for (const auto& v : hardwareImpl) {
-        M1OrientationDeviceType type = v.first;
-        devices = hardwareImpl[type]->getDevices();
+std::vector<M1OrientationDeviceInfo> M1OrientationOSCServer::getDevices() {
+    std::vector<M1OrientationDeviceInfo> devices;
+    for (const auto& hardware : hardwareImpl) {
+        auto devicesToAdd = hardware.second->getDevices();
+        devices.insert(devices.end(), devicesToAdd.begin(), devicesToAdd.end());
     }
     return devices;
 }
 
-M1OrientationDevice M1OrientationOSCServer::getCurrentDevice() {
+M1OrientationDeviceInfo M1OrientationOSCServer::getConnectedDevice() {
     return currentDevice;
 }
 
@@ -167,10 +178,10 @@ bool M1OrientationOSCServer::init(int serverPort) {
 }
 
 void M1OrientationOSCServer::update() {
-    if (currentDevice.type != M1OrientationManagerDeviceTypeNone) {
-        hardwareImpl[currentDevice.type]->update();
+    if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
+        hardwareImpl[currentDevice.getDeviceType()]->update();
 
-        M1OrientationYPR ypr = hardwareImpl[currentDevice.type]->getOrientation().currentOrientation.getYPR(); // todo
+        M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPR(); // todo
         if (!getTrackingYawEnabled()) ypr.yaw = 0;
         if (!getTrackingPitchEnabled()) ypr.pitch = 0;
         if (!getTrackingRollEnabled()) ypr.roll = 0;
@@ -206,10 +217,10 @@ void M1OrientationOSCServer::command_refreshDevices() {
     send_getDevices(clients);
 }
 
-void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDevice device) {
+void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
     currentDevice = device;
     
-    hardwareImpl[device.type]->startTrackingUsingDevice(device, [&](bool success, std::string errorMessage) {
+    hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string errorMessage) {
         if (success) {
             send_getCurrentDevice(clients);
         }
