@@ -91,10 +91,10 @@
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="../../Source/SimpleBLE/include&#10;../../Source/Devices/MetaWear/src"
                        libraryPath="../../Source/SimpleBLE/bin&#10;../../Source/Devices/MetaWear/dist/Release/lib/x64"
-                       osxCompatibility="10.15 SDK" macOSDeploymentTarget="10.15" defines="CONFIGURATION=debug"/>
+                       osxCompatibility="10.15 SDK" macOSDeploymentTarget="10.15"/>
         <CONFIGURATION isDebug="0" name="Release" headerPath="../../Source/SimpleBLE/include&#10;../../Source/Devices/MetaWear/src"
                        libraryPath="../../Source/SimpleBLE/bin&#10;../../Source/Devices/MetaWear/dist/Release/lib/x64"
-                       macOSDeploymentTarget="10.15" osxCompatibility="10.15 SDK" defines="CONFIGURATION=release"/>
+                       macOSDeploymentTarget="10.15" osxCompatibility="10.15 SDK"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_osc" path="../../juce"/>

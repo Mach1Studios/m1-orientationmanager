@@ -15,4 +15,4 @@
 	url = git@github.com:himwho/ht-api-juce.git
 [submodule "Source/Devices/MetaWear"]
 	path = Source/Devices/MetaWear
-	url = git@github.com:mbientlab/MetaWear-SDK-Cpp.git
+	url = git@github.com:Mach1Studios/MetaWear-SDK-Cpp.git
