@@ -28,6 +28,8 @@
       <GROUP id="{23B1F584-398A-80C9-C7C9-F9B427DA1E76}" name="Devices">
         <FILE id="RFm7R0" name="MetaWearInterface.h" compile="0" resource="0"
               file="Source/Devices/MetaWearInterface.h"/>
+        <FILE id="WUCdxP" name="MetaWearInterface.cpp" compile="1" resource="0"
+              file="Source/Devices/MetaWearInterface.cpp"/>
         <FILE id="t3w8Gl" name="SupperwareInterface.h" compile="0" resource="0"
               file="Source/Devices/SupperwareInterface.h"/>
         <FILE id="uJyV9V" name="SupperwareInterface.cpp" compile="1" resource="0"
@@ -80,17 +82,19 @@
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX" prebuildCommand="cmake ${SRCROOT}/../../Source/SimpleBLE -B${SRCROOT}/../../Source/SimpleBLE -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;10.13&quot;&#10;cmake --build ${SRCROOT}/../../Source/SimpleBLE"
-               externalLibraries="simpleble" iosBluetoothPermissionNeeded="1"
-               cameraPermissionNeeded="1" extraFrameworks="CoreBluetooth" extraCompilerFlags="-I ../../Source/Devices/ht-api-juce/supperware&#10;-I ../../Source/Devices/ht-api-juce/supperware/configpanel&#10;-I ../../Source/Devices/ht-api-juce/supperware/headpanel&#10;-I ../../Source/Devices/ht-api-juce/supperware/midi"
+    <XCODE_MAC targetFolder="Builds/MacOSX" prebuildCommand="cmake --version&#10;&#10;cmake ${SRCROOT}/../../Source/SimpleBLE -B${SRCROOT}/../../Source/SimpleBLE -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;10.15&quot;&#10;&#10;cmake --build ${SRCROOT}/../../Source/SimpleBLE&#10;&#10;CONFIGURATION=release&#10;cd ${SRCROOT}/../../Source/Devices/MetaWear &amp;&amp; make"
+               externalLibraries="simpleble&#10;metawear" iosBluetoothPermissionNeeded="1"
+               extraFrameworks="CoreBluetooth" extraCompilerFlags="-I ../../Source/Devices/ht-api-juce/supperware&#10;-I ../../Source/Devices/ht-api-juce/supperware/configpanel&#10;-I ../../Source/Devices/ht-api-juce/supperware/headpanel&#10;-I ../../Source/Devices/ht-api-juce/supperware/midi"
+               appSandboxOptions="com.apple.security.device.bluetooth,com.apple.security.device.camera,com.apple.security.device.usb,com.apple.security.network.client,com.apple.security.network.server"
+               hardenedRuntime="0" hardenedRuntimeOptions="com.apple.security.device.camera"
                extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="../../Source/SimpleBLE/include&#10;../../Source/Devices/MetaWear/src"
-                       libraryPath="../../Source/SimpleBLE/bin" osxCompatibility="10.13 SDK"
-                       macOSDeploymentTarget="10.13"/>
+                       libraryPath="../../Source/SimpleBLE/bin&#10;../../Source/Devices/MetaWear/dist/Release/lib/x64"
+                       osxCompatibility="10.15 SDK" macOSDeploymentTarget="10.15" defines="CONFIGURATION=debug"/>
         <CONFIGURATION isDebug="0" name="Release" headerPath="../../Source/SimpleBLE/include&#10;../../Source/Devices/MetaWear/src"
-                       libraryPath="../../Source/SimpleBLE/bin" macOSDeploymentTarget="10.13"
-                       osxCompatibility="10.13 SDK"/>
+                       libraryPath="../../Source/SimpleBLE/bin&#10;../../Source/Devices/MetaWear/dist/Release/lib/x64"
+                       macOSDeploymentTarget="10.15" osxCompatibility="10.15 SDK" defines="CONFIGURATION=release"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_osc" path="../../juce"/>
@@ -107,7 +111,7 @@
         <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2019 targetFolder="Builds/VisualStudio2019" extraCompilerFlags="-I ..\..\Source\Devices\ht-api-juce\supperware&#10;-I ..\..\Source\Devices\ht-api-juce\supperware\configpanel&#10;-I ..\..\Source\Devices\ht-api-juce\supperware\headpanel&#10;-I ..\..\Source\Devices\ht-api-juce\supperware\midi"
+    <VS2019 targetFolder="Builds/VisualStudio2019" extraCompilerFlags="-I ..\..\Source\Devices\ht-api-juce\supperware&#10;-I ..\..\Source\Devices\ht-api-juce\supperware\configpanel&#10;-I ..\..\Source\Devices\ht-api-juce\supperware\headpanel&#10;-I ..\..\Source\Devices\ht-api-juce\supperware\midi&#10;-I ..\..\Source\Devices\MetaWear\src\metawear\core\cpp&#10;-I ..\..\Source\Devices\MetaWear\src\metawear\dfu\cpp&#10;-I ..\..\Source\Devices\MetaWear\src\metawear\impl\cpp&#10;-I ..\..\Source\Devices\MetaWear\src\metawear\peripheral\cpp&#10;-I ..\..\Source\Devices\MetaWear\src\metawear\platform\cpp&#10;-I ..\..\Source\Devices\MetaWear\src\metawear\processor\cpp&#10;-I ..\..\Source\Devices\MetaWear\src\metawear\sensor\cpp"
             extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="..\..\Source\SimpleBLE\include"/>

@@ -32,6 +32,19 @@
 #include <sys/time.h>
 #endif
 
+#define SCAN_TIMEOUT_MS 3000
+
+#define NORDIC_UART_SERVICE_UUID "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
+#define NORDIC_UART_CHAR_RX      "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
+#define NORDIC_UART_CHAR_TX      "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
+
+#define METAMOTION_READ_SERVICE_UUID    "0000180a-0000-1000-8000-00805f9b34fb"
+#define METAMOTION_READ_UUID            "00002a26-0000-1000-8000-00805f9b34fb"
+#define METAMOTION_NOTIFY_SERVICE_UUID  "326a9000-85cb-9195-d9dd-464cfbbae75a"
+#define METAMOTION_NOTIFY_UUID          "326a9006-85cb-9195-d9dd-464cfbbae75a"
+#define METAMOTION_WRITE_SERVICE_UUID   "326a9000-85cb-9195-d9dd-464cfbbae75a"
+#define METAMOTION_WRITE_UUID           "326a9001-85cb-9195-d9dd-464cfbbae75a"
+
 class HardwareBLE : public HardwareAbstract {
 public:
     Orientation orientation;
@@ -40,6 +53,10 @@ public:
     std::vector<SimpleBLE::Peripheral> discovered_ble_devices;
     SimpleBLE::Adapter ble;
     std::vector<SimpleBLE::Adapter> ble_list;
+    
+    // Device Interfaces
+    MetaWearInterface metawearInterface;
+    
     bool isConnected = false;
     bool displayOnlyKnownIMUs = true;
     
@@ -141,13 +158,13 @@ public:
                         // setup meta motion
                         MblMwBtleConnection btleConnection;
                         btleConnection.context = this;
-                        btleConnection.write_gatt_char = write_gatt_char;
-                        btleConnection.read_gatt_char = read_gatt_char;
-                        btleConnection.enable_notifications = enable_char_notify;
-                        btleConnection.on_disconnect = on_disconnect;
-                        board = mbl_mw_metawearboard_create(&btleConnection);
+                        btleConnection.write_gatt_char = metawearInterface.write_gatt_char;
+                        btleConnection.read_gatt_char = metawearInterface.read_gatt_char;
+                        btleConnection.enable_notifications = metawearInterface.enable_char_notify;
+                        btleConnection.on_disconnect = metawearInterface.on_disconnect;
+                        metawearInterface.board = mbl_mw_metawearboard_create(&btleConnection);
 
-                        mbl_mw_metawearboard_initialize(board, this, [](void* context, MblMwMetaWearBoard* board, int32_t status) -> void {
+                        mbl_mw_metawearboard_initialize(metawearInterface.board, this, [](void* context, MblMwMetaWearBoard* board, int32_t status) -> void {
                             if (!status) {
                                 printf("Error initializing board: %d\n", status);
                             } else {
@@ -163,11 +180,10 @@ public:
                                 std::cout << "model = " << dev_info->model_number << std::endl;
                                 std::cout << "model = " << mbl_mw_metawearboard_get_model(board) << std::endl;
                                 std::cout << "model = " << mbl_mw_metawearboard_get_model_name(board) << std::endl;
-
-                                enable_fusion_sampling(board);
-                                //get_current_power_status(board);
-                                get_battery_percentage(board);
-                                get_ad_name(board);
+//                                enable_fusion_sampling(board);
+//                                get_current_power_status(board);
+//                                get_battery_percentage(board);
+//                                get_ad_name(board);
                             }
                         });
                         // Report to the manager that it's connected
