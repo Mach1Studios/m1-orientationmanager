@@ -10,7 +10,7 @@
 #include "simpleble/SimpleBLE.h"
 
 // include device specific
-#include "Devices/MetaWear.h"
+#include "Devices/MetaWearInterface.h"
 
 #include <chrono>
 #include <iomanip>
@@ -135,17 +135,53 @@ public:
             for (int i = 0; i < discovered_ble_devices.size(); ++i) {
                 if (discovered_ble_devices[i].address() == matchedDevice->getDeviceAddress()) {
                     discovered_ble_devices[i].connect();
-                    // TODO: return errorMessage if any error
                     
+                    // IF METAMOTION
+                    if (matchedDevice->getDeviceName().find("MetaMotion") != std::string::npos) {
+                        // setup meta motion
+                        MblMwBtleConnection btleConnection;
+                        btleConnection.context = this;
+                        btleConnection.write_gatt_char = write_gatt_char;
+                        btleConnection.read_gatt_char = read_gatt_char;
+                        btleConnection.enable_notifications = enable_char_notify;
+                        btleConnection.on_disconnect = on_disconnect;
+                        board = mbl_mw_metawearboard_create(&btleConnection);
+
+                        mbl_mw_metawearboard_initialize(board, this, [](void* context, MblMwMetaWearBoard* board, int32_t status) -> void {
+                            if (!status) {
+                                printf("Error initializing board: %d\n", status);
+                            } else {
+                                printf("Board initialized\n");
+                            }
+                            auto dev_info = mbl_mw_metawearboard_get_device_information(board);
+                            
+                            while (!mbl_mw_metawearboard_is_initialized(board)){
+                                // Wait for async initialization finishes
+                            }
+                            if (mbl_mw_metawearboard_is_initialized(board) == 1) {
+                                std::cout << "firmware revision number = " << dev_info->firmware_revision << std::endl;
+                                std::cout << "model = " << dev_info->model_number << std::endl;
+                                std::cout << "model = " << mbl_mw_metawearboard_get_model(board) << std::endl;
+                                std::cout << "model = " << mbl_mw_metawearboard_get_model_name(board) << std::endl;
+
+                                enable_fusion_sampling(board);
+                                //get_current_power_status(board);
+                                get_battery_percentage(board);
+                                get_ad_name(board);
+                            }
+                        });
+                        // Report to the manager that it's connected
+                        statusCallback(true, "[BLE] MetaMotion Device Connected");
+                    } else { // NOT ANY FILTERED/KNOWN IMU DEVICES
+                        // TODO: return errorMessage if any error
+                        statusCallback(false, "[BLE] Device "+matchedDevice->getDeviceName()+" is not yet supported");
+                    }
                     connectedDevice = *matchedDevice;
                     isConnected = true;
-                    
-                    statusCallback(true, "ok");
                     return;
                 }
             }
         }
-
         statusCallback(false , "not connected");
     }
      
