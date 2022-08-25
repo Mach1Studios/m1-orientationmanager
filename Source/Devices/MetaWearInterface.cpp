@@ -60,13 +60,13 @@ void MetaWearInterface::configure_sensor_fusion(MblMwMetaWearBoard* board) {
 void MetaWearInterface::get_current_power_status(MblMwMetaWearBoard* board) {
     auto power_status = mbl_mw_settings_get_power_status_data_signal(board);
     mbl_mw_datasignal_subscribe(power_status, this, [](void* context, const MblMwData* data) -> void {
-        auto *wrapper = static_cast<MetaWearInterface *>(context);
+        //auto *wrapper = static_cast<MetaWearInterface *>(context);
         std::cout << "Power Status: " << data << std::endl;
     });
     
     auto charge_status = mbl_mw_settings_get_charge_status_data_signal(board);
     mbl_mw_datasignal_subscribe(charge_status, this, [](void* context, const MblMwData* data) -> void {
-        auto *wrapper = static_cast<MetaWearInterface *>(context);
+        //auto *wrapper = static_cast<MetaWearInterface *>(context);
         std::cout << "Charge Status: " << data << std::endl;
     });
 }
@@ -196,26 +196,26 @@ std::string HighLow2Uuid(const uint64_t high, const uint64_t low){
 
 void MetaWearInterface::read_gatt_char(void *context, const void *caller, const MblMwGattChar *characteristic, MblMwFnIntVoidPtrArray handler) {
     auto *wrapper = static_cast<MetaWearInterface *>(context);
-    auto readByteArray = wrapper->deviceInterface->read(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low));
+    auto readByteArray = wrapper->deviceInterface.read(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low));
                                                      
     handler(caller, (uint8_t*)readByteArray.data(), readByteArray.length());
 }
 
 void MetaWearInterface::write_gatt_char(void *context, const void *caller, MblMwGattCharWriteType writeType, const MblMwGattChar *characteristic, const uint8_t *value, uint8_t length){
     auto *wrapper = static_cast<MetaWearInterface *>(context);
-    wrapper->deviceInterface->write_command(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low), std::string((char*)value, int(length)));
+    wrapper->deviceInterface.write_command(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low), std::string((char*)value, int(length)));
 }
 
 void MetaWearInterface::enable_char_notify(void *context, const void *caller, const MblMwGattChar *characteristic, MblMwFnIntVoidPtrArray handler, MblMwFnVoidVoidPtrInt ready) {
 
     auto *wrapper = static_cast<MetaWearInterface *>(context);
-    wrapper->deviceInterface->notify(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low), [&,handler,caller](SimpleBLE::ByteArray payload) {
+    wrapper->deviceInterface.notify(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low), [&,handler,caller](SimpleBLE::ByteArray payload) {
             handler(caller,(uint8_t*)payload.data(),payload.length());
         });
     ready(caller, MBL_MW_STATUS_OK);
 }
 
 void MetaWearInterface::on_disconnect(void *context, const void *caller, MblMwFnVoidVoidPtrInt handler) {
-    auto *wrapper = static_cast<MetaWearInterface *>(context);
+    //auto *wrapper = static_cast<MetaWearInterface *>(context);
     handler(caller, 0);
 }
