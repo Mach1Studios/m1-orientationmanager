@@ -9,6 +9,7 @@
 #include "juce_murka/JuceMurkaBaseComponent.h"
 #include "HardwareBLE.h"
 #include "HardwareSerial.h"
+#include "HardwareOSC.h"
 #include "M1OrientationOSCServer.h"
 
 using namespace murka;
@@ -38,6 +39,7 @@ private:
 
     HardwareBLE hardwareBLE;
     HardwareSerial hardwareSerial;
+    HardwareOSC hardwareOSC;
     M1OrientationOSCServer m1OrientationOSCServer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

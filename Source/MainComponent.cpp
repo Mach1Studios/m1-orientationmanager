@@ -43,8 +43,11 @@ void MainComponent::initialise()
     hardwareBLE.setup();
     hardwareSerial.setup();
 
+	hardwareOSC.setup();
+
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
+	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
 }
 
 //==============================================================================
