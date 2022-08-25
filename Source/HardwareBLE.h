@@ -154,7 +154,7 @@ public:
                     discovered_ble_devices[i].connect();
                     
                     // IF METAMOTION
-                    if (matchedDevice->getDeviceName().find("MetaMotion") != std::string::npos) {
+                    if (matchedDevice->getDeviceName().find("MetaWear") != std::string::npos || matchedDevice->getDeviceName().find("Mach1-M") != std::string::npos) {
                         // setup meta motion
                         MblMwBtleConnection btleConnection;
                         btleConnection.context = this;
