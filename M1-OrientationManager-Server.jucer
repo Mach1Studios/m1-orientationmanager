@@ -20,6 +20,9 @@
       <FILE id="Ep6Kdf" name="HardwareSerial.h" compile="0" resource="0"
             file="Source/HardwareSerial.h"/>
       <FILE id="gn1DTm" name="HardwareBLE.h" compile="0" resource="0" file="Source/HardwareBLE.h"/>
+      <FILE id="wWoj8b" name="HardwareCamera.h" compile="0" resource="0"
+            file="Source/HardwareCamera.h"/>
+      <FILE id="m6K7PI" name="HardwareOSC.h" compile="0" resource="0" file="Source/HardwareOSC.h"/>
       <GROUP id="{3408C695-D15B-0835-76B6-90EEC61F719D}" name="rs232">
         <FILE id="oLwVMk" name="rs232-linux.c" compile="1" resource="0" file="Source/rs232/rs232-linux.c"/>
         <FILE id="gddPgR" name="rs232-win.c" compile="1" resource="0" file="Source/rs232/rs232-win.c"/>
