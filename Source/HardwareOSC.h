@@ -42,8 +42,8 @@ public:
     }
 
     void refreshDevices() override {
-        devices.push_back({ "test 1", M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, "test 1" });
-        devices.push_back({ "test 2", M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, "test 2" });
+        devices.push_back({ "test 1", M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, "test 1" });
+        devices.push_back({ "test 2", M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, "test 2" });
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {
@@ -53,10 +53,7 @@ public:
     void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
-            // todo com port
-            int comPort = std::stoi(matchedDevice->getDeviceAddress());
             connectedDevice = *matchedDevice;
-
             isConnected = true;
 
             statusCallback(true, "ok");
