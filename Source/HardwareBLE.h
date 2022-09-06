@@ -67,7 +67,11 @@ public:
 
     void update() override {
         if (isConnected){
-            //
+            if (getConnectedDevice().getDeviceName().find("MetaWear") != std::string::npos) {
+                float* a = metawearInterface.getAngle();
+                // MMC = Y=0, P=2, R=1
+                std::cout << "[BLE] MetaWear device: " << a[0] << ", " << a[2] << ", " << a[1] << std::endl;
+            }
         }
     }
 
@@ -82,7 +86,6 @@ public:
 //                    matchedDevice->state = M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable;
                     connectedDevice = *matchedDevice;
                 }
-
                 isConnected = false;
             }
         }
@@ -99,30 +102,22 @@ public:
     }
 
     void refreshDevices() override {
-        try {
-            ble_list = SimpleBLE::Adapter::get_adapters();
-        } catch (...) {
-            throw;
-        }
+        ble_list = SimpleBLE::Adapter::get_adapters();
         
         if (ble_list.size() == 0) {
             std::cout << "[BLE] No adapter was found." << std::endl;
             return;
         }
         
-        try {
-            SimpleBLE::Adapter adapter = ble_list[0];
+        SimpleBLE::Adapter adapter = ble_list[0];
 
-            adapter.set_callback_on_scan_start([]() { std::cout << "[BLE] Scan started." << std::endl; });
-            adapter.set_callback_on_scan_stop([]() { std::cout << "[BLE] Scan stopped." << std::endl; });
-            adapter.set_callback_on_scan_found([this](SimpleBLE::Peripheral peripheral) {
-                std::cout << "[BLE] Found device: " << peripheral.identifier() << " [" << peripheral.address() << "] " << peripheral.rssi() << " dBm" << std::endl;
-                discovered_ble_devices.push_back(peripheral);
-            });
-            adapter.scan_for(SCAN_TIMEOUT_MS);
-        } catch (...) {
-            throw;
-        }
+        adapter.set_callback_on_scan_start([]() { std::cout << "[BLE] Scan started." << std::endl; });
+        adapter.set_callback_on_scan_stop([]() { std::cout << "[BLE] Scan stopped." << std::endl; });
+        adapter.set_callback_on_scan_found([this](SimpleBLE::Peripheral peripheral) {
+            std::cout << "[BLE] Found device: " << peripheral.identifier() << " [" << peripheral.address() << "] " << peripheral.rssi() << " dBm" << std::endl;
+            discovered_ble_devices.push_back(peripheral);
+        });
+        adapter.scan_for(SCAN_TIMEOUT_MS);
         
         devices.clear();
 
@@ -171,7 +166,8 @@ public:
                                 printf("Board initialized\n");
                             }
                             auto dev_info = mbl_mw_metawearboard_get_device_information(board);
-                            
+                            auto *wrapper = static_cast<MetaWearInterface *>(context);
+
                             while (!mbl_mw_metawearboard_is_initialized(board)){
                                 // Wait for async initialization finishes
                             }
@@ -180,10 +176,10 @@ public:
                                 std::cout << "model = " << dev_info->model_number << std::endl;
                                 std::cout << "model = " << mbl_mw_metawearboard_get_model(board) << std::endl;
                                 std::cout << "model = " << mbl_mw_metawearboard_get_model_name(board) << std::endl;
-//                                enable_fusion_sampling(board);
-//                                get_current_power_status(board);
-//                                get_battery_percentage(board);
-//                                get_ad_name(board);
+                                wrapper->enable_fusion_sampling(board);
+                                wrapper->get_current_power_status(board);
+                                wrapper->get_battery_percentage(board);
+                                wrapper->get_ad_name(board);
                             }
                         });
                         // Report to the manager that it's connected

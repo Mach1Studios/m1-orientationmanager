@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(M1-OrientationManager VERSION 0.0.1)
 
+# c++17 required for BLE
+set(CMAKE_CXX_STANDARD 17)
+
 #First, we'll add the CMake folder, incase we'll need to find_package later:
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -39,13 +42,22 @@ juce_generate_juce_header(${TargetName})
 target_sources(${TargetName} PRIVATE
         ${PROJECT_SOURCE_DIR}/Source/Main.cpp
         ${PROJECT_SOURCE_DIR}/Source/MainComponent.cpp
-        ${PROJECT_SOURCE_DIR}/Source/M1OrientationOSCServer.cpp)
+        ${PROJECT_SOURCE_DIR}/Source/M1OrientationOSCServer.cpp
+        ${PROJECT_SOURCE_DIR}/Source/Devices/MetaWearInterface.cpp
+        ${PROJECT_SOURCE_DIR}/Source/Devices/SupperwareInterface.cpp)
 
 target_compile_definitions(${TargetName} PRIVATE
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
         JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:${TargetName},JUCE_PROJECT_NAME>"
         JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:${TargetName},JUCE_VERSION>")
+
+target_include_directories(${TargetName} PRIVATE 
+        ${PROJECT_SOURCE_DIR}/Source/SimpleBLE/include
+        ${PROJECT_SOURCE_DIR}/Source/Devices/MetaWear/src
+        ${PROJECT_SOURCE_DIR}/Source/Devices/ht-api-juce/supperware
+        ${PROJECT_SOURCE_DIR}/Source/Devices/ht-api-juce/supperware/headpanel
+        ${PROJECT_SOURCE_DIR}/Source/Devices/ht-api-juce/supperware/midi)
 
 target_link_libraries(${TargetName} PRIVATE
         juce::juce_recommended_config_flags
@@ -57,6 +69,7 @@ target_link_libraries(${TargetName} PRIVATE
         juce::juce_graphics
         juce::juce_gui_basics
         juce::juce_gui_extra
+        juce::juce_audio_utils
         juce::juce_opengl
         juce::juce_osc
         juce_murka

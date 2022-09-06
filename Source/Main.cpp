@@ -32,14 +32,18 @@ public:
         // This method is where you should put your application's initialisation code..
         if (JUCEApplicationBase::getCommandLineParameterArray().indexOf("--no-gui") >= 0) {
             HardwareBLE hardwareBLE;
+            HardwareSerial hardwareSerial;
             M1OrientationOSCServer m1OrientationOSCServer;
 
             std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
             if (m1OrientationOSCServer.initFromSettings(settingsFilePath)) {
                 hardwareBLE.setup();
+                hardwareSerial.setup();
                 m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
+                m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
                 while (true) {
                     hardwareBLE.update();
+                    hardwareSerial.update();
                     juce::Thread::sleep(30);
                 }
             }

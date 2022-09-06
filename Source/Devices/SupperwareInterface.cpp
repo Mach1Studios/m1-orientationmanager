@@ -7,31 +7,87 @@
 #include "SupperwareInterface.h"
 
 //==============================================================================
-SupperwareInterface::SupperwareInterface()
+SupperwareInterface::SupperwareInterface() :
+    listener(nullptr),
+    trackerDriver(this),
+    headMatrix(),
+    midiState(Midi::State::Unavailable)
 {
-    headPanel.setListener(this);
-    headPanel.setTopLeftPosition(8, 8);
-    addAndMakeVisible(headPanel);
-    setSize(headPanel.getWidth()+16, headPanel.getHeight()+16);
 }
 
 SupperwareInterface::~SupperwareInterface()
 {
 }
 
-void SupperwareInterface::paint (juce::Graphics& g)
+const Midi::TrackerDriver& SupperwareInterface::getTrackerDriver() const
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    // Note that the default JUCE look and feel colour is used here. The component works
-    // best against dark backgrounds such as this: there's no 'light mode' at the moment.
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    return trackerDriver;
 }
 
-void SupperwareInterface::resized()
-{
-    // This method is where you should set the bounds of any child
-    // components that your component contains..
+//----------------------------------------------------------------------
 
+const HeadMatrix& SupperwareInterface::getHeadMatrix() const
+{
+    return headMatrix;
+}
+
+//----------------------------------------------------------------------
+
+void SupperwareInterface::trackerMidiConnectionChanged(Midi::State newState)
+{
+    if (newState != midiState)
+    {
+        midiState = newState;
+
+        if ((midiState == Midi::State::Connected) || (midiState == Midi::State::Bootloader))
+        {
+        }
+        else if (midiState == Midi::State::Available)
+        {
+            headMatrix.zero();
+        }
+        else // Unavailable
+        {
+            headMatrix.zero();
+        }
+        if (listener) listener->trackerChanged(headMatrix);
+    }
+}
+
+//----------------------------------------------------------------------
+
+void SupperwareInterface::trackerOrientation(float yawRadian, float pitchRadian, float rollRadian)
+{
+    headMatrix.setOrientationYPR(yawRadian, pitchRadian, rollRadian);
+    if (listener) listener->trackerChanged(headMatrix);
+}
+
+//----------------------------------------------------------------------
+
+void SupperwareInterface::trackerOrientationQ(float qw, float qx, float qy, float qz)
+{
+    headMatrix.setOrientationQuaternion(qw, qx, qy, qz);
+    if (listener) listener->trackerChanged(headMatrix);
+}
+
+//----------------------------------------------------------------------
+
+void SupperwareInterface::connectSupperware()
+{
+    // connect/disconnect button
+    if (midiState == Midi::State::Available)
+    {
+        trackerDriver.connect();
+        // is100HzMode, isQuaternionMode
+        trackerDriver.turnOn(true, true);
+    } else {
+        trackerDriver.disconnect();
+    }
+}
+
+void SupperwareInterface::setListener(Listener* l)
+{
+    listener = l;
 }
 
 void SupperwareInterface::trackerChanged(const HeadMatrix& headMatrix)
