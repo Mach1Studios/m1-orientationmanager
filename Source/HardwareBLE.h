@@ -51,11 +51,9 @@ public:
     M1OrientationDeviceInfo connectedDevice;
     std::vector<M1OrientationDeviceInfo> devices;
     std::vector<SimpleBLE::Safe::Peripheral> discovered_ble_devices;
-    SimpleBLE::Safe::Adapter ble;
     
     // Device Interfaces
     MetaWearInterface metawearInterface;
-    
     bool isConnected = false;
     bool displayOnlyKnownIMUs = true;
     
@@ -90,7 +88,7 @@ public:
         }
 
         //TODO: improve this, i dont think this works
-        ble.scan_stop();
+        //ble.scan_stop();
     }
 
     M1OrientationTrackingResult getOrientation() override {
@@ -133,6 +131,8 @@ public:
                 if (discovered_ble_devices[i].identifier()->find("MetaWear") != std::string::npos || discovered_ble_devices[i].identifier()->find("IMU") != std::string::npos || discovered_ble_devices[i].identifier()->find("Mach1-M") != std::string::npos) {
                     // SHOW METAWEAR/IMU/MACH1-M BLE ONLY
                     devices.push_back({ discovered_ble_devices[i].identifier().value_or("UNKNOWN"), M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE, discovered_ble_devices[i].address().value_or("UNKNOWN"), discovered_ble_devices[i].rssi().value_or(0) });
+                    // Setup and construct MetaWearInterface device with pointer to peripheral
+                    metawearInterface.set_peripheral_device(discovered_ble_devices[i]);
                 }
             }
         }

@@ -14,6 +14,19 @@ MetaWearInterface::~MetaWearInterface()
 {
 }
 
+SimpleBLE::Peripheral& MetaWearInterface::get_peripheral_device(){
+    return this->peripheral;
+}
+
+bool MetaWearInterface::set_peripheral_device(SimpleBLE::Peripheral& peripheral) {
+    if (peripheral.address() == "UNKNOWN"){
+        return false;
+    } else {
+        this->peripheral = peripheral;
+        return true;
+    }
+}
+
 void MetaWearInterface::data_printer(void* context, const MblMwData* data) {
     // Print data as 2 digit hex values
     uint8_t* data_bytes = (uint8_t*) data->value;
@@ -196,20 +209,20 @@ std::string HighLow2Uuid(const uint64_t high, const uint64_t low){
 
 void MetaWearInterface::read_gatt_char(void *context, const void *caller, const MblMwGattChar *characteristic, MblMwFnIntVoidPtrArray handler) {
     auto *wrapper = static_cast<MetaWearInterface *>(context);
-    auto readByteArray = wrapper->deviceInterface.read(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low));
+    auto readByteArray = wrapper->deviceInterface(wrapper->peripheral).read(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low)).value_or("UNKNOWN");
                                                      
-    handler(caller, (uint8_t*)readByteArray->data(), readByteArray->length());
+    handler(caller, (uint8_t*)readByteArray.data(), readByteArray.length());
 }
 
 void MetaWearInterface::write_gatt_char(void *context, const void *caller, MblMwGattCharWriteType writeType, const MblMwGattChar *characteristic, const uint8_t *value, uint8_t length){
     auto *wrapper = static_cast<MetaWearInterface *>(context);
-    wrapper->deviceInterface.write_command(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low), std::string((char*)value, int(length)));
+    wrapper->deviceInterface(wrapper->peripheral).write_command(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low), std::string((char*)value, int(length)));
 }
 
 void MetaWearInterface::enable_char_notify(void *context, const void *caller, const MblMwGattChar *characteristic, MblMwFnIntVoidPtrArray handler, MblMwFnVoidVoidPtrInt ready) {
 
     auto *wrapper = static_cast<MetaWearInterface *>(context);
-    wrapper->deviceInterface.notify(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low), [&,handler,caller](SimpleBLE::ByteArray payload) {
+    wrapper->deviceInterface(wrapper->peripheral).notify(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low), [&,handler,caller](SimpleBLE::ByteArray payload) {
             handler(caller,(uint8_t*)payload.data(),payload.length());
         });
     ready(caller, MBL_MW_STATUS_OK);
