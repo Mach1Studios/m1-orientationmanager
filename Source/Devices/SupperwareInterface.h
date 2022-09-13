@@ -35,8 +35,8 @@ public:
     void trackerOrientation(float yawRadian, float pitchRadian, float rollRadian) override;
     void trackerOrientationQ(float qw, float qx, float qy, float qz) override;
     void trackerMidiConnectionChanged(Midi::State newState) override;
-    void trackerCompassStateChanged(Tracker::CompassState compassState) override;
-    void trackerConnectionChanged(const Tracker::State& state) override;
+//    void trackerCompassStateChanged(Tracker::CompassState compassState) override;
+//    void trackerConnectionChanged(const Tracker::State& state) override;
     void setListener(Listener* l);
     void connectSupperware();
 

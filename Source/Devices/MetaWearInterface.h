@@ -57,7 +57,7 @@ public:
     const char* module_name;
     
     // ble
-    SimpleBLE::Peripheral deviceInterface;
+    SimpleBLE::Safe::Peripheral deviceInterface(SimpleBLE::Peripheral& peripheral);
     
     MblMwMetaWearBoard * board;
     void data_printer(void* context, const MblMwData* data);

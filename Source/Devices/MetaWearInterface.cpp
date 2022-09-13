@@ -198,7 +198,7 @@ void MetaWearInterface::read_gatt_char(void *context, const void *caller, const 
     auto *wrapper = static_cast<MetaWearInterface *>(context);
     auto readByteArray = wrapper->deviceInterface.read(HighLow2Uuid(characteristic->service_uuid_high, characteristic->service_uuid_low), HighLow2Uuid(characteristic->uuid_high, characteristic->uuid_low));
                                                      
-    handler(caller, (uint8_t*)readByteArray.data(), readByteArray.length());
+    handler(caller, (uint8_t*)readByteArray->data(), readByteArray->length());
 }
 
 void MetaWearInterface::write_gatt_char(void *context, const void *caller, MblMwGattCharWriteType writeType, const MblMwGattChar *characteristic, const uint8_t *value, uint8_t length){
