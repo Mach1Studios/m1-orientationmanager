@@ -84,7 +84,7 @@ void M1OrientationOSCServer::send_getDevices(const std::vector<M1OrientationClie
         msg.addString(device.getDeviceName());
         msg.addInt32(device.getDeviceType());
         msg.addString(device.getDeviceAddress());
-        bool hasStrength = std::holds_alternative<bool>(device.getDeviceSignalStrength());
+        bool hasStrength = std::holds_alternative<int>(device.getDeviceSignalStrength());
         msg.addInt32(hasStrength ? 1 : 0);
         if (hasStrength) msg.addInt32(std::get<int>(device.getDeviceSignalStrength()));
             else msg.addInt32(0);

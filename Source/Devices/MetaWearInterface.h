@@ -49,6 +49,7 @@ public:
     ~MetaWearInterface();
 
     bool bUseMagnoHeading = true;
+    float calculated_angle[3];
     float outputEuler[4];
     float* getAngle();
     float angle[3];
@@ -57,9 +58,8 @@ public:
     const char* module_name;
     
     // ble
-    SimpleBLE::Peripheral& peripheral;
-    SimpleBLE::Safe::Peripheral deviceInterface(SimpleBLE::Peripheral& peripheral);
-    SimpleBLE::Peripheral& get_peripheral_device();
+    SimpleBLE::Safe::Peripheral* deviceInterface = nullptr;
+    SimpleBLE::Safe::Peripheral* get_peripheral_device();
     bool set_peripheral_device(SimpleBLE::Peripheral&);
     
     MblMwMetaWearBoard * board;

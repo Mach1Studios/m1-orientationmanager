@@ -77,7 +77,7 @@ public:
                 std::string searchName = comGetPortName(port_index);
                 if (searchName.find("Mach1-") != std::string::npos || searchName.find("HC-06-DevB") != std::string::npos || searchName.find("witDevice") != std::string::npos || searchName.find("m1YostDevice") != std::string::npos || searchName.find("usbmodem1434302") != std::string::npos || searchName.find("m1Device") != std::string::npos) {
                     // SHOW MACH1 ONLY
-                    devices.push_back({ comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, comGetInternalName(port_index)});
+                    devices.push_back({ comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, std::to_string(port_index)});
                 }
             }
         }
@@ -91,7 +91,8 @@ public:
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
             // todo com port
-            int comPort = std::stoi(matchedDevice->getDeviceAddress());
+            std::string address = matchedDevice->getDeviceAddress();
+            int comPort = std::stoi(address);
 
             int port_state = comOpen(comPort, baudRate);
             if (port_state == 1) {

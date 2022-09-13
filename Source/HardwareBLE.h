@@ -147,21 +147,27 @@ public:
         if (matchedDevice != devices.end()) {
             for (int i = 0; i < discovered_ble_devices.size(); ++i) {
                 if (discovered_ble_devices[i].address() == matchedDevice->getDeviceAddress()) {
+                    
                     discovered_ble_devices[i].connect();
                     
                     // IF METAMOTION
                     if (matchedDevice->getDeviceName().find("MetaWear") != std::string::npos || matchedDevice->getDeviceName().find("Mach1-M") != std::string::npos) {
                         // setup meta motion
                         MblMwBtleConnection btleConnection;
-                        btleConnection.context = this;
+                        btleConnection.context = &metawearInterface;
                         btleConnection.write_gatt_char = metawearInterface.write_gatt_char;
                         btleConnection.read_gatt_char = metawearInterface.read_gatt_char;
                         btleConnection.enable_notifications = metawearInterface.enable_char_notify;
                         btleConnection.on_disconnect = metawearInterface.on_disconnect;
                         metawearInterface.board = mbl_mw_metawearboard_create(&btleConnection);
 
+                        auto dev_info = mbl_mw_metawearboard_get_device_information(metawearInterface.board);
+                        std::cout << "firmware revision number = " << dev_info->firmware_revision << std::endl;
+                        std::cout << "model = " << mbl_mw_metawearboard_get_model(metawearInterface.board) << std::endl;
+                        
+                        // context?
                         mbl_mw_metawearboard_initialize(metawearInterface.board, this, [](void* context, MblMwMetaWearBoard* board, int32_t status) -> void {
-                            if (!status) {
+                            if (status != 0) {
                                 printf("Error initializing board: %d\n", status);
                             } else {
                                 printf("Board initialized\n");
