@@ -108,12 +108,14 @@ public:
             return;
         }
 
+        // grab the first adapter
+        // TODO: add error handling?
         SimpleBLE::Safe::Adapter& adapter = ble_list->at(0);
 
         adapter.set_callback_on_scan_start([]() { std::cout << "[BLE] Scan started." << std::endl; });
         adapter.set_callback_on_scan_stop([]() { std::cout << "[BLE] Scan stopped." << std::endl; });
         adapter.set_callback_on_scan_found([&](SimpleBLE::Safe::Peripheral peripheral) {
-            std::cout << "[BLE] Found device: " << peripheral.identifier().value_or("UNKNOWN") << " [" << peripheral.address().value_or("UNKNOWN") << "] " << peripheral.rssi().value_or("UNKNOWN") << " dBm" << std::endl;
+            std::cout << "[BLE] Found device: " << peripheral.identifier().value_or("UNKNOWN") << " [" << peripheral.address().value_or("UNKNOWN") << "] " << peripheral.rssi().value_or(0) << " dBm" << std::endl;
             discovered_ble_devices.push_back(peripheral);
         });
         adapter.scan_for(SCAN_TIMEOUT_MS);
@@ -125,7 +127,7 @@ public:
             if (!displayOnlyKnownIMUs){
                 // SHOW ALL CONNECTABLE BLE
                 if (discovered_ble_devices[i].is_connectable()) {
-                    devices.push_back({ discovered_ble_devices[i].identifier().value_or("UNKNOWN"), M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE, discovered_ble_devices[i].address().value_or("UNKNOWN"), discovered_ble_devices[i].rssi().value_or("UNKNOWN") });
+                    devices.push_back({ discovered_ble_devices[i].identifier().value_or("UNKNOWN"), M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE, discovered_ble_devices[i].address().value_or("UNKNOWN"), discovered_ble_devices[i].rssi().value_or(0) });
                 }
             } else {
                 if (discovered_ble_devices[i].identifier()->find("MetaWear") != std::string::npos || discovered_ble_devices[i].identifier()->find("IMU") != std::string::npos || discovered_ble_devices[i].identifier()->find("Mach1-M") != std::string::npos) {
