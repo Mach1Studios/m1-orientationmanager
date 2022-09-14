@@ -166,7 +166,7 @@ public:
                         std::cout << "model = " << mbl_mw_metawearboard_get_model(metawearInterface.board) << std::endl;
                         
                         // context?
-                        mbl_mw_metawearboard_initialize(metawearInterface.board, this, [](void* context, MblMwMetaWearBoard* board, int32_t status) -> void {
+                        mbl_mw_metawearboard_initialize(metawearInterface.board, &metawearInterface, [](void* context, MblMwMetaWearBoard* board, int32_t status) -> void {
                             if (status != 0) {
                                 printf("Error initializing board: %d\n", status);
                             } else {
