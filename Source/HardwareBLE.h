@@ -64,10 +64,26 @@ public:
 
     void update() override {
         if (isConnected){
-            if (getConnectedDevice().getDeviceName().find("MetaWear") != std::string::npos) {
+            // Update RSSI value
+            for (int i = 0; i < discovered_ble_devices.size(); ++i) {
+                if (discovered_ble_devices[i].address() == connectedDevice.getDeviceAddress()) {
+                    getConnectedDevice().signalStrength = discovered_ble_devices[i].rssi().value_or(0);
+                }
+            }
+            
+            if (getConnectedDevice().getDeviceName().find("MetaWear") != std::string::npos || getConnectedDevice().getDeviceName().find("Mach1-M") != std::string::npos) {
                 float* a = metawearInterface.getAngle();
                 // MMC = Y=0, P=2, R=1
-                std::cout << "[BLE] MetaWear device: " << a[0] << ", " << a[2] << ", " << a[1] << std::endl;
+                //std::cout << "[BLE] MetaWear device: " << a[0] << ", " << a[2] << ", " << a[1] << std::endl;
+                M1OrientationYPR newOrientation;
+                newOrientation.yaw = a[0];
+                newOrientation.pitch = a[1];
+                newOrientation.roll = a[2];
+                orientation.setYPR(newOrientation);
+                
+                // Update battery percentage
+                int b = metawearInterface.getBatteryLevel();
+                getConnectedDevice().batteryPercentage = b;
             }
         }
     }
@@ -86,7 +102,6 @@ public:
                 isConnected = false;
             }
         }
-
         //TODO: improve this, i dont think this works
         //ble.scan_stop();
     }
@@ -128,7 +143,7 @@ public:
                     devices.push_back({ discovered_ble_devices[i].identifier().value_or("UNKNOWN"), M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE, discovered_ble_devices[i].address().value_or("UNKNOWN"), discovered_ble_devices[i].rssi().value_or(0) });
                 }
             } else {
-                if (discovered_ble_devices[i].identifier()->find("MetaWear") != std::string::npos || discovered_ble_devices[i].identifier()->find("IMU") != std::string::npos || discovered_ble_devices[i].identifier()->find("Mach1-M") != std::string::npos) {
+                if (discovered_ble_devices[i].identifier()->find("MetaWear") != std::string::npos ||  discovered_ble_devices[i].identifier()->find("Mach1-M") != std::string::npos) {
                     // SHOW METAWEAR/IMU/MACH1-M BLE ONLY
                     devices.push_back({ discovered_ble_devices[i].identifier().value_or("UNKNOWN"), M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE, discovered_ble_devices[i].address().value_or("UNKNOWN"), discovered_ble_devices[i].rssi().value_or(0) });
                     // Setup and construct MetaWearInterface device with pointer to peripheral

@@ -74,13 +74,13 @@ void MetaWearInterface::get_current_power_status(MblMwMetaWearBoard* board) {
     auto power_status = mbl_mw_settings_get_power_status_data_signal(board);
     mbl_mw_datasignal_subscribe(power_status, this, [](void* context, const MblMwData* data) -> void {
         auto *wrapper = static_cast<MetaWearInterface *>(context);
-        std::cout << "Power Status: " << data << std::endl;
+        //std::cout << "Power Status: " << data << std::endl;
     });
     
     auto charge_status = mbl_mw_settings_get_charge_status_data_signal(board);
     mbl_mw_datasignal_subscribe(charge_status, this, [](void* context, const MblMwData* data) -> void {
         auto *wrapper = static_cast<MetaWearInterface *>(context);
-        std::cout << "Charge Status: " << data << std::endl;
+        //std::cout << "Charge Status: " << data << std::endl;
     });
 }
 
@@ -185,14 +185,16 @@ void MetaWearInterface::recenter() {
 }
 
 float* MetaWearInterface::getAngle() {
-    //float* calculated_angle = new float[3];
-    
+    float* calculated_angle = new float[3];
     calculated_angle[0] = outputEuler[0] + angle_shift[0];
     calculated_angle[1] = outputEuler[1] + angle_shift[1];
     calculated_angle[2] = outputEuler[2] + angle_shift[2];
-    
-    
     return calculated_angle;
+}
+
+int MetaWearInterface::getBatteryLevel() {
+    get_battery_percentage(board);
+    return battery_level;
 }
 
 std::string HighLow2Uuid(const uint64_t high, const uint64_t low){

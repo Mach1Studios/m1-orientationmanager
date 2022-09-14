@@ -49,11 +49,10 @@ public:
     ~MetaWearInterface();
 
     bool bUseMagnoHeading = true;
-    float calculated_angle[3];
-    float outputEuler[4];
     float* getAngle();
-    float angle[3];
+    float outputEuler[4];
     float angle_shift[3];
+    int getBatteryLevel();
     int battery_level;
     const char* module_name;
     
