@@ -72,8 +72,7 @@ public:
             }
             
             if (getConnectedDevice().getDeviceName().find("MetaWear") != std::string::npos || getConnectedDevice().getDeviceName().find("Mach1-M") != std::string::npos) {
-                float* a = metawearInterface.getAngle();
-                // MMC = Y=0, P=2, R=1
+                float* a = metawearInterface.getAngle(); // MMC = Y=0, P=2, R=1
                 //std::cout << "[BLE] MetaWear device: " << a[0] << ", " << a[2] << ", " << a[1] << std::endl;
                 M1OrientationYPR newOrientation;
                 newOrientation.yaw = a[0];
