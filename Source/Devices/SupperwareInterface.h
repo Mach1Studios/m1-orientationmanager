@@ -46,15 +46,6 @@ private:
     Midi::State midiState;
     Midi::TrackerDriver trackerDriver;
     HeadMatrix headMatrix;
-    bool doTimer;
-    
-    void flagTimer() {
-        if (!doTimer)
-        {
-            doTimer = true;
-            startTimer(20);
-        }
-    }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SupperwareInterface)
 };

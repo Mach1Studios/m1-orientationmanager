@@ -51,7 +51,6 @@ void SupperwareInterface::trackerMidiConnectionChanged(Midi::State newState)
             headMatrix.zero();
         }
         if (listener) listener->trackerChanged(headMatrix);
-        flagTimer();
     }
 }
 
@@ -61,14 +60,12 @@ void SupperwareInterface::trackerOrientation(float yawRadian, float pitchRadian,
 {
     headMatrix.setOrientationYPR(yawRadian, pitchRadian, rollRadian);
     if (listener) listener->trackerChanged(headMatrix);
-    flagTimer();
 }
 
 void SupperwareInterface::trackerOrientationQ(float qw, float qx, float qy, float qz)
 {
     headMatrix.setOrientationQuaternion(qw, qx, qy, qz);
     if (listener) listener->trackerChanged(headMatrix);
-    flagTimer();
 }
 
 void SupperwareInterface::trackerZero()
@@ -96,11 +93,6 @@ void SupperwareInterface::setListener(Listener* l)
 
 void SupperwareInterface::timerCallback()
 {
-    stopTimer();
-    if (doTimer) {
-        juce::MessageManagerLock mml;
-        doTimer = false;
-    }
 }
 
 void SupperwareInterface::trackerChanged(const HeadMatrix& headMatrix)
