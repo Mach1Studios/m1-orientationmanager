@@ -50,7 +50,7 @@ void SupperwareInterface::trackerMidiConnectionChanged(Midi::State newState)
         {
             headMatrix.zero();
         }
-        if (listener) listener->trackerChanged(headMatrix);
+        //if (listener) listener->trackerChanged(headMatrix);
     }
 }
 
@@ -59,13 +59,26 @@ void SupperwareInterface::trackerMidiConnectionChanged(Midi::State newState)
 void SupperwareInterface::trackerOrientation(float yawRadian, float pitchRadian, float rollRadian)
 {
     headMatrix.setOrientationYPR(yawRadian, pitchRadian, rollRadian);
-    if (listener) listener->trackerChanged(headMatrix);
+    //if (listener) listener->trackerChanged(headMatrix);
+    
+    //update public orientation
+    currentOrientation.clear();
+    currentOrientation.push_back(juce::radiansToDegrees(yawRadian));
+    currentOrientation.push_back(juce::radiansToDegrees(pitchRadian));
+    currentOrientation.push_back(juce::radiansToDegrees(rollRadian));
 }
 
 void SupperwareInterface::trackerOrientationQ(float qw, float qx, float qy, float qz)
 {
     headMatrix.setOrientationQuaternion(qw, qx, qy, qz);
-    if (listener) listener->trackerChanged(headMatrix);
+    //if (listener) listener->trackerChanged(headMatrix);
+    
+    //update public orientation
+    currentOrientation.clear();
+    currentOrientation.push_back(qw);
+    currentOrientation.push_back(qx);
+    currentOrientation.push_back(qy);
+    currentOrientation.push_back(qz);
 }
 
 void SupperwareInterface::trackerZero()
@@ -80,7 +93,7 @@ void SupperwareInterface::connectSupperware()
     // connect/disconnect
     if (midiState == Midi::State::Available) {
         trackerDriver.connect();
-        trackerDriver.turnOn(false, true);
+        trackerDriver.turnOn(true, false);
     } else {
         trackerDriver.disconnect();
     }
@@ -93,10 +106,4 @@ void SupperwareInterface::setListener(Listener* l)
 
 void SupperwareInterface::timerCallback()
 {
-}
-
-void SupperwareInterface::trackerChanged(const HeadMatrix& headMatrix)
-{
-    // headMatrix.transform and headMatrix.transformTranspose can be used here
-    // to rotate an object.
 }

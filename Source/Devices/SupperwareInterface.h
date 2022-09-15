@@ -24,7 +24,7 @@ public:
     {
     public:
         virtual ~Listener() {};
-        virtual void trackerChanged(const HeadMatrix& headMatrix) = 0;
+        //virtual std::vector<float> trackerChanged(const HeadMatrix& headMatrix) = 0;
     };
     
     SupperwareInterface();
@@ -39,7 +39,9 @@ public:
     void connectSupperware();
     void setListener(Listener* l);
     void timerCallback() override;
-    void trackerChanged(const HeadMatrix& headMatrix);
+    
+    // Public current orientation
+    std::vector<float> currentOrientation;
 
 private:
     Listener* listener;

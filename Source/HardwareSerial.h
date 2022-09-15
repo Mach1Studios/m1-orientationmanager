@@ -13,7 +13,7 @@
 #include "Devices/SupperwareInterface.h"
 #include "Devices/M1Interface.h"
 
-class HardwareSerial : public HardwareAbstract {
+class HardwareSerial : public HardwareAbstract/*, SupperwareInterface::Listener*/ {
 public:
     Orientation orientation;
     M1OrientationDeviceInfo connectedDevice;
@@ -27,8 +27,10 @@ public:
     // Device Interfaces
     M1Interface m1interface;
     SupperwareInterface supperwareInterface;
-    
+
     void setup() override {
+        // TODO: move the orientation update into this listener callback
+        //supperwareInterface.setListener(this);
         refreshDevices();
     }
 
@@ -45,46 +47,78 @@ public:
                 queueString.push_back(readBuffer[i]);
             }
             
-            while ((queueString.length() > 0) || (queueBuffer.size() > 0)) {
-                /// UPDATES FOR KNOWN MACH1 IMUs
-                if (getConnectedDevice().getDeviceName().find("Mach1-") != std::string::npos || getConnectedDevice().getDeviceName().find("HC-06-DevB") != std::string::npos || getConnectedDevice().getDeviceName().find("witDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("m1YostDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("usbmodem") != std::string::npos ||
-                    getConnectedDevice().getDeviceName().find("usbmodem1434302") != std::string::npos || getConnectedDevice().getDeviceName().find("m1Device") != std::string::npos) {
-
-                    bool anythingNewDetected = false;
-                    auto decoded = M1Interface::decode3PieceString(queueString, 'Y', 'P', 'R', 4);
-                    
-                    if (decoded.gotY || decoded.gotP || decoded.gotR) {
-                        anythingNewDetected = true;
-                        queueBuffer.clear();
-                    }
-                    
-                    if (anythingNewDetected) {
+            /// ORIENTATION UPDATE: SUPPERWARE
+            if (getConnectedDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos) {
+                if (supperwareInterface.getTrackerDriver().isConnected()) {
+                    if (supperwareInterface.currentOrientation.size() == 3) {
                         M1OrientationYPR newOrientation;
-                        newOrientation.yaw = decoded.y;
-                        newOrientation.pitch = decoded.p;
-                        newOrientation.roll = decoded.r;
+                        newOrientation.yaw = supperwareInterface.currentOrientation[0];
+                        newOrientation.pitch = supperwareInterface.currentOrientation[1];
+                        newOrientation.roll = supperwareInterface.currentOrientation[2];
+                        newOrientation.angleType = M1OrientationYPR::AngleType::DEGREES;
                         orientation.setYPR(newOrientation);
-                        // cleanup
-                        queueBuffer.clear();
-                        queueString.clear();
+                        return;
+                    } else if (supperwareInterface.currentOrientation.size() == 4) {
+                        M1OrientationQuat newOrientation;
+                        newOrientation.wIn = supperwareInterface.currentOrientation[0];
+                        newOrientation.xIn = supperwareInterface.currentOrientation[1];
+                        newOrientation.yIn = supperwareInterface.currentOrientation[2];
+                        newOrientation.zIn = supperwareInterface.currentOrientation[3];
+                        orientation.setQuat(newOrientation);
+                        return;
+                    } else {
+                        // error or do nothing
                     }
                 } else {
-                    /// UPDATES FOR GENERIC DEVICES
-                    juce::StringArray receivedSerialData = juce::StringArray::fromTokens(readBuffer, ",", "\""); // expect delimited characters of ,
-                    // TODO: figure out how to ensure the buffer captures a specific number of chars
-                    if(receivedSerialData.size() == 4) {
-                        M1OrientationQuat newOrientation;
-                        newOrientation.w = receivedSerialData[0].getFloatValue();
-                        newOrientation.x = receivedSerialData[1].getFloatValue();
-                        newOrientation.y = receivedSerialData[2].getFloatValue();
-                        newOrientation.z = receivedSerialData[3].getFloatValue();
-                        orientation.setQuat(newOrientation);
+                    // TODO: error for being abstractly connected by not literally
+                }
+                
+            } else {
+                /// ORIENTATION UPDATE: SERIAL
+                while ((queueString.length() > 0) || (queueBuffer.size() > 0)) {
+                    /// UPDATES FOR KNOWN MACH1 IMUs
+                    if (getConnectedDevice().getDeviceName().find("Mach1-") != std::string::npos || getConnectedDevice().getDeviceName().find("HC-06-DevB") != std::string::npos || getConnectedDevice().getDeviceName().find("witDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("m1YostDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("usbmodem") != std::string::npos ||
+                        getConnectedDevice().getDeviceName().find("usbmodem1434302") != std::string::npos || getConnectedDevice().getDeviceName().find("m1Device") != std::string::npos) {
+
+                        bool anythingNewDetected = false;
+                        auto decoded = M1Interface::decode3PieceString(queueString, 'Y', 'P', 'R', 4);
+                        
+                        if (decoded.gotY || decoded.gotP || decoded.gotR) {
+                            anythingNewDetected = true;
+                            queueBuffer.clear();
+                        }
+                        
+                        if (anythingNewDetected) {
+                            M1OrientationYPR newOrientation;
+                            newOrientation.yaw = decoded.y;
+                            newOrientation.pitch = decoded.p;
+                            newOrientation.roll = decoded.r;
+                            orientation.setYPR(newOrientation);
+                            // cleanup
+                            queueBuffer.clear();
+                            queueString.clear();
+                            return;
+                        }
                     } else {
-                        M1OrientationYPR newOrientation;
-                        newOrientation.yaw = receivedSerialData[0].getFloatValue();
-                        newOrientation.pitch = receivedSerialData[1].getFloatValue();
-                        newOrientation.roll = receivedSerialData[2].getFloatValue();
-                        orientation.setYPR(newOrientation);
+                        /// UPDATES FOR GENERIC DEVICES
+                        juce::StringArray receivedSerialData = juce::StringArray::fromTokens(readBuffer, ",", "\""); // expect delimited characters of ,
+                        // TODO: figure out how to ensure the buffer captures a specific number of chars
+                        if(receivedSerialData.size() == 4) {
+                            M1OrientationQuat newOrientation;
+                            newOrientation.wIn = receivedSerialData[0].getFloatValue();
+                            newOrientation.xIn = receivedSerialData[1].getFloatValue();
+                            newOrientation.yIn = receivedSerialData[2].getFloatValue();
+                            newOrientation.zIn = receivedSerialData[3].getFloatValue();
+                            orientation.setQuat(newOrientation);
+                            return;
+                        } else {
+                            M1OrientationYPR newOrientation;
+                            newOrientation.yaw = receivedSerialData[0].getFloatValue();
+                            newOrientation.pitch = receivedSerialData[1].getFloatValue();
+                            newOrientation.roll = receivedSerialData[2].getFloatValue();
+                            orientation.setYPR(newOrientation);
+                            return;
+                        }
                     }
                 }
             }
@@ -175,5 +209,9 @@ public:
     M1OrientationDeviceInfo getConnectedDevice() override {
         return connectedDevice;
     }
-
+    
+    // Callback update from the SupperwareInterface object
+//    std::vector<float> trackerChanged(const HeadMatrix& headMatrix) override {
+//
+//    }
 };
