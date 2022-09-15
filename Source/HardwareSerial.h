@@ -70,17 +70,22 @@ public:
         for(int port_index=0; port_index < port_number; port_index++) {
             std::cout << "[Serial] Found device: " << comGetPortName(port_index) << std::endl;
             portlist.set(comGetInternalName(port_index),comGetPortName(port_index));
+            // We have to grab all the devices into the vector because the comPort is determined by the order of elements in `devices`
+            devices.push_back({ comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, comGetInternalName(port_index)});
+            
+            // TODO: implement filter for listed devices
             if (!displayOnlyKnownIMUs){
-            // SHOW ALL CONNECTABLE BLE
-                devices.push_back({ comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, comGetInternalName(port_index)});
+            /// SHOW ALL CONNECTABLE SERIAL DEVICES
             } else {
+                /// SHOW KNOWN SERIAL DEVICES USING DEVICE NAME FILTERS
                 std::string searchName = comGetPortName(port_index);
                 if (searchName.find("Mach1-") != std::string::npos || searchName.find("HC-06-DevB") != std::string::npos || searchName.find("witDevice") != std::string::npos || searchName.find("m1YostDevice") != std::string::npos || searchName.find("usbmodem1434302") != std::string::npos || searchName.find("m1Device") != std::string::npos) {
-                    // SHOW MACH1 ONLY
-                    devices.push_back({ comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, std::to_string(port_index)});
+                    /// SHOW MACH1 SERIAL/BT IMUs
                 }
             }
         }
+        /// SUPPERWARE MIDI SERIAL TESTING
+        
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {
@@ -92,7 +97,7 @@ public:
         if (matchedDevice != devices.end()) {
             // todo com port
             std::string address = matchedDevice->getDeviceAddress();
-            int comPort = std::stoi(address);
+            int comPort = matchedDevice - devices.begin(); // get the device index of all found serial devices
 
             int port_state = comOpen(comPort, baudRate);
             if (port_state == 1) {

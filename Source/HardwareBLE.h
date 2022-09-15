@@ -96,7 +96,7 @@ public:
                 auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(connectedDevice.getDeviceName()));
                 if (matchedDevice != devices.end()) {
                     //TODO: should we trigger a new search to update the list again?
-//                    matchedDevice->state = M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable;
+                    //matchedDevice->state = M1OrientationStatusType::M1OrientationManagerStatusTypeConnectable;
                     connectedDevice = *matchedDevice;
                 }
                 isConnected = false;
@@ -138,13 +138,14 @@ public:
         // TODO: create a switch UI for filtering only known IMU devices vs showing all BLE
         for (int i = 0; i < discovered_ble_devices.size(); ++i){
             if (!displayOnlyKnownIMUs){
-                // SHOW ALL CONNECTABLE BLE
+                /// SHOW ALL CONNECTABLE BLE DEVICES
                 if (discovered_ble_devices[i].is_connectable()) {
                     devices.push_back({ discovered_ble_devices[i].identifier().value_or("UNKNOWN"), M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE, discovered_ble_devices[i].address().value_or("UNKNOWN"), discovered_ble_devices[i].rssi().value_or(0) });
                 }
             } else {
+                /// SHOW KNOWN BLE DEVICES USING DEVICE NAME FILTERS
                 if (discovered_ble_devices[i].identifier()->find("MetaWear") != std::string::npos ||  discovered_ble_devices[i].identifier()->find("Mach1-M") != std::string::npos) {
-                    // SHOW METAWEAR/IMU/MACH1-M BLE ONLY
+                    /// SHOW METAWEAR/METAMOTION/MACH1-M BLE ONLY
                     devices.push_back({ discovered_ble_devices[i].identifier().value_or("UNKNOWN"), M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE, discovered_ble_devices[i].address().value_or("UNKNOWN"), discovered_ble_devices[i].rssi().value_or(0) });
                     // Setup and construct MetaWearInterface device with pointer to peripheral
                     metawearInterface.set_peripheral_device(discovered_ble_devices[i]);
