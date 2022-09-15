@@ -5,6 +5,14 @@
 
 #include "M1Interface.h"
 
+M1Interface::M1Interface()
+{
+}
+
+M1Interface::~M1Interface()
+{
+}
+
 void M1Interface::setDeviceTrailingPoints(int trailingpoints){
     trailingPoints = trailingpoints;
 }

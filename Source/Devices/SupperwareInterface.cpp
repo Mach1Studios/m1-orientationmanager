@@ -51,6 +51,7 @@ void SupperwareInterface::trackerMidiConnectionChanged(Midi::State newState)
             headMatrix.zero();
         }
         if (listener) listener->trackerChanged(headMatrix);
+        flagTimer();
     }
 }
 
@@ -60,26 +61,29 @@ void SupperwareInterface::trackerOrientation(float yawRadian, float pitchRadian,
 {
     headMatrix.setOrientationYPR(yawRadian, pitchRadian, rollRadian);
     if (listener) listener->trackerChanged(headMatrix);
+    flagTimer();
 }
-
-//----------------------------------------------------------------------
 
 void SupperwareInterface::trackerOrientationQ(float qw, float qx, float qy, float qz)
 {
     headMatrix.setOrientationQuaternion(qw, qx, qy, qz);
     if (listener) listener->trackerChanged(headMatrix);
+    flagTimer();
+}
+
+void SupperwareInterface::trackerZero()
+{
+    trackerDriver.zero();
 }
 
 //----------------------------------------------------------------------
 
 void SupperwareInterface::connectSupperware()
 {
-    // connect/disconnect button
-    if (midiState == Midi::State::Available)
-    {
+    // connect/disconnect
+    if (midiState == Midi::State::Available) {
         trackerDriver.connect();
-        // is100HzMode, isQuaternionMode
-        trackerDriver.turnOn(true, true);
+        trackerDriver.turnOn(false, true);
     } else {
         trackerDriver.disconnect();
     }
@@ -88,6 +92,15 @@ void SupperwareInterface::connectSupperware()
 void SupperwareInterface::setListener(Listener* l)
 {
     listener = l;
+}
+
+void SupperwareInterface::timerCallback()
+{
+    stopTimer();
+    if (doTimer) {
+        juce::MessageManagerLock mml;
+        doTimer = false;
+    }
 }
 
 void SupperwareInterface::trackerChanged(const HeadMatrix& headMatrix)

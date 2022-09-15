@@ -24,6 +24,10 @@ public:
     juce::StringPairArray portlist;
     bool displayOnlyKnownIMUs = true;
 
+    // Device Interfaces
+    M1Interface m1interface;
+    SupperwareInterface supperwareInterface;
+    
     void setup() override {
         refreshDevices();
     }
@@ -66,7 +70,8 @@ public:
                     }
                 } else {
                     /// UPDATES FOR GENERIC DEVICES
-                    juce::StringArray receivedSerialData = juce::StringArray::fromTokens(readBuffer, ",", "\"");
+                    juce::StringArray receivedSerialData = juce::StringArray::fromTokens(readBuffer, ",", "\""); // expect delimited characters of ,
+                    // TODO: figure out how to ensure the buffer captures a specific number of chars
                     if(receivedSerialData.size() == 4) {
                         M1OrientationQuat newOrientation;
                         newOrientation.w = receivedSerialData[0].getFloatValue();
@@ -100,12 +105,15 @@ public:
     }
 
     void refreshDevices() override {
+        // clear device list
+        devices.clear();
+        
         int port_number = comEnumerate();
         for(int port_index=0; port_index < port_number; port_index++) {
             std::cout << "[Serial] Found device: " << comGetPortName(port_index) << std::endl;
             portlist.set(comGetInternalName(port_index),comGetPortName(port_index));
             // We have to grab all the devices into the vector because the comPort is determined by the order of elements in `devices`
-            devices.push_back({ comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, comGetInternalName(port_index)});
+            devices.push_back({comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, comGetInternalName(port_index)});
             
             // TODO: implement filter for listed devices
             if (!displayOnlyKnownIMUs){
@@ -119,7 +127,9 @@ public:
             }
         }
         /// SUPPERWARE MIDI SERIAL TESTING
-        
+        if (supperwareInterface.getTrackerDriver().canConnect()) {
+            devices.push_back({"Supperware HT IMU", M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, ""});
+        }
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {
@@ -129,20 +139,34 @@ public:
     void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
-            // todo com port
-            std::string address = matchedDevice->getDeviceAddress();
+            
             int comPort = matchedDevice - devices.begin(); // get the device index of all found serial devices
-
-            int port_state = comOpen(comPort, baudRate);
-            if (port_state == 1) {
-                // Set global ref for device's index (used for disconnect)
-                connectedSerialPortIndex = comPort;
-                connectedDevice = *matchedDevice;
-
-                isConnected = true;
-
-                statusCallback(true, "ok");
-                return;
+            
+            if (matchedDevice->getDeviceName().find("Supperware HT IMU") != std::string::npos) {
+                /// CONNECT SUPPERWARE
+                supperwareInterface.connectSupperware();
+                if (supperwareInterface.getTrackerDriver().isConnected()) {
+                    // Set global ref for device's index (used for disconnect)
+                    connectedSerialPortIndex = comPort;
+                    connectedDevice = *matchedDevice;
+                    isConnected = true;
+                    statusCallback(true, "ok");
+                    return;
+                } else {
+                    statusCallback(false, "Supperware connection error");
+                }
+            } else {
+                /// CONNECT ALL OTHER DEVICES
+                std::string address = matchedDevice->getDeviceAddress();
+                int port_state = comOpen(comPort, baudRate);
+                if (port_state == 1) {
+                    // Set global ref for device's index (used for disconnect)
+                    connectedSerialPortIndex = comPort;
+                    connectedDevice = *matchedDevice;
+                    isConnected = true;
+                    statusCallback(true, "ok");
+                    return;
+                }
             }
         }
         statusCallback(false, "not found");

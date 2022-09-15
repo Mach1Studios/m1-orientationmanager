@@ -17,7 +17,7 @@
 //==============================================================================
 /*
 */
-class SupperwareInterface: public Midi::TrackerDriver::Listener
+class SupperwareInterface: public juce::Timer, Midi::TrackerDriver::Listener
 {
 public:
     class Listener
@@ -35,11 +35,10 @@ public:
     void trackerOrientation(float yawRadian, float pitchRadian, float rollRadian) override;
     void trackerOrientationQ(float qw, float qx, float qy, float qz) override;
     void trackerMidiConnectionChanged(Midi::State newState) override;
-//    void trackerCompassStateChanged(Tracker::CompassState compassState) override;
-//    void trackerConnectionChanged(const Tracker::State& state) override;
-    void setListener(Listener* l);
+    void trackerZero();
     void connectSupperware();
-
+    void setListener(Listener* l);
+    void timerCallback() override;
     void trackerChanged(const HeadMatrix& headMatrix);
 
 private:
@@ -47,6 +46,15 @@ private:
     Midi::State midiState;
     Midi::TrackerDriver trackerDriver;
     HeadMatrix headMatrix;
+    bool doTimer;
+    
+    void flagTimer() {
+        if (!doTimer)
+        {
+            doTimer = true;
+            startTimer(20);
+        }
+    }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SupperwareInterface)
 };

@@ -42,8 +42,11 @@ public:
     }
 
     void refreshDevices() override {
+        // clear device list
+        devices.clear();
+        
+        // TODO: create OSC object and pushback
         //devices.push_back({ "test 1", M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, "test 1" });
-        //devices.push_back({ "test 2", M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, "test 2" });
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {

@@ -113,6 +113,9 @@ public:
     }
 
     void refreshDevices() override {
+        // clear device list
+        devices.clear();
+        
         auto ble_list = SimpleBLE::Safe::Adapter::get_adapters();
         
         if (!ble_list.has_value() || ble_list->empty()) {
