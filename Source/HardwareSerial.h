@@ -11,6 +11,7 @@
 
 // include device specific
 #include "Devices/SupperwareInterface.h"
+#include "Devices/M1Interface.h"
 
 class HardwareSerial : public HardwareAbstract {
 public:
@@ -32,21 +33,54 @@ public:
             char readBuffer[128];
             comRead(connectedSerialPortIndex, readBuffer, 128);
             
-            if(strlen(readBuffer) != 0) {
-                juce::StringArray receivedSerialData = juce::StringArray::fromTokens(readBuffer, ",", "\"");
-                if(receivedSerialData.size() == 4) {
-                    M1OrientationQuat newOrientation;
-                    newOrientation.w = receivedSerialData[0].getFloatValue();
-                    newOrientation.x = receivedSerialData[1].getFloatValue();
-                    newOrientation.y = receivedSerialData[2].getFloatValue();
-                    newOrientation.z = receivedSerialData[3].getFloatValue();
-                    orientation.setQuat(newOrientation);
+            std::vector<unsigned char> queueBuffer;
+            std::string queueString = "";
+
+            for (int i = 0; i < sizeof(readBuffer)/sizeof(int); i++) {
+                queueBuffer.insert(queueBuffer.begin() + i, (int)readBuffer[i]);
+                queueString.push_back(readBuffer[i]);
+            }
+            
+            while ((queueString.length() > 0) || (queueBuffer.size() > 0)) {
+                /// UPDATES FOR KNOWN MACH1 IMUs
+                if (getConnectedDevice().getDeviceName().find("Mach1-") != std::string::npos || getConnectedDevice().getDeviceName().find("HC-06-DevB") != std::string::npos || getConnectedDevice().getDeviceName().find("witDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("m1YostDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("usbmodem") != std::string::npos ||
+                    getConnectedDevice().getDeviceName().find("usbmodem1434302") != std::string::npos || getConnectedDevice().getDeviceName().find("m1Device") != std::string::npos) {
+
+                    bool anythingNewDetected = false;
+                    auto decoded = M1Interface::decode3PieceString(queueString, 'Y', 'P', 'R', 4);
+                    
+                    if (decoded.gotY || decoded.gotP || decoded.gotR) {
+                        anythingNewDetected = true;
+                        queueBuffer.clear();
+                    }
+                    
+                    if (anythingNewDetected) {
+                        M1OrientationYPR newOrientation;
+                        newOrientation.yaw = decoded.y;
+                        newOrientation.pitch = decoded.p;
+                        newOrientation.roll = decoded.r;
+                        orientation.setYPR(newOrientation);
+                        // cleanup
+                        queueBuffer.clear();
+                        queueString.clear();
+                    }
                 } else {
-                    M1OrientationYPR newOrientation;
-                    newOrientation.yaw = receivedSerialData[0].getFloatValue();
-                    newOrientation.pitch = receivedSerialData[1].getFloatValue();
-                    newOrientation.roll = receivedSerialData[2].getFloatValue();
-                    orientation.setYPR(newOrientation);
+                    /// UPDATES FOR GENERIC DEVICES
+                    juce::StringArray receivedSerialData = juce::StringArray::fromTokens(readBuffer, ",", "\"");
+                    if(receivedSerialData.size() == 4) {
+                        M1OrientationQuat newOrientation;
+                        newOrientation.w = receivedSerialData[0].getFloatValue();
+                        newOrientation.x = receivedSerialData[1].getFloatValue();
+                        newOrientation.y = receivedSerialData[2].getFloatValue();
+                        newOrientation.z = receivedSerialData[3].getFloatValue();
+                        orientation.setQuat(newOrientation);
+                    } else {
+                        M1OrientationYPR newOrientation;
+                        newOrientation.yaw = receivedSerialData[0].getFloatValue();
+                        newOrientation.pitch = receivedSerialData[1].getFloatValue();
+                        newOrientation.roll = receivedSerialData[2].getFloatValue();
+                        orientation.setYPR(newOrientation);
+                    }
                 }
             }
         }

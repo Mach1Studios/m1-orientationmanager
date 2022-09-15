@@ -37,6 +37,8 @@
               file="Source/Devices/SupperwareInterface.h"/>
         <FILE id="uJyV9V" name="SupperwareInterface.cpp" compile="1" resource="0"
               file="Source/Devices/SupperwareInterface.cpp"/>
+        <FILE id="SdS1Ox" name="M1Interface.h" compile="0" resource="0" file="Source/Devices/M1Interface.h"/>
+        <FILE id="KOH5Rp" name="M1Interface.cpp" compile="1" resource="0" file="Source/Devices/M1Interface.cpp"/>
         <GROUP id="{8C5F57FE-36A1-82B3-2552-3143A4F0AC7F}" name="supperware">
           <GROUP id="{1F2E2B34-2A86-A514-8519-CD56FB10009E}" name="configpanel">
             <FILE id="ggfPS3" name="configPanel-BasePanel.h" compile="0" resource="0"
@@ -83,7 +85,7 @@
       </GROUP>
     </GROUP>
   </MAINGROUP>
-  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_WEB_BROWSER="0"/>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" prebuildCommand="cmake ${SRCROOT}/../../Source/SimpleBLE/simpleble -B${SRCROOT}/../../Source/SimpleBLE/simpleble -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;10.15&quot;&#10;&#10;cmake --build ${SRCROOT}/../../Source/SimpleBLE/simpleble&#10;&#10;cmake ${SRCROOT}/../../Source/Devices/MetaWear -B${SRCROOT}/../../Source/Devices/MetaWear/build -DCMAKE_OSX_DEPLOYMENT_TARGET=&quot;10.15&quot;&#10;&#10;cmake --build ${SRCROOT}/../../Source/Devices/MetaWear/build --config Release"
                externalLibraries="simpleble&#10;metawear" iosBluetoothPermissionNeeded="1"
