@@ -9,10 +9,11 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <assert.h>
-#include <string.h>
 #include <time.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <string>
+#include <iostream>
 
 #ifndef WIN32
 #include <unistd.h>
