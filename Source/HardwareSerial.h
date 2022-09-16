@@ -184,10 +184,10 @@ public:
                     connectedSerialPortIndex = comPort;
                     connectedDevice = *matchedDevice;
                     isConnected = true;
-                    statusCallback(true, "ok");
+                    statusCallback(true, "Serial: Connected");
                     return;
                 } else {
-                    statusCallback(false, "Supperware connection error");
+                    statusCallback(false, "Serial: Supperware connection error");
                 }
             } else {
                 /// CONNECT ALL OTHER DEVICES
@@ -198,12 +198,12 @@ public:
                     connectedSerialPortIndex = comPort;
                     connectedDevice = *matchedDevice;
                     isConnected = true;
-                    statusCallback(true, "ok");
+                    statusCallback(true, "Serial: Connected");
                     return;
                 }
             }
         }
-        statusCallback(false, "not found");
+        statusCallback(false, "Serial: Not found");
     }
 
     M1OrientationDeviceInfo getConnectedDevice() override {

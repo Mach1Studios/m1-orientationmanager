@@ -208,10 +208,10 @@ public:
                             }
                         });
                         // Report to the manager that it's connected
-                        statusCallback(true, "[BLE] MetaMotion Device Connected");
+                        statusCallback(true, "BLE: MetaMotion Device Connected");
                     } else { // NOT ANY FILTERED/KNOWN IMU DEVICES
                         // TODO: return errorMessage if any error
-                        statusCallback(false, "[BLE] Device "+matchedDevice->getDeviceName()+" is not yet supported");
+                        statusCallback(false, "BLE: Device "+matchedDevice->getDeviceName()+" is not yet supported");
                     }
                     connectedDevice = *matchedDevice;
                     isConnected = true;
@@ -219,7 +219,7 @@ public:
                 }
             }
         }
-        statusCallback(false , "not connected");
+        statusCallback(false , "BLE: Not connected");
     }
      
     M1OrientationDeviceInfo getConnectedDevice() override {
