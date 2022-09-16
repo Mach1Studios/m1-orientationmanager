@@ -3,6 +3,11 @@
 //  Copyright © 2022 Mach1. All rights reserved.
 //
 
+// Concept:
+//   Search for device and filter by device name to expected device Interface
+//   Connect to any device freely (some devices have specific connection requirements like the Supperware)
+//   Update devices and use name filtering again to do specific update routines
+
 #pragma once
 
 #include <JuceHeader.h>
@@ -12,6 +17,7 @@
 // include device specific
 #include "Devices/SupperwareInterface.h"
 #include "Devices/M1Interface.h"
+#include "Devices/WitMotionInterface.h"
 
 class HardwareSerial : public HardwareAbstract/*, SupperwareInterface::Listener*/ {
 public:
@@ -25,8 +31,9 @@ public:
     bool displayOnlyKnownIMUs = true;
 
     // Device Interfaces
-    M1Interface m1interface;
+    M1Interface m1Interface;
     SupperwareInterface supperwareInterface;
+    WitMotionInterface witmotionInterface;
 
     void setup() override {
         // TODO: move the orientation update into this listener callback
@@ -39,9 +46,9 @@ public:
             char readBuffer[128];
             comRead(connectedSerialPortIndex, readBuffer, 128);
             
+            // reformatting input data for some device types
             std::vector<unsigned char> queueBuffer;
             std::string queueString = "";
-
             for (int i = 0; i < sizeof(readBuffer)/sizeof(int); i++) {
                 queueBuffer.insert(queueBuffer.begin() + i, (int)readBuffer[i]);
                 queueString.push_back(readBuffer[i]);
@@ -72,35 +79,36 @@ public:
                 } else {
                     // TODO: error for being abstractly connected by not literally
                 }
-                
             } else {
                 /// ORIENTATION UPDATE: SERIAL
                 while ((queueString.length() > 0) || (queueBuffer.size() > 0)) {
                     /// UPDATES FOR KNOWN MACH1 IMUs
                     if (getConnectedDevice().getDeviceName().find("Mach1-") != std::string::npos || getConnectedDevice().getDeviceName().find("HC-06-DevB") != std::string::npos || getConnectedDevice().getDeviceName().find("witDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("m1YostDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("usbmodem") != std::string::npos ||
                         getConnectedDevice().getDeviceName().find("usbmodem1434302") != std::string::npos || getConnectedDevice().getDeviceName().find("m1Device") != std::string::npos) {
-
-                        bool anythingNewDetected = false;
-                        auto decoded = M1Interface::decode3PieceString(queueString, 'Y', 'P', 'R', 4);
                         
-                        if (decoded.gotY || decoded.gotP || decoded.gotR) {
-                            anythingNewDetected = true;
-                            queueBuffer.clear();
-                        }
-                        
-                        if (anythingNewDetected) {
+                        if (m1Interface.anythingNewDetected) {
                             M1OrientationYPR newOrientation;
-                            newOrientation.yaw = decoded.y;
-                            newOrientation.pitch = decoded.p;
-                            newOrientation.roll = decoded.r;
+                            newOrientation.yaw = m1Interface.decoded.y;
+                            newOrientation.pitch = m1Interface.decoded.p;
+                            newOrientation.roll = m1Interface.decoded.r;
                             orientation.setYPR(newOrientation);
                             // cleanup
                             queueBuffer.clear();
                             queueString.clear();
                             return;
                         }
+                    } else if (getConnectedDevice().getDeviceName().find("wit") != std::string::npos) {
+                        /// UPDATES FOR WITMOTION DEVICES
+                        float* witOrientationAngles = witmotionInterface.updateOrientation(readBuffer, 128);
+                        M1OrientationYPR newOrientation;
+                        newOrientation.yaw = witOrientationAngles[0];
+                        newOrientation.pitch = witOrientationAngles[1];
+                        newOrientation.roll = witOrientationAngles[2];
+                        orientation.setYPR(newOrientation);
+                        return;
                     } else {
                         /// UPDATES FOR GENERIC DEVICES
+                        // TODO: Expand on parsing for generic devices by cascading through common or expected delimiters and search terms for Quat/YPR
                         juce::StringArray receivedSerialData = juce::StringArray::fromTokens(readBuffer, ",", "\""); // expect delimited characters of ,
                         // TODO: figure out how to ensure the buffer captures a specific number of chars
                         if(receivedSerialData.size() == 4) {
@@ -157,10 +165,13 @@ public:
                 std::string searchName = comGetPortName(port_index);
                 if (searchName.find("Mach1-") != std::string::npos || searchName.find("HC-06-DevB") != std::string::npos || searchName.find("witDevice") != std::string::npos || searchName.find("m1YostDevice") != std::string::npos || searchName.find("usbmodem1434302") != std::string::npos || searchName.find("m1Device") != std::string::npos) {
                     /// SHOW MACH1 SERIAL/BT IMUs
+                } else if (searchName.find("wit") != std::string::npos) {
+                    /// SHOW WITMOTION DEVICES
                 }
             }
         }
         /// SUPPERWARE MIDI SERIAL TESTING
+        // Added to the end of the serial port search to not break the serial port enumeration which is critical for connection
         if (supperwareInterface.getTrackerDriver().canConnect()) {
             devices.push_back({"Supperware HT IMU", M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, ""});
         }

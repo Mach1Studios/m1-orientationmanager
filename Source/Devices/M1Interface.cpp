@@ -13,6 +13,25 @@ M1Interface::~M1Interface()
 {
 }
 
+float* M1Interface::updateOrientation(std::string queueString, std::vector<unsigned char> queueBuffer) {
+    anythingNewDetected = false;
+    decoded = decode3PieceString(queueString, 'Y', 'P', 'R', 4);
+    
+    if (decoded.gotY || decoded.gotP || decoded.gotR) {
+        anythingNewDetected = true;
+        
+        // cleanup
+        queueBuffer.clear();
+        queueString.clear();
+        
+        float* newOrientation;
+        newOrientation[0] = decoded.y;
+        newOrientation[1] = decoded.p;
+        newOrientation[2] = decoded.r;
+        return newOrientation;
+    }
+}
+
 void M1Interface::setDeviceTrailingPoints(int trailingpoints){
     trailingPoints = trailingpoints;
 }
@@ -104,7 +123,7 @@ M1Interface::CalcResult M1Interface::decode3PieceString(std::string stringToDeco
     return success;
 }
 
-bool M1Interface::getNewDataFromQueue(float & Y, float & P, float & R) {
+bool M1Interface::getNewDataFromQueue(std::string queueString, float & Y, float & P, float & R) {
     auto decoded = decode3PieceString(queueString, 'Y', 'P', 'R', trailingPoints);
     bool anythingNewDetected = false;
     

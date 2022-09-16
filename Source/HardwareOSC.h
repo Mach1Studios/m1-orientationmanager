@@ -14,7 +14,7 @@ public:
     M1OrientationDeviceInfo connectedDevice;
     std::vector<M1OrientationDeviceInfo> devices;
     bool isConnected = false;
-    int oscReceiverPort = 8888;
+    int oscReceiverPort = 9901;
 
     bool connectOscReceiver() {
         bool isConnected = connect(oscReceiverPort);
@@ -34,7 +34,7 @@ public:
             newOrientation.roll = message[2].getFloat32();
             orientation.setYPR(newOrientation);
         }
-        if (message.getAddressPattern().toString() == "/orientation-quat" && message.size() == 4) {
+        if (message.getAddressPattern().toString() == "/quaternion" && message.size() == 4) {
             M1OrientationQuat newOrientation;
             newOrientation.wIn = message[0].getFloat32();
             newOrientation.xIn = message[1].getFloat32();
