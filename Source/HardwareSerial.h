@@ -132,6 +132,7 @@ public:
                                 orientation.setQuat(newOrientation);
                                 return;
                             } else if (receivedSerialData.size() == 3) {
+                                // TODO: for safety if previous string arrays were 4 float value captures maybe skip this? 
                                 M1OrientationYPR newOrientation;
                                 newOrientation.yaw = receivedSerialData[0].getFloatValue();
                                 newOrientation.pitch = receivedSerialData[1].getFloatValue();
