@@ -11,6 +11,15 @@ MainComponent::MainComponent()
     // Make sure you set the size of the component after
     // you add any child components.
     juce::OpenGLAppComponent::setSize(800, 600);
+    
+    // For debug testing you can set this to false to list all connectable BLE devices
+    hardwareBLE.displayOnlyKnownIMUs = true;
+    hardwareSerial.displayOnlyKnownIMUs = false;
+    hardwareBLE.setup();
+    hardwareSerial.setup();
+    
+    hardwareOSC.setup();
+
 }
 
 MainComponent::~MainComponent()
@@ -37,13 +46,6 @@ void MainComponent::initialise()
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
 	m1OrientationOSCServer.init(6345);
 
-    // For debug testing you can set this to false to list all connectable BLE devices
-    hardwareBLE.displayOnlyKnownIMUs = true;
-    hardwareSerial.displayOnlyKnownIMUs = false;
-    hardwareBLE.setup();
-    hardwareSerial.setup();
-
-	hardwareOSC.setup();
 
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
