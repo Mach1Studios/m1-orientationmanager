@@ -27,14 +27,14 @@ public:
     }
 
     void oscMessageReceived(const juce::OSCMessage& message) override {
-        if (message.getAddressPattern().toString() == "/orientation" && message.size() == 3) {
+        if ((message.getAddressPattern().toString() == "/orientation" || message.getAddressPattern().toString().toStdString().find("ypr") != std::string::npos || message.getAddressPattern().toString().toStdString().find("xyz") != std::string::npos) && message.size() == 3) {
             M1OrientationYPR newOrientation;
             newOrientation.yaw = message[0].getFloat32();
             newOrientation.pitch = message[1].getFloat32();
             newOrientation.roll = message[2].getFloat32();
             orientation.setYPR(newOrientation);
         }
-        if (message.getAddressPattern().toString() == "/quaternion" && message.size() == 4) {
+        if ((message.getAddressPattern().toString().toStdString().find("quat") != std::string::npos || message.getAddressPattern().toString().toStdString().find("/quaternion") != std::string::npos) && message.size() == 4) {
             M1OrientationQuat newOrientation;
             newOrientation.wIn = message[0].getFloat32();
             newOrientation.xIn = message[1].getFloat32();
