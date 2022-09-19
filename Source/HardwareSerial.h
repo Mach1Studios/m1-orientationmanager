@@ -108,24 +108,39 @@ public:
                         return;
                     } else {
                         /// UPDATES FOR GENERIC DEVICES
-                        // TODO: Expand on parsing for generic devices by cascading through common or expected delimiters and search terms for Quat/YPR
-                        juce::StringArray receivedSerialData = juce::StringArray::fromTokens(readBuffer, ",", "\""); // expect delimited characters of ,
-                        // TODO: figure out how to ensure the buffer captures a specific number of chars
-                        if(receivedSerialData.size() == 4) {
-                            M1OrientationQuat newOrientation;
-                            newOrientation.wIn = receivedSerialData[0].getFloatValue();
-                            newOrientation.xIn = receivedSerialData[1].getFloatValue();
-                            newOrientation.yIn = receivedSerialData[2].getFloatValue();
-                            newOrientation.zIn = receivedSerialData[3].getFloatValue();
-                            orientation.setQuat(newOrientation);
-                            return;
+                        
+                        // test if incoming data uses ";" break character
+                        juce::StringArray receivedSerialDataLines = juce::StringArray::fromTokens(readBuffer, ";", "\""); // break lines from ";" character
+                        
+                        if (receivedSerialDataLines.size() > 1) {
+                            // we can assume the break character is ";" and will process
                         } else {
-                            M1OrientationYPR newOrientation;
-                            newOrientation.yaw = receivedSerialData[0].getFloatValue();
-                            newOrientation.pitch = receivedSerialData[1].getFloatValue();
-                            newOrientation.roll = receivedSerialData[2].getFloatValue();
-                            orientation.setYPR(newOrientation);
-                            return;
+                            // clearing the test above and recapturing assuming return lines are being used per reading
+                            receivedSerialDataLines.clear();
+                            receivedSerialDataLines = juce::StringArray::fromLines(readBuffer); // break lines from lines
+                        }
+                        
+                        for (int i = 0; i < receivedSerialDataLines.size(); ++i) {
+                            juce::StringArray receivedSerialData = juce::StringArray::fromTokens(receivedSerialDataLines[i], ",", "\""); // expect delimited characters of ,
+                            
+                            if(receivedSerialData.size() == 4) {
+                                M1OrientationQuat newOrientation;
+                                newOrientation.wIn = receivedSerialData[0].getFloatValue();
+                                newOrientation.xIn = receivedSerialData[1].getFloatValue();
+                                newOrientation.yIn = receivedSerialData[2].getFloatValue();
+                                newOrientation.zIn = receivedSerialData[3].getFloatValue();
+                                orientation.setQuat(newOrientation);
+                                return;
+                            } else if (receivedSerialData.size() == 3) {
+                                M1OrientationYPR newOrientation;
+                                newOrientation.yaw = receivedSerialData[0].getFloatValue();
+                                newOrientation.pitch = receivedSerialData[1].getFloatValue();
+                                newOrientation.roll = receivedSerialData[2].getFloatValue();
+                                orientation.setYPR(newOrientation);
+                                return;
+                            } else {
+                                // ignore incomplete messages
+                            }
                         }
                     }
                 }
