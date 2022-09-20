@@ -28,7 +28,6 @@ public:
     int connectedSerialPortIndex;
     bool isConnected = false;
     juce::StringPairArray portlist;
-    bool displayOnlyKnownIMUs = true;
 
     // Device Interfaces
     M1Interface m1Interface;
@@ -172,19 +171,6 @@ public:
             portlist.set(comGetInternalName(port_index),comGetPortName(port_index));
             // We have to grab all the devices into the vector because the comPort is determined by the order of elements in `devices`
             devices.push_back({comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, comGetInternalName(port_index)});
-            
-            // TODO: implement filter for listed devices
-            if (!displayOnlyKnownIMUs){
-            /// SHOW ALL CONNECTABLE SERIAL DEVICES
-            } else {
-                /// SHOW KNOWN SERIAL DEVICES USING DEVICE NAME FILTERS
-                std::string searchName = comGetPortName(port_index);
-                if (searchName.find("Mach1-") != std::string::npos || searchName.find("HC-06-DevB") != std::string::npos || searchName.find("witDevice") != std::string::npos || searchName.find("m1YostDevice") != std::string::npos || searchName.find("usbmodem1434302") != std::string::npos || searchName.find("m1Device") != std::string::npos) {
-                    /// SHOW MACH1 SERIAL/BT IMUs
-                } else if (searchName.find("wit") != std::string::npos) {
-                    /// SHOW WITMOTION DEVICES
-                }
-            }
         }
         /// SUPPERWARE MIDI SERIAL TESTING
         // Added to the end of the serial port search to not break the serial port enumeration which is critical for connection

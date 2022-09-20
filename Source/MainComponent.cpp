@@ -14,12 +14,10 @@ MainComponent::MainComponent()
     
     // For debug testing you can set this to false to list all connectable BLE devices
     hardwareBLE.displayOnlyKnownIMUs = true;
-    hardwareSerial.displayOnlyKnownIMUs = false;
     hardwareBLE.setup();
     hardwareSerial.setup();
     
     hardwareOSC.setup();
-
 }
 
 MainComponent::~MainComponent()
