@@ -39,11 +39,9 @@ void MainComponent::initialise()
 	printf("Resources Loaded From: %s \n", resourcesPath.c_str());
 	m.setResourcesPath(resourcesPath);
 
-
 	//std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
 	m1OrientationOSCServer.init(6345);
-
 
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
@@ -131,25 +129,37 @@ void MainComponent::render()
 	}
 	offsetY += 50;
 
-	auto& selectDevice1Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 1");
-	selectDevice1Button.commit();
-	if (selectDevice1Button.pressed) {
-		std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
-		if (devices.size() > 0) {
-			m1OrientationOSCServer.command_startTrackingUsingDevice(devices[0]);
-		}
-	}
-	offsetY += 50;
+//	// Draw a murka::Button for each device detected from the m1OrientationOSCServer.getDevices()
+//	std::vector<murka::Button> deviceSelectButton;
+//	for (int i = 0; i < m1OrientationOSCServer.getDevices().size(); ++i) {
+//        auto& newDeviceButton = m.draw<murka::Button>({ offsetX, offsetY, 200, 20 }).text(m1OrientationOSCServer.getDevices()[i].getDeviceName());
+//        newDeviceButton.commit();
+//        deviceSelectButton.push_back(newDeviceButton);
+//		if (deviceSelectButton[i].pressed) {
+//			m1OrientationOSCServer.command_startTrackingUsingDevice(m1OrientationOSCServer.getDevices()[i]);
+//		}
+//		offsetY +=20;
+//	}
 
-	auto& selectDevice2Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 2");
-	selectDevice2Button.commit();
-	if (selectDevice2Button.pressed) {
-		std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
-		if (devices.size() > 1) {
-			m1OrientationOSCServer.command_startTrackingUsingDevice(devices[1]);
-		}
-	}
-	offsetY += 50;
+	 auto& selectDevice1Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 1");
+	 selectDevice1Button.commit();
+	 if (selectDevice1Button.pressed) {
+	 	std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+	 	if (devices.size() > 0) {
+	 		m1OrientationOSCServer.command_startTrackingUsingDevice(devices[0]);
+	 	}
+	 }
+	 offsetY += 50;
+
+	 auto& selectDevice2Button = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 2");
+	 selectDevice2Button.commit();
+	 if (selectDevice2Button.pressed) {
+	 	std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+	 	if (devices.size() > 1) {
+	 		m1OrientationOSCServer.command_startTrackingUsingDevice(devices[1]);
+	 	}
+	 }
+	 offsetY += 50;
 
 	auto& toogleYawButton = m.draw<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toogle yaw");
 	toogleYawButton.commit();
@@ -171,7 +181,6 @@ void MainComponent::render()
 		m1OrientationOSCServer.command_setTrackingRollEnabled(!m1OrientationOSCServer.getTrackingRollEnabled());
 	}
 	offsetY += 50;
-
 
 	m.end();
 }

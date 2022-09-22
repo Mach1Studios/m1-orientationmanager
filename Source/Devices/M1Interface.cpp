@@ -24,7 +24,7 @@ float* M1Interface::updateOrientation(std::string queueString, std::vector<unsig
         queueBuffer.clear();
         queueString.clear();
         
-        float* newOrientation;
+        float newOrientation[3];
         newOrientation[0] = decoded.y;
         newOrientation[1] = decoded.p;
         newOrientation[2] = decoded.r;

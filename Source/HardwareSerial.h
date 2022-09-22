@@ -84,7 +84,8 @@ public:
                     /// UPDATES FOR KNOWN MACH1 IMUs
                     if (getConnectedDevice().getDeviceName().find("Mach1-") != std::string::npos || getConnectedDevice().getDeviceName().find("HC-06-DevB") != std::string::npos || getConnectedDevice().getDeviceName().find("witDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("m1YostDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("usbmodem") != std::string::npos ||
                         getConnectedDevice().getDeviceName().find("usbmodem1434302") != std::string::npos || getConnectedDevice().getDeviceName().find("m1Device") != std::string::npos) {
-                        
+
+                        m1Interface.updateOrientation(queueString, queueBuffer);
                         if (m1Interface.anythingNewDetected) {
                             M1OrientationYPR newOrientation;
                             newOrientation.yaw = m1Interface.decoded.y;
