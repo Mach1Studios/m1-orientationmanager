@@ -27,20 +27,43 @@ public:
     }
 
     void oscMessageReceived(const juce::OSCMessage& message) override {
+        /// GENERIC YPR
+        M1OrientationYPR newOrientationYPR;
+        M1OrientationQuat newOrientationQuat;
         if ((message.getAddressPattern().toString() == "/orientation" || message.getAddressPattern().toString().toStdString().find("ypr") != std::string::npos || message.getAddressPattern().toString().toStdString().find("xyz") != std::string::npos) && message.size() == 3) {
-            M1OrientationYPR newOrientation;
-            newOrientation.yaw = message[0].getFloat32();
-            newOrientation.pitch = message[1].getFloat32();
-            newOrientation.roll = message[2].getFloat32();
-            orientation.setYPR(newOrientation);
+            newOrientationYPR.yaw = message[0].getFloat32();
+            newOrientationYPR.pitch = message[1].getFloat32();
+            newOrientationYPR.roll = message[2].getFloat32();
+            newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
+            orientation.setYPR(newOrientationYPR);
         }
-        if ((message.getAddressPattern().toString().toStdString().find("quat") != std::string::npos || message.getAddressPattern().toString().toStdString().find("/quaternion") != std::string::npos) && message.size() == 4) {
-            M1OrientationQuat newOrientation;
-            newOrientation.wIn = message[0].getFloat32();
-            newOrientation.xIn = message[1].getFloat32();
-            newOrientation.yIn = message[2].getFloat32();
-            newOrientation.zIn = message[3].getFloat32();
-            orientation.setQuat(newOrientation);
+        /// GENERIC QUATERNION
+        else if ((message.getAddressPattern().toString().toStdString().find("quat") != std::string::npos || message.getAddressPattern().toString().toStdString().find("/quaternion") != std::string::npos) && message.size() == 4) {
+            newOrientationQuat.wIn = message[0].getFloat32();
+            newOrientationQuat.xIn = message[1].getFloat32();
+            newOrientationQuat.yIn = message[2].getFloat32();
+            newOrientationQuat.zIn = message[3].getFloat32();
+            orientation.setQuat(newOrientationQuat);
+        }
+        /// BoseAR
+        else if ((message.getAddressPattern().toString() == "/bosear/sensors/rotation_six_dof" || message.getAddressPattern().toString() == "/bosear/sensors/rotation_nine_dof") && message.size() == 3) {
+            // [0] Pitch 0->270 up | 0->90 down
+            // [1] Yaw 0->360
+            // [2] Roll 0->270 left | 0->90 right
+            newOrientationYPR.yaw = message[1].getFloat32() / 360;
+            newOrientationYPR.pitch = (((((message[0].getFloat32() > 180.) ? abs(message[0].getFloat32() - 360.) : -message[0].getFloat32()))) * -1. + 90. ) / 180.;
+            newOrientationYPR.roll = (((((message[2].getFloat32() > 180.) ? abs(message[2].getFloat32() - 360.) : message[2].getFloat32()))) * -1. + 90. ) / 180.;
+            newOrientationYPR.angleType = M1OrientationYPR::AngleType::NORMALED;
+            orientation.setYPR(newOrientationYPR);
+        }
+        /// TouchOSC
+        else if ((message.getAddressPattern().toString() == "/accxyz") && message.size() == 3) {
+            // TODO: fix parsing!
+            newOrientationYPR.yaw = (((-1. - 1.) / (0. - 1.)) * ((message[0].getFloat32() - 360.) + 360.));
+            newOrientationYPR.pitch = (((-1. - 1.) / (-180. - 1.)) * ((message[1].getFloat32() - 180.) + 180.));
+            newOrientationYPR.roll = (((-1. - 1.) / (-180. - 1.)) * ((message[2].getFloat32() - 180.) + 180.));
+            newOrientationYPR.angleType = M1OrientationYPR::AngleType::NORMALED;
+            orientation.setYPR(newOrientationYPR);
         }
     }
 
