@@ -4,6 +4,7 @@ m1transcoder/dist
 M1notifier/dist
 * - Notarized*
 *.ttf
+*.otf
 
 # JUCE
 Builds
