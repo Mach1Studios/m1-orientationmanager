@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <cctype>
 
 class M1Interface {
 public:
