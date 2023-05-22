@@ -184,6 +184,13 @@ void MainComponent::render()
 	}
 	offsetY += 50;
 
+	auto& disconnectButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("disconnect");
+	disconnectButton.draw();
+	if (disconnectButton.pressed) {
+		m1OrientationOSCServer.command_disconnect();
+	}
+	offsetY += 50;
+
 	m.end();
 }
 

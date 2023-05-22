@@ -67,7 +67,9 @@ public:
     void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
-    void command_setTrackingRollEnabled(bool enable);
+	void command_setTrackingRollEnabled(bool enable);
+	void command_disconnect();
+	
 
     void close();
 };
