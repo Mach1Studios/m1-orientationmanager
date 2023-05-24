@@ -33,7 +33,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 # add JUCE and other custom modules
 add_subdirectory(JUCE)
 add_subdirectory(Modules)
-add_subdirectory(Source/SimpleBLE)
+add_subdirectory(Source/SimpleBLE/simpleble)
 
 set(TargetName ${PROJECT_NAME})
 juce_add_gui_app(${TargetName} PRODUCT_NAME "${TargetName}")
@@ -53,7 +53,8 @@ target_compile_definitions(${TargetName} PRIVATE
         JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:${TargetName},JUCE_VERSION>")
 
 target_include_directories(${TargetName} PRIVATE 
-        ${PROJECT_SOURCE_DIR}/Source/SimpleBLE/include
+        ${PROJECT_SOURCE_DIR}/Source/SimpleBLE/simpleble/include
+        ${PROJECT_SOURCE_DIR}/Source/SimpleBLE/simpleble/export
         ${PROJECT_SOURCE_DIR}/Source/Devices/MetaWear/src
         ${PROJECT_SOURCE_DIR}/Source/Devices/ht-api-juce/supperware
         ${PROJECT_SOURCE_DIR}/Source/Devices/ht-api-juce/supperware/headpanel
@@ -73,8 +74,7 @@ target_link_libraries(${TargetName} PRIVATE
         juce::juce_opengl
         juce::juce_osc
         juce_murka
-        m1_orientation_client
-        shared_processing_code)
+        m1_orientation_client)
 
 option(BUILD_UNIT_TESTS "Build JUCE prototype examples" OFF)
 

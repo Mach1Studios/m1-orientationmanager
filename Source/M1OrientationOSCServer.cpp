@@ -6,7 +6,9 @@
 #include "M1OrientationOSCServer.h"
 
 void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message) {
-    if (message.getAddressPattern() == "/addClient") {
+    juce::MessageManager::callAsync([this, message]() {
+
+        if (message.getAddressPattern() == "/addClient") {
         // add client to clients list
         int port = message[0].getInt32();
         bool found = false;
@@ -63,6 +65,8 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
 	else {
         std::cout << "not implemented!" << std::endl;
     }
+        
+    });
 }
 
 void M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
@@ -187,7 +191,8 @@ bool M1OrientationOSCServer::init(int serverPort) {
 }
 
 void M1OrientationOSCServer::update() {
-    if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
+    juce::MessageManager::callAsync([this]() {
+        if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
         hardwareImpl[currentDevice.getDeviceType()]->update();
 
         M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPR(); // todo
@@ -202,6 +207,7 @@ void M1OrientationOSCServer::update() {
         msg.addFloat32(ypr.roll);
         send(clients, msg);
     }
+    });
 }
 
 Orientation M1OrientationOSCServer::getOrientation() {
@@ -220,6 +226,7 @@ void M1OrientationOSCServer::close() {
 void M1OrientationOSCServer::command_refreshDevices() {
 	// call the other thread?
 	for (const auto& v : hardwareImpl) {
+        
 		v.second->refreshDevices();
 	}
 
