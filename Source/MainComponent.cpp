@@ -23,6 +23,7 @@ MainComponent::MainComponent()
 
 MainComponent::~MainComponent()
 {
+	murka::JuceMurkaBaseComponent::shutdownOpenGL();
 }
 
 //==============================================================================
