@@ -11,14 +11,7 @@ MainComponent::MainComponent()
     // Make sure you set the size of the component after
     // you add any child components.
     juce::OpenGLAppComponent::setSize(800, 600);
-    
-    // For debug testing you can set this to false to list all connectable BLE devices
-    hardwareBLE.displayOnlyKnownIMUs = true;
-    hardwareBLE.setup();
-    hardwareSerial.setup();
-    
-	hardwareOSC.setup();
-	hardwareEmulator.setup();
+
 }
 
 MainComponent::~MainComponent()
@@ -41,6 +34,16 @@ void MainComponent::initialise()
 	printf("Resources Loaded From: %s \n", resourcesPath.c_str());
 	m.setResourcesPath(resourcesPath);
 
+    
+    
+    // For debug testing you can set this to false to list all connectable BLE devices
+    hardwareBLE.displayOnlyKnownIMUs = true;
+    hardwareBLE.setup();
+    hardwareSerial.setup();
+    
+    hardwareOSC.setup();
+    hardwareEmulator.setup();
+    
 	//std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
 	m1OrientationOSCServer.init(6345);
@@ -156,15 +159,35 @@ void MainComponent::render()
 	 }
 	 offsetY += 50;
 
-	 auto& selectDevice2Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 2");
-	 selectDevice2Button.draw();
-	 if (selectDevice2Button.pressed) {
-	 	std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
-	 	if (devices.size() > 1) {
-            m1OrientationOSCServer.command_startTrackingUsingDevice(devices[1]);
-	 	}
-	 }
-	 offsetY += 50;
+    auto& selectDevice2Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 2");
+    selectDevice2Button.draw();
+    if (selectDevice2Button.pressed) {
+        std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+        if (devices.size() > 1) {
+           m1OrientationOSCServer.command_startTrackingUsingDevice(devices[1]);
+        }
+    }
+    offsetY += 50;
+
+    auto& selectDevice3Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 3");
+    selectDevice3Button.draw();
+    if (selectDevice3Button.pressed) {
+        std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+        if (devices.size() > 1) {
+           m1OrientationOSCServer.command_startTrackingUsingDevice(devices[2]);
+        }
+    }
+    offsetY += 50;
+
+    auto& selectDevice4Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 4");
+    selectDevice4Button.draw();
+    if (selectDevice4Button.pressed) {
+        std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+        if (devices.size() > 1) {
+           m1OrientationOSCServer.command_startTrackingUsingDevice(devices[3]);
+        }
+    }
+    offsetY += 50;
 
 	auto& toogleYawButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toogle yaw");
 	toogleYawButton.draw();

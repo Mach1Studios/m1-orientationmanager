@@ -175,9 +175,15 @@ public:
         }
         /// SUPPERWARE MIDI SERIAL TESTING
         // Added to the end of the serial port search to not break the serial port enumeration which is critical for connection
-        if (supperwareInterface.getTrackerDriver().canConnect()) {
-            devices.push_back({"Supperware HT IMU", M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, ""});
-        }
+        juce::WaitableEvent completionEvent;
+        juce::MessageManager::callAsync([this, &completionEvent]() {
+            if (supperwareInterface.getTrackerDriver().canConnect()) {
+                devices.push_back({"Supperware HT IMU", M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, ""});
+            }
+            completionEvent.signal();
+        });
+        completionEvent.wait();
+        
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {
@@ -192,7 +198,13 @@ public:
             
             if (matchedDevice->getDeviceName().find("Supperware HT IMU") != std::string::npos) {
                 /// CONNECT SUPPERWARE
-                supperwareInterface.connectSupperware();
+                juce::WaitableEvent completionEvent;
+                juce::MessageManager::callAsync([this, &completionEvent]() {
+                    supperwareInterface.connectSupperware();
+                    completionEvent.signal();
+                });
+                completionEvent.wait();
+                
                 if (supperwareInterface.getTrackerDriver().isConnected()) {
                     // Set global ref for device's index (used for disconnect)
                     connectedSerialPortIndex = comPort;
