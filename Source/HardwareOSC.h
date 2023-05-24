@@ -31,18 +31,46 @@ public:
         M1OrientationYPR newOrientationYPR;
         M1OrientationQuat newOrientationQuat;
         if ((message.getAddressPattern().toString() == "/orientation" || message.getAddressPattern().toString().toStdString().find("ypr") != std::string::npos || message.getAddressPattern().toString().toStdString().find("xyz") != std::string::npos) && message.size() == 3) {
-            newOrientationYPR.yaw = message[0].getFloat32();
-            newOrientationYPR.pitch = message[1].getFloat32();
-            newOrientationYPR.roll = message[2].getFloat32();
+            if (message[0].isFloat32()) {
+                newOrientationYPR.yaw = message[0].getFloat32();
+            } else if (message[0].isInt32()) {
+                newOrientationYPR.yaw = (float)message[0].getInt32();
+            }
+            if (message[1].isFloat32()) {
+                newOrientationYPR.pitch = message[1].getFloat32();
+            } else if (message[1].isInt32()) {
+                newOrientationYPR.pitch = (float)message[1].getInt32();
+            }
+            if (message[2].isFloat32()) {
+                newOrientationYPR.roll = message[2].getFloat32();
+            } else if (message[2].isInt32()) {
+                newOrientationYPR.roll = (float)message[2].getInt32();
+            }
             newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
             orientation.setYPR(newOrientationYPR);
         }
         /// GENERIC QUATERNION
         else if ((message.getAddressPattern().toString().toStdString().find("quat") != std::string::npos || message.getAddressPattern().toString().toStdString().find("/quaternion") != std::string::npos) && message.size() == 4) {
-            newOrientationQuat.wIn = message[0].getFloat32();
-            newOrientationQuat.xIn = message[1].getFloat32();
-            newOrientationQuat.yIn = message[2].getFloat32();
-            newOrientationQuat.zIn = message[3].getFloat32();
+            if (message[0].isFloat32()) {
+                newOrientationQuat.wIn = message[0].getFloat32();
+            } else if (message[0].isInt32()) {
+                newOrientationQuat.wIn = (float)message[0].getInt32();
+            }
+            if (message[1].isFloat32()) {
+                newOrientationQuat.xIn = message[1].getFloat32();
+            } else if (message[1].isInt32()) {
+                newOrientationQuat.xIn = (float)message[1].getInt32();
+            }
+            if (message[2].isFloat32()) {
+                newOrientationQuat.yIn = message[2].getFloat32();
+            } else if (message[2].isInt32()) {
+                newOrientationQuat.yIn = (float)message[2].getInt32();
+            }
+            if (message[3].isFloat32()) {
+                newOrientationQuat.zIn = message[3].getFloat32();
+            } else if (message[3].isInt32()) {
+                newOrientationQuat.zIn = (float)message[3].getInt32();
+            }
             orientation.setQuat(newOrientationQuat);
         }
         /// BoseAR
