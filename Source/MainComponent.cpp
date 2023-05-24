@@ -128,9 +128,9 @@ void MainComponent::render()
 	if (refreshDeviceButton.pressed) {
         // TODO: clear the previous list of devices?
         // should clear be handled
-        juce::MessageManager::callAsync([this]() {
+       
 		m1OrientationOSCServer.command_refreshDevices();
-        });
+      
 	}
 	offsetY += 50;
 
@@ -151,12 +151,7 @@ void MainComponent::render()
 	 if (selectDevice1Button.pressed) {
 	 	std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
 	 	if (devices.size() > 0) {
-            
-            juce::MessageManager::callAsync([this,devices]() {
-                m1OrientationOSCServer.command_startTrackingUsingDevice(devices[0]);
-            });
-            
-	 		
+			m1OrientationOSCServer.command_startTrackingUsingDevice(devices[0]);
 	 	}
 	 }
 	 offsetY += 50;
@@ -166,12 +161,7 @@ void MainComponent::render()
 	 if (selectDevice2Button.pressed) {
 	 	std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
 	 	if (devices.size() > 1) {
-            
-            juce::MessageManager::callAsync([this,devices]() {
-                m1OrientationOSCServer.command_startTrackingUsingDevice(devices[1]);
-            });
-            
-           
+            m1OrientationOSCServer.command_startTrackingUsingDevice(devices[1]);
 	 	}
 	 }
 	 offsetY += 50;

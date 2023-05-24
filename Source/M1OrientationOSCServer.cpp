@@ -6,7 +6,6 @@
 #include "M1OrientationOSCServer.h"
 
 void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message) {
-    juce::MessageManager::callAsync([this, message]() {
 
         if (message.getAddressPattern() == "/addClient") {
         // add client to clients list
@@ -66,7 +65,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         std::cout << "not implemented!" << std::endl;
     }
         
-    });
+    
 }
 
 void M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
@@ -191,7 +190,7 @@ bool M1OrientationOSCServer::init(int serverPort) {
 }
 
 void M1OrientationOSCServer::update() {
-    juce::MessageManager::callAsync([this]() {
+     
         if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
         hardwareImpl[currentDevice.getDeviceType()]->update();
 
@@ -207,7 +206,7 @@ void M1OrientationOSCServer::update() {
         msg.addFloat32(ypr.roll);
         send(clients, msg);
     }
-    });
+   
 }
 
 Orientation M1OrientationOSCServer::getOrientation() {
