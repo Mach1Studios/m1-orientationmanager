@@ -86,13 +86,15 @@ void MetaWearInterface::get_current_power_status(MblMwMetaWearBoard* board) {
 
 void MetaWearInterface::get_battery_percentage(MblMwMetaWearBoard* board) {
     auto battery_signal = mbl_mw_settings_get_battery_state_data_signal(board);
-    mbl_mw_datasignal_subscribe(battery_signal, this, [](void* context, const MblMwData* data) -> void {
-        auto *wrapper = static_cast<MetaWearInterface *>(context);
-        auto state = (MblMwBatteryState*) data->value;
-        wrapper->battery_level = state->charge;
-        //printf("{voltage: %dmV, charge: %d}\n", state->voltage, state->charge);
-    });
-    mbl_mw_datasignal_read(battery_signal);
+    if (battery_signal != NULL) { // seems to be inaccessible at first
+        mbl_mw_datasignal_subscribe(battery_signal, this, [](void* context, const MblMwData* data) -> void {
+            auto *wrapper = static_cast<MetaWearInterface *>(context);
+            auto state = (MblMwBatteryState*) data->value;
+            wrapper->battery_level = state->charge;
+            //printf("{voltage: %dmV, charge: %d}\n", state->voltage, state->charge);
+        });
+        mbl_mw_datasignal_read(battery_signal);
+    }
 }
 
 void MetaWearInterface::set_ad_name(MblMwMetaWearBoard* board) {
