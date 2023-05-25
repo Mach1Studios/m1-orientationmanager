@@ -55,17 +55,11 @@ void MainComponent::initialise()
 }
 
 //==============================================================================
-void MainComponent::render()
+void MainComponent::draw()
 {
-	m.setFont("ProximaNovaReg.ttf", 10);
-
-	m.startFrame();
-	m.setScreenScale((float)openGLContext.getRenderingScale());
-
+	m.setFontFromRawData("ProximaNovaReg.ttf", 10);
 	m.clear(20);
 	m.setColor(255);
-
-	m.begin();
 
 	m1OrientationOSCServer.update();
 
@@ -216,8 +210,6 @@ void MainComponent::render()
 		m1OrientationOSCServer.command_disconnect();
 	}
 	offsetY += 50;
-
-	m.end();
 }
 
 void MainComponent::paint(juce::Graphics& g)

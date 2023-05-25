@@ -34,7 +34,7 @@ public:
     void resized() override;
 
     void initialise() override;
-    void render() override;
+    void draw() override;
 
 private:
     //==============================================================================
