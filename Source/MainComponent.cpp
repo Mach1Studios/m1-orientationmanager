@@ -57,7 +57,7 @@ void MainComponent::initialise()
 //==============================================================================
 void MainComponent::draw()
 {
-	m.setFontFromRawData("ProximaNovaReg.ttf", 10);
+	m.setFont("ProximaNovaReg.ttf", 10);
 	m.clear(20);
 	m.setColor(255);
 
