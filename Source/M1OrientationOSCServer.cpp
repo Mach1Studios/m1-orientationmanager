@@ -59,13 +59,12 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
 		command_setTrackingRollEnabled(enable);
 	}
 	else if (message.getAddressPattern() == "/disconnect") {
+        // TODO: zero out values of orientation
 		command_disconnect();
 	}
 	else {
         std::cout << "not implemented!" << std::endl;
     }
-        
-    
 }
 
 void M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
@@ -206,7 +205,6 @@ void M1OrientationOSCServer::update() {
         msg.addFloat32(ypr.roll);
         send(clients, msg);
     }
-   
 }
 
 Orientation M1OrientationOSCServer::getOrientation() {
@@ -228,7 +226,6 @@ void M1OrientationOSCServer::command_refreshDevices() {
         
 		v.second->refreshDevices();
 	}
-
 	send_getDevices(clients);
 }
 
