@@ -21,7 +21,7 @@ else()
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version" FORCE)
 endif()
 
-option(UniversalBinary "Build universal binary for mac" OFF)
+option(UniversalBinary "Build universal binary for mac" ON)
 
 if (UniversalBinary)
     set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE INTERNAL "")
@@ -34,33 +34,38 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 add_subdirectory(JUCE)
 add_subdirectory(Modules)
 add_subdirectory(Source/SimpleBLE/simpleble)
+add_subdirectory(Source/Devices/MetaWear)
 
-set(TargetName ${PROJECT_NAME})
-juce_add_gui_app(${TargetName} PRODUCT_NAME "${TargetName}")
-juce_generate_juce_header(${TargetName})
+juce_add_gui_app(${PROJECT_NAME} PRODUCT_NAME "${PROJECT_NAME}")
+juce_generate_juce_header(${PROJECT_NAME})
 
-target_sources(${TargetName} PRIVATE
+target_sources(${PROJECT_NAME} PRIVATE
         ${PROJECT_SOURCE_DIR}/Source/Main.cpp
         ${PROJECT_SOURCE_DIR}/Source/MainComponent.cpp
         ${PROJECT_SOURCE_DIR}/Source/M1OrientationOSCServer.cpp
         ${PROJECT_SOURCE_DIR}/Source/Devices/MetaWearInterface.cpp
-        ${PROJECT_SOURCE_DIR}/Source/Devices/SupperwareInterface.cpp)
+        ${PROJECT_SOURCE_DIR}/Source/Devices/SupperwareInterface.cpp
+        ${PROJECT_SOURCE_DIR}/Source/Devices/WitMotionInterface.cpp
+        ${PROJECT_SOURCE_DIR}/Source/Devices/M1Interface.cpp
+        )
 
-target_compile_definitions(${TargetName} PRIVATE
+target_compile_definitions(${PROJECT_NAME} PRIVATE
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
         JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:${TargetName},JUCE_PROJECT_NAME>"
         JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:${TargetName},JUCE_VERSION>")
 
-target_include_directories(${TargetName} PRIVATE 
+target_include_directories(${PROJECT_NAME} PRIVATE 
         ${PROJECT_SOURCE_DIR}/Source/SimpleBLE/simpleble/include
         ${PROJECT_SOURCE_DIR}/Source/SimpleBLE/simpleble/export
         ${PROJECT_SOURCE_DIR}/Source/Devices/MetaWear/src
         ${PROJECT_SOURCE_DIR}/Source/Devices/ht-api-juce/supperware
         ${PROJECT_SOURCE_DIR}/Source/Devices/ht-api-juce/supperware/headpanel
-        ${PROJECT_SOURCE_DIR}/Source/Devices/ht-api-juce/supperware/midi)
+        ${PROJECT_SOURCE_DIR}/Source/Devices/ht-api-juce/supperware/midi
+        ${PROJECT_SOURCE_DIR}/Source/rs323
+        )
 
-target_link_libraries(${TargetName} PRIVATE
+target_link_libraries(${PROJECT_NAME} PRIVATE
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
