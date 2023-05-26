@@ -182,24 +182,34 @@ void MainComponent::draw()
         }
     }
     offsetY += 50;
+    
+    auto& selectDevice5Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 5");
+    selectDevice5Button.draw();
+    if (selectDevice5Button.pressed) {
+        std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+        if (devices.size() > 1) {
+           m1OrientationOSCServer.command_startTrackingUsingDevice(devices[4]);
+        }
+    }
+    offsetY += 50;
 
-	auto& toogleYawButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toogle yaw");
-	toogleYawButton.draw();
-	if (toogleYawButton.pressed) {
+	auto& toggleYawButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toggle yaw");
+	toggleYawButton.draw();
+	if (toggleYawButton.pressed) {
 		m1OrientationOSCServer.command_setTrackingYawEnabled(!m1OrientationOSCServer.getTrackingYawEnabled());
 	}
 	offsetY += 50;
 
-	auto& tooglePitchButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toogle pitch");
-	tooglePitchButton.draw();
-	if (tooglePitchButton.pressed) {
+	auto& togglePitchButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toggle pitch");
+	togglePitchButton.draw();
+	if (togglePitchButton.pressed) {
 		m1OrientationOSCServer.command_setTrackingPitchEnabled(!m1OrientationOSCServer.getTrackingPitchEnabled());
 	}
 	offsetY += 50;
 
-	auto& toogleRollButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toogle roll");
-	toogleRollButton.draw();
-	if (toogleRollButton.pressed) {
+	auto& toggleRollButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toggle roll");
+	toggleRollButton.draw();
+	if (toggleRollButton.pressed) {
 		m1OrientationOSCServer.command_setTrackingRollEnabled(!m1OrientationOSCServer.getTrackingRollEnabled());
 	}
 	offsetY += 50;
