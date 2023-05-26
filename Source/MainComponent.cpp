@@ -33,16 +33,14 @@ void MainComponent::initialise()
 	}
 	printf("Resources Loaded From: %s \n", resourcesPath.c_str());
 	m.setResourcesPath(resourcesPath);
-
-    
     
     // For debug testing you can set this to false to list all connectable BLE devices
     hardwareBLE.displayOnlyKnownIMUs = true;
     hardwareBLE.setup();
     hardwareSerial.setup();
-    
     hardwareOSC.setup();
-    hardwareEmulator.setup();
+    // Internal device emulator for debugging
+    //hardwareEmulator.setup();
     
 	//std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
@@ -130,18 +128,6 @@ void MainComponent::draw()
       
 	}
 	offsetY += 50;
-
-//	// Draw a murka::Button for each device detected from the m1OrientationOSCServer.getDevices()
-//	std::vector<murka::Button> deviceSelectButton;
-//	for (int i = 0; i < m1OrientationOSCServer.getDevices().size(); ++i) {
-//        auto& newDeviceButton = m.prepare<murka::Button>({ offsetX, offsetY, 200, 20 }).text(m1OrientationOSCServer.getDevices()[i].getDeviceName());
-//        newDeviceButton.draw();
-//        deviceSelectButton.push_back(newDeviceButton);
-//		if (deviceSelectButton[i].pressed) {
-//			m1OrientationOSCServer.command_startTrackingUsingDevice(m1OrientationOSCServer.getDevices()[i]);
-//		}
-//		offsetY +=20;
-//	}
 
 	 auto& selectDevice1Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 1");
 	 selectDevice1Button.draw();

@@ -45,7 +45,6 @@ private:
 	HardwareOSC hardwareOSC;
 	HardwareEmulator hardwareEmulator;
 	// ...
-
 	
     M1OrientationOSCServer m1OrientationOSCServer;
 

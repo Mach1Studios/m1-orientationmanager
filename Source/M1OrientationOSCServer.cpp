@@ -113,7 +113,6 @@ void M1OrientationOSCServer::send_getCurrentDevice(const std::vector<M1Orientati
     else {
         msg.addInt32(0);
     }
-
     send(clients, msg);
 }
 
@@ -254,18 +253,15 @@ void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDevic
 
 void M1OrientationOSCServer::command_setTrackingYawEnabled(bool enable) {
     bTrackingYawEnabled = enable;
-
     send_getTrackingYawEnabled(clients);
 }
 
 void M1OrientationOSCServer::command_setTrackingPitchEnabled(bool enable) {
     bTrackingPitchEnabled = enable;
-
     send_getTrackingPitchEnabled(clients);
 }
 
 void M1OrientationOSCServer::command_setTrackingRollEnabled(bool enable) {
     bTrackingRollEnabled = enable;
-
     send_getTrackingRollEnabled(clients);
 }

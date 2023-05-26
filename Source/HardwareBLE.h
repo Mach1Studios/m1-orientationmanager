@@ -71,13 +71,14 @@ public:
                 }
             }
             
+            // TODO: Add magnometer activate function `bUseMagnoHeading`
             if (getConnectedDevice().getDeviceName().find("MetaWear") != std::string::npos || getConnectedDevice().getDeviceName().find("Mach1-M") != std::string::npos) {
                 float* a = metawearInterface.getAngle(); // MMC = Y=0, P=2, R=1
                 //std::cout << "[BLE] MetaWear device: " << a[0] << ", " << a[2] << ", " << a[1] << std::endl;
                 M1OrientationYPR newOrientation;
                 newOrientation.yaw = a[0];
-                newOrientation.pitch = a[1];
-                newOrientation.roll = a[2];
+                newOrientation.pitch = -a[2];
+                newOrientation.roll = -a[1];
                 orientation.setYPR(newOrientation);
                 
                 // Update battery percentage
