@@ -16,3 +16,6 @@
 [submodule "Source/Devices/MetaWear"]
 	path = Source/Devices/MetaWear
 	url = git@github.com:Mach1Studios/MetaWear-SDK-Cpp.git
+[submodule "JUCE"]
+	path = JUCE
+	url = git@github.com:juce-framework/JUCE.git
