@@ -34,13 +34,14 @@ public:
     SupperwareInterface supperwareInterface;
     WitMotionInterface witmotionInterface;
 
-    void setup() override {
+    int setup() override {
         // TODO: move the orientation update into this listener callback
         //supperwareInterface.setListener(this);
         refreshDevices();
+        return 1;
     }
 
-    void update() override {
+    int update() override {
         if (isConnected){
             char readBuffer[128];
             comRead(connectedSerialPortIndex, readBuffer, 128);
@@ -146,13 +147,17 @@ public:
                     }
                 }
             }
+            return 1;
+        } else {
+            // return for error handling
+            return -1;
         }
-        // TODO: This has to handle loosing the device. What if it's disconnected?
     }
     
-    void close() override {
+    int close() override {
         comClose(connectedSerialPortIndex);
         isConnected = false;
+        return 1;
     }
 
     M1OrientationTrackingResult getOrientation() override {

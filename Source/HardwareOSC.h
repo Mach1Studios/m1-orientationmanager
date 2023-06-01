@@ -100,19 +100,24 @@ public:
         oscMessageReceived(elem.getMessage());
     }
     
-    void setup() override {
+    int setup() override {
         refreshDevices();
+        return 1;
     }
 
-    void update() override {
+    int update() override {
         if (isConnected){
             // callbacks are handled by override oscBundleReceived and oscMessageReceived
+            return 1;
+        } else {
+            return -1;
         }
     }
     
-    void close() override {
+    int close() override {
         disconnectOscReceiver();
         isConnected = false;
+        return 1;
     }
 
     M1OrientationTrackingResult getOrientation() override {

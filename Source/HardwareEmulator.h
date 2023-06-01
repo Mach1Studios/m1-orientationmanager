@@ -23,11 +23,12 @@ public:
 	float roll = 0; 
 	bool isConnected = false;
 
-    void setup() override {
+    int setup() override {
         refreshDevices();
+        return 1;
     }
 
-    void update() override {
+    int update() override {
         if (isConnected){
 			M1OrientationYPR newOrientation;
 			newOrientation.yaw = yaw; 
@@ -37,12 +38,16 @@ public:
 			orientation.setYPR(newOrientation);
 
 			yaw = fmod((yaw + 0.1), 360);
-		}
-        // TODO: This has to handle loosing the device. What if it's disconnected?
+            return 1;
+        } else {
+            // return for error handling
+            return -1;
+        }
     }
     
-    void close() override {
+    int close() override {
         isConnected = false;
+        return 1;
     }
 
     M1OrientationTrackingResult getOrientation() override {

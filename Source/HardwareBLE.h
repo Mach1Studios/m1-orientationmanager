@@ -57,12 +57,13 @@ public:
     bool isConnected = false;
     bool displayOnlyKnownIMUs = true;
     
-    void setup() override {
+    int setup() override {
         // Setup callback functions
         refreshDevices();
+        return 1;
     }
 
-    void update() override {
+    int update() override {
         if (isConnected){
             // Update RSSI value
             for (int i = 0; i < discovered_ble_devices.size(); ++i) {
@@ -85,10 +86,14 @@ public:
                 int b = metawearInterface.getBatteryLevel();
                 getConnectedDevice().batteryPercentage = b;
             }
+            return 1;
+        } else {
+            // return for error handling
+            return -1;
         }
     }
 
-    void close() override {
+    int close() override {
         for (int i = 0; i < discovered_ble_devices.size(); ++i) {
             if (discovered_ble_devices[i].address() == connectedDevice.getDeviceAddress()) {
                 discovered_ble_devices[i].disconnect();
@@ -104,6 +109,7 @@ public:
         }
         //TODO: improve this, i dont think this works
         //ble.scan_stop();
+        return 1;
     }
 
     M1OrientationTrackingResult getOrientation() override {

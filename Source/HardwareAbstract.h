@@ -11,9 +11,9 @@
 
 class HardwareAbstract {
 public:
-    virtual void setup() = 0;
-    virtual void update() = 0;
-    virtual void close() = 0;
+    virtual int setup() = 0;
+    virtual int update() = 0;
+    virtual int close() = 0;
     
     std::function<void()> orientationDeviceLostCallback = [](){};
 
