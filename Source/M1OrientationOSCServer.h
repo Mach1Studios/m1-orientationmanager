@@ -28,8 +28,8 @@ class M1OrientationOSCServer :
     bool bTrackingRollEnabled = true;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
-    void send(const std::vector<M1OrientationClientConnection>& clients, std::string str);
-    void send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg);
+    bool send(const std::vector<M1OrientationClientConnection>& clients, std::string str);
+    bool send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg);
 
     void send_getDevices(const std::vector<M1OrientationClientConnection>& clients);
     void send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients);

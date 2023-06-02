@@ -67,17 +67,23 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     }
 }
 
-void M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
+bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
     juce::OSCMessage msg(str.c_str());
     send(clients, msg);
 }
 
-void M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg) {
+bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg) {
     for (auto& client : clients) {
         juce::OSCSender sender;
         if (sender.connect("127.0.0.1", client.port)) {
             sender.send(msg);
+            return true;
         }
+//        // if this send returns false, check for reconnection state
+//        if (!connectedToServer) {
+//            // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
+//        }
+//        return false;
     }
 }
 
@@ -188,11 +194,13 @@ bool M1OrientationOSCServer::init(int serverPort) {
 }
 
 void M1OrientationOSCServer::update() {
-     
-        if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-        hardwareImpl[currentDevice.getDeviceType()]->update();
+    if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
+        if (!hardwareImpl[currentDevice.getDeviceType()]->update()) {
+            /// ERROR STATE
+            // TODO: Check if connected, if not then reconnect
+        }
 
-        M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPR(); // todo
+        M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPR();
         if (!getTrackingYawEnabled()) ypr.yaw = 0;
         if (!getTrackingPitchEnabled()) ypr.pitch = 0;
         if (!getTrackingRollEnabled()) ypr.roll = 0;
@@ -202,7 +210,7 @@ void M1OrientationOSCServer::update() {
         msg.addFloat32(ypr.yaw);
         msg.addFloat32(ypr.pitch);
         msg.addFloat32(ypr.roll);
-        send(clients, msg);
+        send(clients, msg); // TODO: Check for error here?
     }
 }
 
@@ -222,7 +230,6 @@ void M1OrientationOSCServer::close() {
 void M1OrientationOSCServer::command_refreshDevices() {
 	// call the other thread?
 	for (const auto& v : hardwareImpl) {
-        
 		v.second->refreshDevices();
 	}
 	send_getDevices(clients);

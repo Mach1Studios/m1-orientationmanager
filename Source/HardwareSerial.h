@@ -64,7 +64,7 @@ public:
                         newOrientation.roll = supperwareInterface.currentOrientation[2];
                         newOrientation.angleType = M1OrientationYPR::AngleType::DEGREES;
                         orientation.setYPR(newOrientation);
-                        return;
+                        return 1;
                     } else if (supperwareInterface.currentOrientation.size() == 4) {
                         M1OrientationQuat newOrientation;
                         newOrientation.wIn = supperwareInterface.currentOrientation[0];
@@ -72,12 +72,14 @@ public:
                         newOrientation.yIn = supperwareInterface.currentOrientation[2];
                         newOrientation.zIn = supperwareInterface.currentOrientation[3];
                         orientation.setQuat(newOrientation);
-                        return;
+                        return 1;
                     } else {
                         // error or do nothing
+                        return -1;
                     }
                 } else {
                     // TODO: error for being abstractly connected by not literally
+                    return -1;
                 }
             } else {
                 /// ORIENTATION UPDATE: SERIAL
@@ -96,7 +98,7 @@ public:
                             // cleanup
                             queueBuffer.clear();
                             queueString.clear();
-                            return;
+                            return 1;
                         }
                     } else if (getConnectedDevice().getDeviceName().find("wit") != std::string::npos) {
                         /// UPDATES FOR WITMOTION DEVICES
@@ -106,7 +108,7 @@ public:
                         newOrientation.pitch = witOrientationAngles[1];
                         newOrientation.roll = witOrientationAngles[2];
                         orientation.setYPR(newOrientation);
-                        return;
+                        return 1;
                     } else {
                         /// UPDATES FOR GENERIC DEVICES
                         
@@ -131,7 +133,7 @@ public:
                                 newOrientation.yIn = receivedSerialData[2].getFloatValue();
                                 newOrientation.zIn = receivedSerialData[3].getFloatValue();
                                 orientation.setQuat(newOrientation);
-                                return;
+                                return 1;
                             } else if (receivedSerialData.size() == 3) {
                                 // TODO: for safety if previous string arrays were 4 float value captures maybe skip this? 
                                 M1OrientationYPR newOrientation;
@@ -139,7 +141,7 @@ public:
                                 newOrientation.pitch = receivedSerialData[1].getFloatValue();
                                 newOrientation.roll = receivedSerialData[2].getFloatValue();
                                 orientation.setYPR(newOrientation);
-                                return;
+                                return 1;
                             } else {
                                 // ignore incomplete messages
                             }
