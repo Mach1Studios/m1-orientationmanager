@@ -6,7 +6,6 @@
 #include "M1OrientationOSCServer.h"
 
 void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message) {
-
         if (message.getAddressPattern() == "/addClient") {
         // add client to clients list
         int port = message[0].getInt32();
@@ -197,7 +196,12 @@ void M1OrientationOSCServer::update() {
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
         if (!hardwareImpl[currentDevice.getDeviceType()]->update()) {
             /// ERROR STATE
-            // TODO: Check if connected, if not then reconnect
+            // TODO: Check for connection to client, if not then reconnect
+            // TODO: if reconnect does not work then error that client is no longer available
+            // if (client still exists){
+                // TODO: Check if connected, if not then reconnect
+                command_startTrackingUsingDevice(currentDevice);
+            //}
         }
 
         M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPR();
@@ -237,6 +241,7 @@ void M1OrientationOSCServer::command_refreshDevices() {
 
 void M1OrientationOSCServer::command_disconnect() {
 	if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
+        orientation.resetOrientation();
 		hardwareImpl[currentDevice.getDeviceType()]->close();
 		currentDevice = M1OrientationDeviceInfo();
 		send_getCurrentDevice(clients);
@@ -244,18 +249,22 @@ void M1OrientationOSCServer::command_disconnect() {
 }
 
 void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
-    currentDevice = device;
-    
-    hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string errorMessage) {
-        if (success) {
-            send_getCurrentDevice(clients);
-        }
+    orientation.resetOrientation();
+    if (currentDevice != device){
+        hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string errorMessage) {
+            if (success) {
+                send_getCurrentDevice(clients);
+                currentDevice = device;
+            }
 
-        juce::OSCMessage msg("/getStatus");
-        msg.addInt32(success);
-        msg.addString(errorMessage);
-        send(clients, msg);
-    });
+            juce::OSCMessage msg("/getStatus");
+            msg.addInt32(success);
+            msg.addString(errorMessage);
+            send(clients, msg);
+        });
+    } else {
+        // already connected to this device
+    }
 }
 
 void M1OrientationOSCServer::command_setTrackingYawEnabled(bool enable) {
