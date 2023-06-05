@@ -217,7 +217,7 @@ public:
                     connectedSerialPortIndex = comPort;
                     connectedDevice = *matchedDevice;
                     isConnected = true;
-                    statusCallback(true, "Serial: Connected");
+                    statusCallback(true, "Serial: Supperware Connected");
                     return;
                 } else {
                     statusCallback(false, "Serial: Supperware connection error");

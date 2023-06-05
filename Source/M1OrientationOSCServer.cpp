@@ -57,10 +57,13 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
 		bool enable = message[0].getInt32();
 		command_setTrackingRollEnabled(enable);
 	}
+    else if (message.getAddressPattern() == "/requestCurrentDevice") {
+        send_getCurrentDevice(clients);
+    }
 	else if (message.getAddressPattern() == "/disconnect") {
         command_disconnect();
 	}
-    else if (message.getAddressPattern() == "/disconnect_client") {
+    else if (message.getAddressPattern() == "/removeClient") {
         int search_port = message[0].getInt32();
         for (int index = 0; index < clients.size(); index++) {
             if (clients[index].port = message[0].getInt32()) {
