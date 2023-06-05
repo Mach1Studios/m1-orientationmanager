@@ -41,7 +41,7 @@ set(CUSTOM_BUNDLE_ID "com.mach1.orientationserver")
 set(CUSTOM_PLUGIN_CODE "M1OS")
 
 # add the plugin targets
-juce_add_gui_app(${PLUGIN_NAME}
+juce_add_console_app(${PLUGIN_NAME}
                 VERSION ${CURRENT_VERSION}
                 COMPANY_NAME "Mach1"
                 COMPANY_WEBSITE "https://mach1.tech"
@@ -103,6 +103,12 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
         juce_murka
         m1_orientation_client
         )
+
+option(BUILD_DEBUG_UI "Build with debug GUI window" OFF)
+
+if (BUILD_DEBUG_UI)
+    target_compile_definitions(${PLUGIN_NAME} PUBLIC BUILD_DEBUG_UI=${BUILD_DEBUG_UI})
+endif()
 
 option(BUILD_UNIT_TESTS "Build JUCE prototype examples" OFF)
 

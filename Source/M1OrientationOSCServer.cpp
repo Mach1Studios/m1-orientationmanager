@@ -6,7 +6,7 @@
 #include "M1OrientationOSCServer.h"
 
 void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message) {
-        if (message.getAddressPattern() == "/addClient") {
+    if (message.getAddressPattern() == "/addClient") {
         // add client to clients list
         int port = message[0].getInt32();
         bool found = false;
@@ -58,9 +58,16 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
 		command_setTrackingRollEnabled(enable);
 	}
 	else if (message.getAddressPattern() == "/disconnect") {
-        // TODO: zero out values of orientation
-		command_disconnect();
+        command_disconnect();
 	}
+    else if (message.getAddressPattern() == "/disconnect_client") {
+        int search_port = message[0].getInt32();
+        for (int index = 0; index < clients.size(); index++) {
+            if (clients[index].port = message[0].getInt32()) {
+                clients.erase(clients.begin() + index);
+            }
+        }
+    }
 	else {
         std::cout << "not implemented!" << std::endl;
     }
@@ -75,14 +82,17 @@ bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnectio
     for (auto& client : clients) {
         juce::OSCSender sender;
         if (sender.connect("127.0.0.1", client.port)) {
-            sender.send(msg);
-            return true;
+            if (sender.send(msg)) {
+                return true;
+                // TODO: we need some feedback because we can send messages without error even when there is no client receiving
+            } else {
+                // ERROR: Issue with sending OSC message on server side
+                return false;
+            }
+        } else {
+            // ERROR: Issue with sending OSC message on server side
+            return false;
         }
-//        // if this send returns false, check for reconnection state
-//        if (!connectedToServer) {
-//            // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
-//        }
-//        return false;
     }
 }
 
@@ -240,8 +250,8 @@ void M1OrientationOSCServer::command_refreshDevices() {
 }
 
 void M1OrientationOSCServer::command_disconnect() {
-	if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-        orientation.resetOrientation();
+    orientation.resetOrientation();
+    if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
 		hardwareImpl[currentDevice.getDeviceType()]->close();
 		currentDevice = M1OrientationDeviceInfo();
 		send_getCurrentDevice(clients);

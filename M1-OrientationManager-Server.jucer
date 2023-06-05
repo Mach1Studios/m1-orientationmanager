@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="mysBU8" name="M1-OrientationManager" projectType="guiapp"
+<JUCERPROJECT id="mysBU8" name="M1-OrientationManager" projectType="consoleapp"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="0"
               jucerFormatVersion="1" companyName="Mach1" version="0.0.1" companyEmail="whatsup@mach1.tech"
               companyWebsite="https://www.mach1.tech" companyCopyright="Mach1, Corp."

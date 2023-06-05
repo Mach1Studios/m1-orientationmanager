@@ -38,14 +38,11 @@ public:
 
 private:
     //==============================================================================
-    // Your private member variables go here...
-
     HardwareBLE hardwareBLE;
     HardwareSerial hardwareSerial;
 	HardwareOSC hardwareOSC;
 	HardwareEmulator hardwareEmulator;
-	// ...
-	
+    	
     M1OrientationOSCServer m1OrientationOSCServer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

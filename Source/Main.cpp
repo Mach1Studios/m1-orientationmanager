@@ -33,23 +33,28 @@ public:
         if (JUCEApplicationBase::getCommandLineParameterArray().indexOf("--no-gui") >= 0) {
             HardwareBLE hardwareBLE;
             HardwareSerial hardwareSerial;
+            HardwareOSC hardwareOSC;
             M1OrientationOSCServer m1OrientationOSCServer;
 
             std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
             if (m1OrientationOSCServer.initFromSettings(settingsFilePath)) {
                 hardwareBLE.setup();
                 hardwareSerial.setup();
+                hardwareOSC.setup();
                 m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
                 m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
+                m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
                 while (true) {
                     hardwareBLE.update();
                     hardwareSerial.update();
+                    hardwareOSC.update();
                     juce::Thread::sleep(30);
                 }
             }
-        }
-        else {
+        } else {
+#ifdef BUILD_DEBUG_UI
             mainWindow.reset(new MainWindow(getApplicationName()));
+#endif
         }
     }
 

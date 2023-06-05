@@ -40,7 +40,7 @@ void MainComponent::initialise()
     hardwareSerial.setup();
     hardwareOSC.setup();
     // Internal device emulator for debugging
-    //hardwareEmulator.setup();
+    hardwareEmulator.setup();
     
 	//std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
@@ -55,19 +55,21 @@ void MainComponent::initialise()
 //==============================================================================
 void MainComponent::draw()
 {
+	m1OrientationOSCServer.update();
+	Orientation orientation = m1OrientationOSCServer.getOrientation();
+    M1OrientationDeviceInfo device = m1OrientationOSCServer.getConnectedDevice();
+	auto clients = m1OrientationOSCServer.getClients();
+
+#ifdef BUILD_DEBUG_UI
 	m.setFont("ProximaNovaReg.ttf", 10);
 	m.clear(20);
 	m.setColor(255);
-
-	m1OrientationOSCServer.update();
 
 	int offsetY = 0;
 	int offsetX = 0;
 	
 	offsetX = 10;
 	offsetY = 20;
-
-	Orientation orientation = m1OrientationOSCServer.getOrientation();
 
 	m.getCurrentFont()->drawString("orientation: ", offsetX, offsetY);
 	offsetY += 30;
@@ -91,7 +93,6 @@ void MainComponent::draw()
 
 	offsetY += 20;
 
-    M1OrientationDeviceInfo device = m1OrientationOSCServer.getConnectedDevice();
 	m.getCurrentFont()->drawString("device: " + device.getDeviceName() + ":" + M1OrientationDeviceTypeName[device.getDeviceType()], offsetX, offsetY);
 	offsetY += 40;
 
@@ -106,7 +107,6 @@ void MainComponent::draw()
 	offsetX = 220;
 	offsetY = 20;
 	
-	auto clients = m1OrientationOSCServer.getClients();
 	m.getCurrentFont()->drawString("clients: " + std::to_string(clients.size()), offsetX, offsetY);
 	offsetY += 40;
 	for (int i = 0; i < clients.size(); i++) {
@@ -123,9 +123,7 @@ void MainComponent::draw()
 	if (refreshDeviceButton.pressed) {
         // TODO: clear the previous list of devices?
         // should clear be handled
-       
 		m1OrientationOSCServer.command_refreshDevices();
-      
 	}
 	offsetY += 50;
 
@@ -206,6 +204,7 @@ void MainComponent::draw()
 		m1OrientationOSCServer.command_disconnect();
 	}
 	offsetY += 50;
+#endif // end of debug UI macro
 }
 
 void MainComponent::paint(juce::Graphics& g)
