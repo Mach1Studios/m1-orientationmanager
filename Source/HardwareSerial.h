@@ -211,13 +211,13 @@ public:
                     completionEvent.signal();
                 });
                 completionEvent.wait();
-                
+                                
                 if (supperwareInterface.getTrackerDriver().isConnected()) {
                     // Set global ref for device's index (used for disconnect)
                     connectedSerialPortIndex = comPort;
                     connectedDevice = *matchedDevice;
-                    isConnected = true;
                     statusCallback(true, "Serial: Supperware Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
+                    isConnected = true;
                     return;
                 } else {
                     statusCallback(false, "Serial: Supperware connection error", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
