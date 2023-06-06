@@ -89,11 +89,11 @@ bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnectio
                 return true;
                 // TODO: we need some feedback because we can send messages without error even when there is no client receiving
             } else {
-                // ERROR: Issue with sending OSC message on server side
+                // TODO: ERROR: Issue with sending OSC message on server side
                 return false;
             }
         } else {
-            // ERROR: Issue with sending OSC message on server side
+            // TODO: ERROR: Issue with sending OSC message on server side
             return false;
         }
     }
@@ -269,7 +269,8 @@ void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDevic
                 send_getCurrentDevice(clients);
                 currentDevice = device;
             }
-
+            
+            // TODO: expand status callback to include current connected device
             juce::OSCMessage msg("/getStatus");
             msg.addInt32(success);
             msg.addString(errorMessage);

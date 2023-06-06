@@ -98,7 +98,7 @@
                extraFrameworks="CoreBluetooth" extraCompilerFlags="-I ../../Source/Devices/ht-api-juce/supperware&#10;-I ../../Source/Devices/ht-api-juce/supperware/configpanel&#10;-I ../../Source/Devices/ht-api-juce/supperware/headpanel&#10;-I ../../Source/Devices/ht-api-juce/supperware/midi"
                appSandboxOptions="com.apple.security.device.bluetooth,com.apple.security.device.camera,com.apple.security.device.usb,com.apple.security.network.client,com.apple.security.network.server"
                hardenedRuntime="0" hardenedRuntimeOptions="com.apple.security.device.camera"
-               extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
+               extraDefs="BUILD_DEBUG_UI&#10;MURKA_JUCE JUCE_OPENGL3">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="../../Source/SimpleBLE/simpleble/include&#10;../../Source/SimpleBLE/simpleble/export&#10;../../Source/Devices/MetaWear/src"
                        libraryPath="../../Source/SimpleBLE/simpleble/lib&#10;../../Source/Devices/MetaWear/build/dist/x64/Release"

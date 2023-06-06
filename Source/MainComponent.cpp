@@ -60,7 +60,7 @@ void MainComponent::draw()
     M1OrientationDeviceInfo device = m1OrientationOSCServer.getConnectedDevice();
 	auto clients = m1OrientationOSCServer.getClients();
 
-#ifdef BUILD_DEBUG_UI
+//#ifdef BUILD_DEBUG_UI
 	m.setFont("ProximaNovaReg.ttf", 10);
 	m.clear(20);
 	m.setColor(255);
@@ -204,7 +204,7 @@ void MainComponent::draw()
 		m1OrientationOSCServer.command_disconnect();
 	}
 	offsetY += 50;
-#endif // end of debug UI macro
+//#endif // end of debug UI macro
 }
 
 void MainComponent::paint(juce::Graphics& g)

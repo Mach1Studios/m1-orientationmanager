@@ -30,7 +30,7 @@ public:
     void initialise (const juce::String& commandLine) override
     {
         // This method is where you should put your application's initialisation code..
-        if (JUCEApplicationBase::getCommandLineParameterArray().indexOf("--no-gui") >= 0) {
+       if (JUCEApplicationBase::getCommandLineParameterArray().indexOf("--no-gui") >= 0) {
             HardwareBLE hardwareBLE;
             HardwareSerial hardwareSerial;
             HardwareOSC hardwareOSC;
@@ -38,23 +38,21 @@ public:
 
             std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
             if (m1OrientationOSCServer.initFromSettings(settingsFilePath)) {
+                hardwareBLE.displayOnlyKnownIMUs = true;
                 hardwareBLE.setup();
                 hardwareSerial.setup();
                 hardwareOSC.setup();
+                m1OrientationOSCServer.init(6345);
                 m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
                 m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
                 m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
                 while (true) {
-                    hardwareBLE.update();
-                    hardwareSerial.update();
-                    hardwareOSC.update();
+                    m1OrientationOSCServer.update();
                     juce::Thread::sleep(30);
                 }
             }
         } else {
-#ifdef BUILD_DEBUG_UI
             mainWindow.reset(new MainWindow(getApplicationName()));
-#endif
         }
     }
 
