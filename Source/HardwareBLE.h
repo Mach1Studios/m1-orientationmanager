@@ -167,7 +167,7 @@ public:
         return devices;
     }
     
-    void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
+    void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback) override {
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
             for (int i = 0; i < discovered_ble_devices.size(); ++i) {
@@ -215,10 +215,10 @@ public:
                             }
                         });
                         // Report to the manager that it's connected
-                        statusCallback(true, "BLE: MetaMotion Device Connected");
+                        statusCallback(true, "BLE: MetaMotion Device Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
                     } else { // NOT ANY FILTERED/KNOWN IMU DEVICES
-                        // TODO: return errorMessage if any error
-                        statusCallback(false, "BLE: Device "+matchedDevice->getDeviceName()+" is not yet supported");
+                        // TODO: return message if any error
+                        statusCallback(false, "BLE: Device "+matchedDevice->getDeviceName()+" is not yet supported", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
                     }
                     connectedDevice = *matchedDevice;
                     isConnected = true;
@@ -226,7 +226,7 @@ public:
                 }
             }
         }
-        statusCallback(false , "BLE: Not connected");
+        statusCallback(false , "BLE: Not connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
     }
      
     M1OrientationDeviceInfo getConnectedDevice() override {

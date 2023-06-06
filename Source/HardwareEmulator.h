@@ -67,7 +67,7 @@ public:
         return devices;
     }
 
-    void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
+    void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback) override {
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
             
@@ -76,12 +76,12 @@ public:
             if (matchedDevice->getDeviceName().find("Emulator") != std::string::npos) {
                 connectedDevice = *matchedDevice;
                 isConnected = true;
-                statusCallback(true, "Emulator: Connected");
+                statusCallback(true, "Emulator: Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
                 return;
               
             }
         }
-        statusCallback(false, "Emulator: Not found");
+        statusCallback(false, "Emulator: Not found", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
     }
 
     M1OrientationDeviceInfo getConnectedDevice() override {

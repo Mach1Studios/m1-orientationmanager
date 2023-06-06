@@ -57,9 +57,6 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
 		bool enable = message[0].getInt32();
 		command_setTrackingRollEnabled(enable);
 	}
-    else if (message.getAddressPattern() == "/requestCurrentDevice") {
-        send_getCurrentDevice(clients);
-    }
 	else if (message.getAddressPattern() == "/disconnect") {
         command_disconnect();
 	}
@@ -264,16 +261,18 @@ void M1OrientationOSCServer::command_disconnect() {
 void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
     orientation.resetOrientation();
     if (currentDevice != device){
-        hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string errorMessage) {
+        hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress) {
             if (success) {
                 send_getCurrentDevice(clients);
                 currentDevice = device;
             }
             
-            // TODO: expand status callback to include current connected device
             juce::OSCMessage msg("/getStatus");
             msg.addInt32(success);
-            msg.addString(errorMessage);
+            msg.addString(message);
+            msg.addString(connectedDeviceName);
+            msg.addInt32(connectedDeviceType);
+            msg.addString(connectedDeviceAddress);
             send(clients, msg);
         });
     } else {

@@ -139,19 +139,19 @@ public:
         return devices;
     }
 
-    void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string errorMessage)> statusCallback) override {
+    void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback) override {
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
             connectedDevice = *matchedDevice;
             isConnected = connectOscReceiver();
             if (isConnected) {
-                statusCallback(true, "OSC: Connected");
+                statusCallback(true, "OSC: Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
                 return;
             } else {
-                statusCallback(false, "OSC: Error connecting to receiver");
+                statusCallback(false, "OSC: Error connecting to receiver", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
             }
         }
-        statusCallback(false, "OSC: Not found");
+        statusCallback(false, "OSC: Not found", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
     }
 
     M1OrientationDeviceInfo getConnectedDevice() override {
