@@ -14,10 +14,10 @@ public:
     M1OrientationDeviceInfo connectedDevice;
     std::vector<M1OrientationDeviceInfo> devices;
     bool isConnected = false;
-    int oscReceiverPort = 9901;
+    int oscDevicePort = 9901;
 
     bool connectOscReceiver() {
-        bool isConnected = connect(oscReceiverPort);
+        bool isConnected = connect(oscDevicePort);
         addListener(this);
         return isConnected;
     }
@@ -132,7 +132,7 @@ public:
         devices.clear();
         
         // TODO: create OSC object and pushback
-        devices.push_back({ "OSC Input", M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, std::to_string(oscReceiverPort) });
+        devices.push_back({ "OSC Input", M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, std::to_string(oscDevicePort) });
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {
