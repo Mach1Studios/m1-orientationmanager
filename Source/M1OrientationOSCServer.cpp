@@ -204,16 +204,9 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort) {
         return true;
     }
 	else {
-		juce::String message = "Can't bind to a port! M1OrientationOSCServer will not work";
-		juce::MessageManager::getInstance()->callFunctionOnMessageThread([](void* m) -> void* {
-			juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::InfoIcon,
-				"Alert Box",
-				static_cast<juce::String*>(m)->toRawUTF8(),
-				"OK");
-			return nullptr;
-			}, &message);
+		return false;
 	}
-    return false;
+    
 }
 
 void M1OrientationOSCServer::update() {
