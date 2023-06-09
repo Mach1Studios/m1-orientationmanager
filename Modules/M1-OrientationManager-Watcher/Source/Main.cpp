@@ -19,8 +19,8 @@ int watcherPort = 6346;
 void killProcessByName(const char *name)
 {
 #ifdef JUCE_WINDOWS
-    std::string command = "pkill " + std::string(name);
-    system(command.c_str());
+	std::string command = "taskkill /IM " + std::string(name) + " /F";
+	system(command.c_str());
 #else
     std::string command = "pkill " + std::string(name);
     system(command.c_str());
@@ -44,12 +44,16 @@ void startOrientationManager()
         juce::File exeFile = juce::File::getCurrentWorkingDirectory().getChildFile("M1-OrientationManager");
 #endif
 
-        if (!process.start(exeFile.getFullPathName())) {
-            // Failed to start the process
-            DBG("Failed to start the M1-OrientationManager");
-            exit(1);
-        }
-    }
+		juce::StringArray arguments;
+		arguments.add(exeFile.getFullPathName());
+		//arguments.add("--no-gui");
+
+		if (!process.start(arguments)) {
+			// Failed to start the process
+			DBG("Failed to start the M1-OrientationManager");
+			exit(1);
+		}
+	}
 }
 
 
