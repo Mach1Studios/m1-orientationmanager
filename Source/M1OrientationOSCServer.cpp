@@ -75,7 +75,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
 
 bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
     juce::OSCMessage msg(str.c_str());
-    send(clients, msg);
+    return send(clients, msg);
 }
 
 bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg) {
@@ -185,7 +185,7 @@ bool M1OrientationOSCServer::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
-bool M1OrientationOSCServer::init(int serverPort) {
+bool M1OrientationOSCServer::init(int serverPort, int watcherPort) {
     // check the port
     juce::DatagramSocket socket(false);
     socket.setEnablePortReuse(false);
@@ -195,14 +195,40 @@ bool M1OrientationOSCServer::init(int serverPort) {
         receiver.connect(serverPort);
         receiver.addListener(this);
 
-        this->serverPort = serverPort;
+		this->serverPort = serverPort;
+		this->watcherPort = watcherPort;
+
+
+		time = juce::Time::currentTimeMillis();
 
         return true;
     }
+	else {
+		juce::String message = "Can't bind to a port! M1OrientationOSCServer will not work";
+		juce::MessageManager::getInstance()->callFunctionOnMessageThread([](void* m) -> void* {
+			juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::InfoIcon,
+				"Alert Box",
+				static_cast<juce::String*>(m)->toRawUTF8(),
+				"OK");
+			return nullptr;
+			}, &message);
+	}
     return false;
 }
 
 void M1OrientationOSCServer::update() {
+
+	juce::uint32 currentTime = juce::Time::currentTimeMillis();
+	if (currentTime - time > 100) {
+		time = currentTime;
+	
+		juce::OSCSender sender;
+		if (sender.connect("127.0.0.1", watcherPort)) {
+			juce::OSCMessage msg("/ping");
+			sender.send(msg);
+		}
+	}
+
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
         if (!hardwareImpl[currentDevice.getDeviceType()]->update()) {
             /// ERROR STATE

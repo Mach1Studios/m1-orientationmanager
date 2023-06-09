@@ -20,8 +20,11 @@ class M1OrientationOSCServer :
     public M1OrientationManagerOSCSettings
 {
     juce::OSCReceiver receiver;
+	juce::uint32 time;
+
     std::vector<M1OrientationClientConnection> clients;
-    int serverPort = 0;
+	int serverPort = 0;
+	int watcherPort = 0;
 
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
@@ -45,7 +48,7 @@ public:
     
     virtual ~M1OrientationOSCServer();
 
-    bool init(int serverPort);
+    bool init(int serverPort, int watcherPort);
 
     void update();
 

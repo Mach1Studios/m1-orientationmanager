@@ -44,7 +44,7 @@ void MainComponent::initialise()
     
 	//std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
 	//m1OrientationOSCServer.initFromSettings(settingsFilePath);
-	m1OrientationOSCServer.init(6345);
+	m1OrientationOSCServer.init(6345, 6346);
 
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
