@@ -11,5 +11,8 @@ External orientation device manager and utilities geared toward aggregating diff
 ### Build via .jucer
 - Open the `M1-OrientationManager-Server.jucer` and compile as needed
 
+## Install
+- The M1-OrientationManager or M1-OrientationManager-Watcher should both be built and installed into the same directory.
+
 ## Credits
 This project heavily references and implements several design, UI and UX concepts from [nvsonic-head-tracker](https://github.com/trsonic/nvsonic-head-tracker) utility and expands upon it by handling and aggregating more connection types as well as creating a server/client design to handle dual direction communication between a network of clients.
