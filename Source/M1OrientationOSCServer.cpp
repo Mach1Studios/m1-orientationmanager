@@ -198,7 +198,6 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort) {
 		this->serverPort = serverPort;
 		this->watcherPort = watcherPort;
 
-
 		time = juce::Time::currentTimeMillis();
 
         return true;

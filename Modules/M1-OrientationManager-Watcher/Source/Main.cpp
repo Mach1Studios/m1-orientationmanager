@@ -18,6 +18,7 @@ int watcherPort = 6346;
 
 void killProcessByName(const char *name)
 {
+    DBG("Killing M1-Orientation-Server...");
 #ifdef JUCE_WINDOWS
 	std::string command = "taskkill /IM " + std::string(name) + " /F";
 	system(command.c_str());
@@ -46,16 +47,18 @@ void startOrientationManager()
 
 		juce::StringArray arguments;
 		arguments.add(exeFile.getFullPathName());
-		//arguments.add("--no-gui");
+		arguments.add("--no-gui");
+        DBG("Starting M1-OrientationManager server...");
 
 		if (!process.start(arguments)) {
 			// Failed to start the process
 			DBG("Failed to start the M1-OrientationManager");
 			exit(1);
-		}
+        } else {
+            DBG("Started M1-OrientationManager server");
+        }
 	}
 }
-
 
 //==============================================================================
 class M1OrientationManagerWatcherApplication : public juce::JUCEApplication,
@@ -96,7 +99,6 @@ public:
                 );
                 return nullptr;
                 }, &message);
-
             DBG(message);
         }
         else {
@@ -115,19 +117,24 @@ public:
     void shutdown() override
     {
         stopTimer();
-
         receiver.removeListener(this);
         receiver.disconnect();
+        DBG("M1-OrientationManager-Watcher is shutting down...");
     }
 
     const juce::String getApplicationName() override
     {
-        return "M1OrientationManagerWatcher";
+        return ProjectInfo::projectName;
     }
 
     const juce::String getApplicationVersion() override
     {
-        return "1.0";
+        return ProjectInfo::versionString;
+    }
+    
+    bool moreThanOneInstanceAllowed() override
+    {
+        return false;
     }
 
     void timerCallback() override
@@ -145,4 +152,3 @@ public:
 //==============================================================================
 // This macro generates the main() routine that launches the app.
 START_JUCE_APPLICATION(M1OrientationManagerWatcherApplication)
-
