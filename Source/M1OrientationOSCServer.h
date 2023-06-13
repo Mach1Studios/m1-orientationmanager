@@ -19,8 +19,7 @@ class M1OrientationOSCServer :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
     public M1OrientationManagerOSCSettings
 {
-    juce::OSCReceiver receiver;
-	juce::uint32 time;
+    juce::OSCReceiver receiver; 
 
     std::vector<M1OrientationClientConnection> clients;
 	int serverPort = 0;
