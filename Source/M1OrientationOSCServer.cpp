@@ -198,12 +198,16 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort) {
 		this->serverPort = serverPort;
 		this->watcherPort = watcherPort;
 
+		this->isRunning = true;
+
 		std::thread([&]() {
-			while (true) {
-			juce::OSCSender sender;
+			while (this->isRunning) {
+				juce::OSCSender sender;
 				if (sender.connect("127.0.0.1", this->watcherPort)) {
 					juce::OSCMessage msg("/ping");
-					sender.send(msg); 
+					sender.send(msg);
+					sender.disconnect();
+
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
@@ -253,6 +257,10 @@ void M1OrientationOSCServer::addHardwareImplementation(M1OrientationDeviceType t
 }
 
 void M1OrientationOSCServer::close() {
+	isRunning = false;
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
     receiver.removeListener(this);
     receiver.disconnect();
 }

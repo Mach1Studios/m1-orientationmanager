@@ -24,6 +24,7 @@ class M1OrientationOSCServer :
     std::vector<M1OrientationClientConnection> clients;
 	int serverPort = 0;
 	int watcherPort = 0;
+	bool isRunning = false;
 
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
