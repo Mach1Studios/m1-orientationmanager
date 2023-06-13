@@ -61,7 +61,7 @@ void MainComponent::draw()
 	auto clients = m1OrientationOSCServer.getClients();
 
 //#ifdef BUILD_DEBUG_UI
-	m.setFont("ProximaNovaReg.ttf", 10);
+	m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE);
 	m.clear(20);
 	m.setColor(255);
 

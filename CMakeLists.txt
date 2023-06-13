@@ -38,7 +38,7 @@ add_subdirectory(Modules)
 # PLUGIN/APP NAME (for dynamic naming schemes)
 set(PLUGIN_NAME "${CMAKE_PROJECT_NAME}")
 set(CUSTOM_BUNDLE_ID "com.mach1.orientationserver")
-set(CUSTOM_PLUGIN_CODE "M1OS")
+set(CUSTOM_APP_CODE "M1OS")
 
 # add the plugin targets
 juce_add_console_app(${PLUGIN_NAME}
@@ -47,7 +47,7 @@ juce_add_console_app(${PLUGIN_NAME}
                 COMPANY_WEBSITE "https://mach1.tech"
                 COMPANY_EMAIL "whatsup@mach1.tech"
                 PLUGIN_MANUFACTURER_CODE "Mac1"
-                PLUGIN_CODE ${CUSTOM_PLUGIN_CODE}
+                PLUGIN_CODE ${CUSTOM_APP_CODE}
                 BUNDLE_ID ${CUSTOM_BUNDLE_ID}
                 PLUGIN_NAME ${PLUGIN_NAME}
                 PRODUCT_NAME ${PLUGIN_NAME}
@@ -79,9 +79,7 @@ add_subdirectory(Resources)
 # See https://forum.juce.com/t/loading-pytorch-model-using-binarydata/39997/2
 set_target_properties(Resources PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Resources PROPERTIES FOLDER "Targets")
-
-target_link_libraries(${PLUGIN_NAME} PRIVATE juce::juce_audio_basics juce::juce_audio_devices juce::juce_audio_formats juce::juce_audio_processors juce::juce_core juce::juce_data_structures juce::juce_events juce::juce_graphics juce::juce_opengl juce::juce_osc juce_murka)
-target_link_libraries(${PLUGIN_NAME} PRIVATE Resources PUBLIC juce::juce_recommended_warning_flags juce::juce_recommended_config_flags juce::juce_recommended_lto_flags)
+target_link_libraries(${PLUGIN_NAME} PRIVATE Resources)
 
 # definitions to replace the `JucePluginDefines.h`
 set(JucePlugin_Name ${PLUGIN_NAME})
@@ -96,8 +94,6 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
         juce::juce_events
         juce::juce_graphics
         juce::juce_gui_basics
-        juce::juce_gui_extra
-        juce::juce_audio_utils
         juce::juce_opengl
         juce::juce_osc
         juce_murka

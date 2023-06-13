@@ -38,7 +38,7 @@ void MainComponent::initialise()
 //==============================================================================
 void MainComponent::render()
 {
-	m.setFont("ProximaNovaReg.ttf", 10);
+	m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE);
 
 	m.startFrame();
 	m.setScreenScale((float)openGLContext.getRenderingScale());

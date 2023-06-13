@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 file(STRINGS VERSION CURRENT_VERSION)
-project(M1-OrientationManager-Watcher VERSION ${CURRENT_VERSION})
+project(M1-OrientationClient VERSION ${CURRENT_VERSION})
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
@@ -8,6 +8,9 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
 endif()
 
 include(FetchContent)
+
+# c++17 required for BLE
+set(CMAKE_CXX_STANDARD 17)
 
 #First, we'll add the CMake folder, incase we'll need to find_package later:
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -29,14 +32,15 @@ option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # add JUCE and other custom modules
-add_subdirectory(../../JUCE "${CMAKE_CURRENT_BINARY_DIR}/JUCE_build")
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../JUCE)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Modules)
 
 # PLUGIN/APP NAME (for dynamic naming schemes)
-set(CUSTOM_BUNDLE_ID "com.mach1.orientationserver.watcher")
-set(CUSTOM_APP_CODE "M1SW")
+set(CUSTOM_BUNDLE_ID "com.mach1.orientationclient")
+set(CUSTOM_APP_CODE "M1OC")
 
 # add the plugin targets
-juce_add_console_app(${CMAKE_PROJECT_NAME}
+juce_add_gui_app(${CMAKE_PROJECT_NAME}
                 VERSION ${CURRENT_VERSION}
                 COMPANY_NAME "Mach1"
                 COMPANY_WEBSITE "https://mach1.tech"
@@ -68,6 +72,13 @@ set_target_properties(${project_targets} PROPERTIES CXX_EXTENSIONS OFF)
 
 # add the sources
 add_subdirectory(Source)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Resources)
+
+# Required for Linux happiness:
+# See https://forum.juce.com/t/loading-pytorch-model-using-binarydata/39997/2
+set_target_properties(Resources PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(Resources PROPERTIES FOLDER "Targets")
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Resources)
 
 # definitions to replace the `JucePluginDefines.h`
 set(JucePlugin_Name ${CMAKE_PROJECT_NAME})
@@ -80,7 +91,12 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         juce::juce_core
         juce::juce_data_structures
         juce::juce_events
+        juce::juce_graphics
+        juce::juce_gui_basics
+        juce::juce_opengl
         juce::juce_osc
+        juce_murka
+        m1_orientation_client
         )
 
 ### IDE Generator post-config ###

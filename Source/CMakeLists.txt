@@ -1,4 +1,5 @@
-file(GLOB source_files  Main.cpp
+file(GLOB source_files  Config.h
+                        Main.cpp
                         MainComponent.h
                         MainComponent.cpp
                         M1OrientationOSCServer.h
