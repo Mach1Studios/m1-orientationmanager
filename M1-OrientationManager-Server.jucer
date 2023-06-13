@@ -6,7 +6,11 @@
               companyWebsite="https://www.mach1.tech" companyCopyright="Mach1, Corp."
               bundleIdentifier="com.mach1.orientationmanager" cppLanguageStandard="17">
   <MAINGROUP id="Z4KsZJ" name="M1-OrientationManager">
+    <FILE id="lbMTh3" name="AileronSemiBold.ttf" compile="0" resource="1"
+          file="Resources/AileronSemiBold.ttf"/>
+    <FILE id="E85Cjm" name="mach1logo.png" compile="0" resource="1" file="Resources/mach1logo.png"/>
     <GROUP id="{10C53C35-6078-FD9E-4A16-6DCD8AE44EEF}" name="Source">
+      <FILE id="jm5zag" name="Config.h" compile="0" resource="0" file="Source/Config.h"/>
       <FILE id="S5sGdi" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="QGuvaD" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="OlQIDF" name="MainComponent.cpp" compile="1" resource="0"

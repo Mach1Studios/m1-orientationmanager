@@ -9,6 +9,7 @@
 #include "m1_orientation_client/M1OrientationTypes.h"
 #include "m1_orientation_client/M1OrientationSettings.h"
 #include "HardwareAbstract.h"
+#include <thread>
 
 struct M1OrientationClientConnection {
     int port;

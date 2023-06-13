@@ -37,6 +37,7 @@
     #define PLUGIN_FONT "AileronSemiBold.ttf"
     #define BINARYDATA_FONT "BinaryData::AileronSemiBold_ttf"
     #define BINARYDATA_FONT_SIZE "BinaryData::AileronSemiBold_ttfSize"
+    #define DEFAULT_FONT_SIZE 11
 #endif
 #pragma message XSTR(PLUGIN_FONT)
 #pragma message XSTR(BINARYDATA_FONT)
