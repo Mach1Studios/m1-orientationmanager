@@ -1,5 +1,10 @@
 # M1-OrientationManager
-External orientation device manager and utilities geared toward aggregating different headtracking methods.
+This repo contains all the components relating to the M1-OrientationManager
+
+## Components
+- [Server](Server): Executable that finds and connects to various IMU devices and sends the orientation response to any available clients.
+- [Watcher](Watcher): Executable responsible for checking that the server is still active and operating and otherwise attempt to relaunch it properly.
+- [Client](Client): Module for adding an interface to any app/plugin to properly communicate with the server.
 
 ## Setup
 
@@ -9,10 +14,7 @@ External orientation device manager and utilities geared toward aggregating diff
 - `cmake --build .`
 
 ### Build via .jucer
-- Open the `M1-OrientationManager-Server.jucer` and compile as needed
+- Open each components .jucer file and build one at a time
 
 ## Install
 - The M1-OrientationManager or M1-OrientationManager-Watcher should both be built and installed into the same directory.
-
-## Credits
-This project heavily references and implements several design, UI and UX concepts from [nvsonic-head-tracker](https://github.com/trsonic/nvsonic-head-tracker) utility and expands upon it by handling and aggregating more connection types as well as creating a server/client design to handle dual direction communication between a network of clients.

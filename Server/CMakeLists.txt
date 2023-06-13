@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 file(STRINGS VERSION CURRENT_VERSION)
-project(M1-OrientationClient VERSION ${CURRENT_VERSION})
+project(M1-OrientationManager VERSION ${CURRENT_VERSION})
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
     cmake_policy(SET CMP0135 NEW)
 endif()
-
-include(FetchContent)
 
 # c++17 required for BLE
 set(CMAKE_CXX_STANDARD 17)
@@ -32,15 +30,37 @@ option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # add JUCE and other custom modules
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../JUCE)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Modules)
+if(PROJECT_IS_TOP_LEVEL)
+    include(FetchContent)
+    set(LIB_JUCE_TAG "7.0.5")
+
+    # Keep dependencies outside of the "Build" directory.
+    # This allows to do a clean build of the project without re-downloading or
+    # rebuilding the dependencies.
+    set(FETCHCONTENT_BASE_DIR "${PROJECT_SOURCE_DIR}/Libs" CACHE PATH "External dependencies path." FORCE)
+
+    FetchContent_Declare(juce
+        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+        GIT_TAG        ${LIB_JUCE_TAG}
+        GIT_SHALLOW    TRUE
+        GIT_CONFIG     advice.detachedHead=false    # Disable detached HEAD warning for fetching a specific tag
+        SOURCE_DIR     "${FETCHCONTENT_BASE_DIR}/JUCE"
+        SUBBUILD_DIR   "${FETCHCONTENT_BASE_DIR}/JUCE-Subbuild"
+        BINARY_DIR     "${FETCHCONTENT_BASE_DIR}/JUCE-Build")
+
+    FetchContent_MakeAvailable(juce)
+else()
+    # add JUCE and other custom modules
+    #find_package(JUCE CONFIG REQUIRED)
+    #add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Modules)
+endif()
 
 # PLUGIN/APP NAME (for dynamic naming schemes)
-set(CUSTOM_BUNDLE_ID "com.mach1.orientationclient")
-set(CUSTOM_APP_CODE "M1OC")
+set(CUSTOM_BUNDLE_ID "com.mach1.orientationserver")
+set(CUSTOM_APP_CODE "M1OS")
 
 # add the plugin targets
-juce_add_gui_app(${CMAKE_PROJECT_NAME}
+juce_add_console_app(M1-OrientationManager
                 VERSION ${CURRENT_VERSION}
                 COMPANY_NAME "Mach1"
                 COMPANY_WEBSITE "https://mach1.tech"
@@ -48,43 +68,43 @@ juce_add_gui_app(${CMAKE_PROJECT_NAME}
                 PLUGIN_MANUFACTURER_CODE "Mac1"
                 PLUGIN_CODE ${CUSTOM_APP_CODE}
                 BUNDLE_ID ${CUSTOM_BUNDLE_ID}
-                PLUGIN_NAME ${CMAKE_PROJECT_NAME}
-                PRODUCT_NAME ${CMAKE_PROJECT_NAME}
+                PLUGIN_NAME M1-OrientationManager
+                PRODUCT_NAME M1-OrientationManager
                 IS_SYNTH FALSE)
 
 # add required flags
-juce_generate_juce_header(${CMAKE_PROJECT_NAME})
+juce_generate_juce_header(M1-OrientationManager)
 
-target_compile_definitions(${CMAKE_PROJECT_NAME}
+target_compile_definitions(M1-OrientationManager
     PUBLIC 
-    JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:${CMAKE_PROJECT_NAME},JUCE_PROJECT_NAME>"
-    JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:${CMAKE_PROJECT_NAME},JUCE_VERSION>"
+    JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:M1-OrientationManager,JUCE_PROJECT_NAME>"
+    JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:M1-OrientationManager,JUCE_VERSION>"
     JUCE_WEB_BROWSER=0
     JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_DISPLAY_SPLASH_SCREEN=0)
 
 # Set the C++ language standard requirenment for the "shared code" library target.
 # Setting this to PUBLIC ensures that all dependent targets will inherit the specified C++ standard.
-target_compile_features("${CMAKE_PROJECT_NAME}" PUBLIC cxx_std_17)
+target_compile_features(M1-OrientationManager PUBLIC cxx_std_17)
 # Disable compiler extensions for the project targets (e.g. use -std=c++17 instead of -std=gnu++17).
 get_property(project_targets DIRECTORY "${PROJECT_SOURCE_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 set_target_properties(${project_targets} PROPERTIES CXX_EXTENSIONS OFF)
 
 # add the sources
 add_subdirectory(Source)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Resources)
+add_subdirectory(Resources)
 
 # Required for Linux happiness:
 # See https://forum.juce.com/t/loading-pytorch-model-using-binarydata/39997/2
 set_target_properties(Resources PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(Resources PROPERTIES FOLDER "Targets")
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Resources)
+target_link_libraries(M1-OrientationManager PRIVATE Resources)
 
 # definitions to replace the `JucePluginDefines.h`
-set(JucePlugin_Name ${CMAKE_PROJECT_NAME})
-set(JucePlugin_Desc ${CMAKE_PROJECT_NAME})
+set(JucePlugin_Name M1-OrientationManager)
+set(JucePlugin_Desc M1-OrientationManager)
 
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
+target_link_libraries(M1-OrientationManager PRIVATE
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
@@ -99,14 +119,19 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         m1_orientation_client
         )
 
+option(BUILD_SERVER_DEBUG_UI "Build with debug GUI window" OFF)
+if (BUILD_SERVER_DEBUG_UI)
+    target_compile_definitions(M1-OrientationManager PUBLIC BUILD_SERVER_DEBUG_UI=${BUILD_SERVER_DEBUG_UI})
+endif()
+
 ### IDE Generator post-config ###
 # IDEs:  Move the "shared code" source group (main target) out of the "Targets" folder
 #        to the top level.
-set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES FOLDER "")
+set_target_properties("M1-OrientationManager" PROPERTIES FOLDER "")
 # IDEs:  Organise source file grouping.
-get_target_property(project_sources "${CMAKE_PROJECT_NAME}" SOURCES)
+get_target_property(project_sources "M1-OrientationManager" SOURCES)
 #   If JuceHeader.h is generated, remove it from the source file list and handle it individually.
-get_target_property(juce_library_code "${CMAKE_PROJECT_NAME}" JUCE_GENERATED_SOURCES_DIRECTORY)
+get_target_property(juce_library_code "M1-OrientationManager" JUCE_GENERATED_SOURCES_DIRECTORY)
 set(juce_header "${juce_library_code}/JuceHeader.h")
 list(REMOVE_ITEM project_sources "${juce_header}")
 

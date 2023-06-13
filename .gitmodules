@@ -1,8 +1,8 @@
-[submodule "Source/SimpleBLE"]
-	path = Source/SimpleBLE
+[submodule "Server/Source/SimpleBLE"]
+	path = Server/Source/SimpleBLE
 	url = git@github.com:OpenBluetoothToolbox/SimpleBLE.git
-[submodule "Source/rs232"]
-	path = Source/rs232
+[submodule "Server/Source/rs232"]
+	path = Server/Source/rs232
 	url = git@github.com:Marzac/rs232.git
 [submodule "Modules/m1_orientation_client"]
 	path = Modules/m1_orientation_client
@@ -10,11 +10,11 @@
 [submodule "Modules/juce_murka"]
 	path = Modules/juce_murka
 	url = git@github.com:Kiberchaika/juce_murka.git
-[submodule "Source/Devices/ht-api-juce"]
-	path = Source/Devices/ht-api-juce
+[submodule "Server/Source/Devices/ht-api-juce"]
+	path = Server/Source/Devices/ht-api-juce
 	url = git@github.com:himwho/ht-api-juce.git
-[submodule "Source/Devices/MetaWear"]
-	path = Source/Devices/MetaWear
+[submodule "Server/Source/Devices/MetaWear"]
+	path = Server/Source/Devices/MetaWear
 	url = git@github.com:Mach1Studios/MetaWear-SDK-Cpp.git
 [submodule "JUCE"]
 	path = JUCE
