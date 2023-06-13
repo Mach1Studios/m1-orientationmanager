@@ -50,12 +50,13 @@ void startOrientationManager()
 		arguments.add("--no-gui");
         DBG("Starting M1-OrientationManager server...");
 
-		if (!process.start(arguments)) {
-			// Failed to start the process
-			DBG("Failed to start the M1-OrientationManager");
-			exit(1);
-        } else {
+		if (process.start(arguments)) {
+            juce::Time::waitForMillisecondCounter(juce::Time::getMillisecondCounter() + 10000); // wait for 10s startup
             DBG("Started M1-OrientationManager server");
+        } else {
+            // Failed to start the process
+            DBG("Failed to start the M1-OrientationManager");
+            exit(1);
         }
 	}
 }
@@ -141,10 +142,11 @@ public:
     {
         juce::uint32 currentTime = juce::Time::currentTimeMillis();
         DBG("time: " + std::to_string(currentTime - time));
-        if (currentTime - time > 2000) {
+        if (currentTime - time > 5000) {
             killProcessByName("M1-OrientationManager");
             time = currentTime;
             startOrientationManager();
+            time = juce::Time::currentTimeMillis(); // restart timer
         }
     }
 };

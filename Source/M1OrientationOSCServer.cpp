@@ -197,7 +197,6 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort) {
 
 		this->serverPort = serverPort;
 		this->watcherPort = watcherPort;
-
 		this->isRunning = true;
 
 		std::thread([&]() {
@@ -207,7 +206,6 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort) {
 					juce::OSCMessage msg("/ping");
 					sender.send(msg);
 					sender.disconnect();
-
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
