@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "Config.h"
 #include <JuceHeader.h>
 #include "juce_murka/JuceMurkaBaseComponent.h"
 

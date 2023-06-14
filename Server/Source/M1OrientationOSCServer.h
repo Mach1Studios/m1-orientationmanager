@@ -9,6 +9,7 @@
 #include "m1_orientation_client/M1OrientationTypes.h"
 #include "m1_orientation_client/M1OrientationSettings.h"
 #include "HardwareAbstract.h"
+#include <thread>
 
 struct M1OrientationClientConnection {
     int port;
@@ -19,12 +20,12 @@ class M1OrientationOSCServer :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
     public M1OrientationManagerOSCSettings
 {
-    juce::OSCReceiver receiver;
-	juce::uint32 time;
+    juce::OSCReceiver receiver; 
 
     std::vector<M1OrientationClientConnection> clients;
 	int serverPort = 0;
 	int watcherPort = 0;
+	bool isRunning = false;
 
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
