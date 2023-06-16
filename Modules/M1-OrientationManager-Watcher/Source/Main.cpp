@@ -39,10 +39,14 @@ void startOrientationManager()
         // run process M1-OrientationManager.exe from the same folder
         juce::ChildProcess process;
 
+		juce::File executableFile = juce::File::getSpecialLocation(juce::File::invokedExecutableFile);
+		juce::File appDirectory = executableFile.getParentDirectory();
+		appDirectory.setAsCurrentWorkingDirectory();
+
 #ifdef JUCE_WINDOWS
-        juce::File exeFile = juce::File::getCurrentWorkingDirectory().getChildFile("M1-OrientationManager.exe");
+		juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager.exe");
 #else
-        juce::File exeFile = juce::File::getCurrentWorkingDirectory().getChildFile("M1-OrientationManager");
+		juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager");
 #endif
 
 		juce::StringArray arguments;
