@@ -1,21 +1,21 @@
-[submodule "Server/Source/SimpleBLE"]
-	path = Server/Source/SimpleBLE
-	url = git@github.com:OpenBluetoothToolbox/SimpleBLE.git
-[submodule "Server/Source/rs232"]
-	path = Server/Source/rs232
-	url = git@github.com:Marzac/rs232.git
 [submodule "Modules/m1_orientation_client"]
 	path = Modules/m1_orientation_client
 	url = git@github.com:Mach1Studios/m1_orientation_client.git
 [submodule "Modules/juce_murka"]
 	path = Modules/juce_murka
 	url = git@github.com:Kiberchaika/juce_murka.git
-[submodule "Server/Source/Devices/ht-api-juce"]
-	path = Server/Source/Devices/ht-api-juce
-	url = git@github.com:himwho/ht-api-juce.git
-[submodule "Server/Source/Devices/MetaWear"]
-	path = Server/Source/Devices/MetaWear
-	url = git@github.com:Mach1Studios/MetaWear-SDK-Cpp.git
 [submodule "JUCE"]
 	path = JUCE
 	url = git@github.com:juce-framework/JUCE.git
+[submodule "Server/Source/Devices/MetaWear"]
+	path = Server/Source/Devices/MetaWear
+	url = git@github.com:Mach1Studios/MetaWear-SDK-Cpp.git
+[submodule "Server/Source/Devices/ht-api-juce"]
+	path = Server/Source/Devices/ht-api-juce
+	url = git@github.com:himwho/ht-api-juce.git
+[submodule "Server/Source/rs232"]
+	path = Server/Source/rs232
+	url = git@github.com:Marzac/rs232.git
+[submodule "Server/Source/SimpleBLE"]
+	path = Server/Source/SimpleBLE
+	url = git@github.com:OpenBluetoothToolbox/SimpleBLE.git

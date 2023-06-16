@@ -50,9 +50,35 @@ if(PROJECT_IS_TOP_LEVEL)
 
     FetchContent_MakeAvailable(juce)
 else()
+    # find_path(JUCE_ROOT_DIR PATHS ${CMAKE_SOURCE_DIR}/../JUCE )
+    # set(JUCE_MODULES juce_core juce_data_structures juce_events juce_graphics juce_gui_basics juce_opengl juce_osc)
+    
+    # foreach(dir ${JUCE_MODULES})
+    #     if (APPLE)
+    #         file(GLOB JUCE_SOURCES_${dir} RELATIVE ${CMAKE_SOURCE_DIR}/Server/Source ${JUCE_ROOT_DIR}/modules/${dir}/*.mm )
+    #     else (APPLE)
+    #         file(GLOB JUCE_SOURCES_${dir} RELATIVE ${CMAKE_SOURCE_DIR}/Server/Source ${JUCE_ROOT_DIR}/modules/${dir}/*.cpp )
+    #     endif (APPLE)
+    #     file(GLOB JUCE_HEADERS_${dir} RELATIVE ${CMAKE_SOURCE_DIR}/Server/Source ${JUCE_ROOT_DIR}/modules/${dir}/*.h )
+    # endforeach(dir ${JUCE_MODULES})
+
+    # include (FindPackageHandleStandardArgs)
+    # find_package_handle_standard_args(Juce DEFAULT_MSG JUCE_ROOT_DIR)
+
     # add JUCE and other custom modules
-    #find_package(JUCE CONFIG REQUIRED)
-    #add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Modules)
+    message(STATUS "${CMAKE_BINARY_DIR}/JUCE")
+    include(${CMAKE_BINARY_DIR}/JUCE)
+    # find_package(JUCE 
+    #     PATHS ${CMAKE_BINARY_DIR}/JUCE
+    #     COMPONENTS 
+    #         juce_core
+    #         juce_data_structures
+    #         juce_events
+    #         juce_graphics
+    #         juce_gui_basics
+    #         juce_opengl
+    #         juce_osc
+    # )
 endif()
 
 # PLUGIN/APP NAME (for dynamic naming schemes)
@@ -104,20 +130,24 @@ target_link_libraries(M1-OrientationManager PRIVATE Resources)
 set(JucePlugin_Name M1-OrientationManager)
 set(JucePlugin_Desc M1-OrientationManager)
 
-target_link_libraries(M1-OrientationManager PRIVATE
-        juce::juce_recommended_config_flags
-        juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags
-        juce::juce_core
-        juce::juce_data_structures
-        juce::juce_events
-        juce::juce_graphics
-        juce::juce_gui_basics
-        juce::juce_opengl
-        juce::juce_osc
-        juce_murka
-        m1_orientation_client
-        )
+if(PROJECT_IS_TOP_LEVEL)
+    target_link_libraries(M1-OrientationManager PRIVATE
+            juce::juce_recommended_config_flags
+            juce::juce_recommended_lto_flags
+            juce::juce_recommended_warning_flags
+            juce::juce_core
+            juce::juce_data_structures
+            juce::juce_events
+            juce::juce_graphics
+            juce::juce_gui_basics
+            juce::juce_opengl
+            juce::juce_osc
+            juce_murka
+            m1_orientation_client
+            )
+else()
+    target_link_libraries(M1-OrientationManager ${JUCE_LIBRARIES})
+endif()
 
 option(BUILD_SERVER_DEBUG_UI "Build with debug GUI window" OFF)
 if (BUILD_SERVER_DEBUG_UI)

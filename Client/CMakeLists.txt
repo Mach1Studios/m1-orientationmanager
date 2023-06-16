@@ -48,6 +48,8 @@ if(PROJECT_IS_TOP_LEVEL)
     FetchContent_MakeAvailable(juce)
 else()
     # add JUCE and other custom modules
+    message(STATUS "Juce Found: ${JUCE_ROOT_DIR}")
+    add_subdirectory(${JUCE_ROOT_DIR})
     #find_package(JUCE CONFIG REQUIRED)
     #add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Modules)
 endif()
