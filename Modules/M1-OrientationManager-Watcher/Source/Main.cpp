@@ -16,6 +16,11 @@
 int serverPort = 6345;
 int watcherPort = 6346;
 
+juce::int64 pingTime = 0;
+
+// run process M1-OrientationManager.exe from the same folder
+juce::ChildProcess orientationManagerProcess;
+
 void killProcessByName(const char *name)
 {
     DBG("Killing M1-Orientation-Server...");
@@ -36,26 +41,28 @@ void startOrientationManager()
     if (socket.bindToPort(serverPort)) {
         socket.shutdown();
 
-        // run process M1-OrientationManager.exe from the same folder
-        juce::ChildProcess process;
-
 		juce::File executableFile = juce::File::getSpecialLocation(juce::File::invokedExecutableFile);
-		juce::File appDirectory = executableFile.getParentDirectory();
-		appDirectory.setAsCurrentWorkingDirectory();
 
 #ifdef JUCE_WINDOWS
+        juce::File appDirectory = executableFile.getParentDirectory();
 		juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager.exe");
 #else
+        juce::File appDirectory = executableFile.getParentDirectory();
 		juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager");
 #endif
+        appDirectory.setAsCurrentWorkingDirectory();
+
+        DBG("appDirectory...");
+        DBG(appDirectory.getFullPathName());
 
 		juce::StringArray arguments;
 		arguments.add(exeFile.getFullPathName());
-		arguments.add("--no-gui");
-        DBG("Starting M1-OrientationManager server...");
+		//arguments.add("--no-gui");
 
-		if (process.start(arguments)) {
-            juce::Time::waitForMillisecondCounter(juce::Time::getMillisecondCounter() + 10000); // wait for 10s startup
+        DBG("Starting M1-OrientationManager-Watcher...");
+        DBG(exeFile.getFullPathName());
+
+		if (orientationManagerProcess.start(arguments)) {
             DBG("Started M1-OrientationManager server");
         } else {
             // Failed to start the process
@@ -71,7 +78,6 @@ class M1OrientationManagerWatcherApplication : public juce::JUCEApplication,
     public juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>
 {
     juce::OSCReceiver receiver;
-    juce::uint32 time = 0;
 
 public:
     M1OrientationManagerWatcherApplication() {}
@@ -79,7 +85,7 @@ public:
 
     void oscMessageReceived(const juce::OSCMessage& message) override
     {
-        time = juce::Time::currentTimeMillis();
+        pingTime = juce::Time::currentTimeMillis();
         DBG("Received message from " + message.getAddressPattern().toString());
     }
 
@@ -113,7 +119,7 @@ public:
             receiver.addListener(this);
 
             startOrientationManager();
-            time = juce::Time::currentTimeMillis();
+            pingTime = juce::Time::currentTimeMillis();
 
             startTimer(100);
         }
@@ -144,13 +150,13 @@ public:
 
     void timerCallback() override
     {
-        juce::uint32 currentTime = juce::Time::currentTimeMillis();
-        DBG("time: " + std::to_string(currentTime - time));
-        if (currentTime - time > 5000) {
+        juce::int64 currentTime = juce::Time::currentTimeMillis();
+        DBG("time: " + std::to_string(currentTime - pingTime));
+        if (currentTime > pingTime && currentTime - pingTime > 1000) {
+            pingTime = juce::Time::currentTimeMillis() + 10000; // wait 10 seconds
+
             killProcessByName("M1-OrientationManager");
-            time = currentTime;
             startOrientationManager();
-            time = juce::Time::currentTimeMillis(); // restart timer
         }
     }
 };
