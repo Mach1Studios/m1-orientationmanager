@@ -59,9 +59,6 @@ target_compile_definitions(${CMAKE_PROJECT_NAME}
     JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_DISPLAY_SPLASH_SCREEN=0)
 
-# Set the C++ language standard requirenment for the "shared code" library target.
-# Setting this to PUBLIC ensures that all dependent targets will inherit the specified C++ standard.
-target_compile_features("${CMAKE_PROJECT_NAME}" PUBLIC cxx_std_17)
 # Disable compiler extensions for the project targets (e.g. use -std=c++17 instead of -std=gnu++17).
 get_property(project_targets DIRECTORY "${PROJECT_SOURCE_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 set_target_properties(${project_targets} PROPERTIES CXX_EXTENSIONS OFF)
@@ -80,6 +77,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         juce::juce_core
         juce::juce_data_structures
         juce::juce_events
+        juce::juce_graphics
+        juce::juce_gui_basics
         juce::juce_osc
         )
 
