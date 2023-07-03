@@ -94,6 +94,8 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
         juce::juce_events
         juce::juce_graphics
         juce::juce_gui_basics
+        juce::juce_audio_basics
+        juce::juce_audio_devices
         juce::juce_opengl
         juce::juce_osc
         juce_murka
