@@ -53,13 +53,16 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         bool enable = message[0].getInt32();
         command_setTrackingPitchEnabled(enable);
     }
-	else if (message.getAddressPattern() == "/setTrackingRollEnabled") {
-		bool enable = message[0].getInt32();
-		command_setTrackingRollEnabled(enable);
-	}
-	else if (message.getAddressPattern() == "/disconnect") {
+    else if (message.getAddressPattern() == "/setTrackingRollEnabled") {
+        bool enable = message[0].getInt32();
+        command_setTrackingRollEnabled(enable);
+    }
+    else if (message.getAddressPattern() == "/recenter") {
+        command_recenter();
+    }
+    else if (message.getAddressPattern() == "/disconnect") {
         command_disconnect();
-	}
+    }
     else if (message.getAddressPattern() == "/removeClient") {
         int search_port = message[0].getInt32();
         for (int index = 0; index < clients.size(); index++) {
@@ -68,7 +71,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             }
         }
     }
-	else {
+    else {
         std::cout << "not implemented!" << std::endl;
     }
 }
@@ -195,27 +198,27 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort) {
         receiver.connect(serverPort);
         receiver.addListener(this);
 
-		this->serverPort = serverPort;
-		this->watcherPort = watcherPort;
-		this->isRunning = true;
+        this->serverPort = serverPort;
+        this->watcherPort = watcherPort;
+        this->isRunning = true;
 
-		std::thread([&]() {
-			while (this->isRunning) {
-				juce::OSCSender sender;
-				if (sender.connect("127.0.0.1", this->watcherPort)) {
-					juce::OSCMessage msg("/ping");
-					sender.send(msg);
-					sender.disconnect();
-				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			}
-		}).detach();
+        std::thread([&]() {
+            while (this->isRunning) {
+                juce::OSCSender sender;
+                if (sender.connect("127.0.0.1", this->watcherPort)) {
+                    juce::OSCMessage msg("/ping");
+                    sender.send(msg);
+                    sender.disconnect();
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        }).detach();
 
         return true;
     }
-	else {
-		return false;
-	}
+    else {
+        return false;
+    }
     
 }
 
@@ -255,29 +258,29 @@ void M1OrientationOSCServer::addHardwareImplementation(M1OrientationDeviceType t
 }
 
 void M1OrientationOSCServer::close() {
-	isRunning = false;
+    isRunning = false;
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     receiver.removeListener(this);
     receiver.disconnect();
 }
 
 void M1OrientationOSCServer::command_refreshDevices() {
-	// call the other thread?
-	for (const auto& v : hardwareImpl) {
-		v.second->refreshDevices();
-	}
-	send_getDevices(clients);
+    // call the other thread?
+    for (const auto& v : hardwareImpl) {
+        v.second->refreshDevices();
+    }
+    send_getDevices(clients);
 }
 
 void M1OrientationOSCServer::command_disconnect() {
     orientation.resetOrientation();
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-		hardwareImpl[currentDevice.getDeviceType()]->close();
-		currentDevice = M1OrientationDeviceInfo();
-		send_getCurrentDevice(clients);
-	}
+        hardwareImpl[currentDevice.getDeviceType()]->close();
+        currentDevice = M1OrientationDeviceInfo();
+        send_getCurrentDevice(clients);
+    }
 }
 
 void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
@@ -315,4 +318,8 @@ void M1OrientationOSCServer::command_setTrackingPitchEnabled(bool enable) {
 void M1OrientationOSCServer::command_setTrackingRollEnabled(bool enable) {
     bTrackingRollEnabled = enable;
     send_getTrackingRollEnabled(clients);
+}
+
+void M1OrientationOSCServer::command_recenter() {
+    orientation.resetOrientation();
 }

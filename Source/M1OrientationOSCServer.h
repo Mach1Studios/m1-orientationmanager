@@ -23,9 +23,9 @@ class M1OrientationOSCServer :
     juce::OSCReceiver receiver; 
 
     std::vector<M1OrientationClientConnection> clients;
-	int serverPort = 0;
-	int watcherPort = 0;
-	bool isRunning = false;
+    int serverPort = 0;
+    int watcherPort = 0;
+    bool isRunning = false;
 
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
@@ -69,8 +69,9 @@ public:
     void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
-	void command_setTrackingRollEnabled(bool enable);
-	void command_disconnect();
-	
+    void command_setTrackingRollEnabled(bool enable);
+    void command_recenter();
+    void command_disconnect();
+
     void close();
 };
