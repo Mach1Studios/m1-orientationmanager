@@ -40,7 +40,7 @@ target_include_directories(${PLUGIN_NAME} PRIVATE rs232)
 message(STATUS "Device: Adding MetaMotion Support")
 add_subdirectory(Devices/MetaWear)
 target_include_directories(${PLUGIN_NAME} PRIVATE Devices/MetaWear/src)
-target_link_libraries(${PLUGIN_NAME} PUBLIC metawear metawear::metawear)
+target_link_libraries(${PLUGIN_NAME} PUBLIC metawear)
 
 # Add Supperware
 message(STATUS "Device: Adding Supperware Support")
