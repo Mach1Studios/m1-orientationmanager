@@ -71,6 +71,25 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             }
         }
     }
+    else if (message.getAddressPattern() == "/setMonitorYPR") {
+        // receiving updated monitor YPR and mode
+        monitor_mode = message[0].getInt32();
+        monitor_yaw = message[1].getFloat32();
+        monitor_pitch = message[2].getFloat32();
+        monitor_roll = message[3].getFloat32();
+        // this is passed to any registered plugins via the "/monitor-settings" address
+    }
+    else if (message.getAddressPattern() == "/m1-register-plugin/port") {
+        // registering new panner instance
+        // protect port creation to only messages from panners
+        auto port = message[0].getInt32();
+
+        if (std::find(registeredPluginPorts.begin(), registeredPluginPorts.end(),port) == registeredPluginPorts.end()) {
+            registeredPluginPorts.push_back(port);
+            registeredPluginSender.push_back(new juce::OSCSender());
+            registeredPluginSender.back()->connect("127.0.0.1", port); // connect to that newly discovered panner locally
+        }
+    }
     else {
         std::cout << "not implemented!" << std::endl;
     }

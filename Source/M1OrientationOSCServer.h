@@ -18,7 +18,7 @@ struct M1OrientationClientConnection {
 
 class M1OrientationOSCServer : 
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
-    public M1OrientationManagerOSCSettings
+    public M1OrientationManagerOSCSettings, juce::Timer
 {
     juce::OSCReceiver receiver; 
 
@@ -26,6 +26,9 @@ class M1OrientationOSCServer :
     int serverPort = 0;
     int watcherPort = 0;
     bool isRunning = false;
+    
+    float monitor_yaw, monitor_pitch, monitor_roll;
+    int monitor_mode = 0;
 
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
@@ -73,5 +76,24 @@ public:
     void command_recenter();
     void command_disconnect();
 
+    // Tracking for any plugin that does not need an m1_orientation_client but still needs feedback of orientation for UI purposes such as the M1-Panner plugin
+    std::vector<int> registeredPluginPorts;
+    std::vector<juce::OSCSender*> registeredPluginSender;
+    int getNumberOfRegisteredPannerInstances() {
+        return registeredPluginPorts.size();
+    }
+    
+    void timerCallback() override {
+        if (registeredPluginSender.size() > 0) {
+            for (auto &i: registeredPluginSender) {
+                juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-settings"));
+                m.addInt32(monitor_mode);
+                m.addFloat32(monitor_yaw); // expected normalised
+                m.addFloat32(monitor_pitch); // expected normalised
+                i->send(m);
+            }
+        }
+    }
+    
     void close();
 };
