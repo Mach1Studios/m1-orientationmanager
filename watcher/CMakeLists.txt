@@ -1,16 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
-file(STRINGS VERSION CURRENT_VERSION)
-project(M1-OrientationManager VERSION ${CURRENT_VERSION})
+file(STRINGS ../VERSION CURRENT_VERSION)
+project(M1-ServerWatcher VERSION ${CURRENT_VERSION})
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
     cmake_policy(SET CMP0135 NEW)
 endif()
-
-include(FetchContent)
-
-# c++17 required for BLE
-set(CMAKE_CXX_STANDARD 17)
 
 #First, we'll add the CMake folder, incase we'll need to find_package later:
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -32,16 +27,16 @@ option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # add JUCE and other custom modules
-add_subdirectory(JUCE)
-add_subdirectory(Modules)
+if(${IS_ROOT_PROJECT})
+    add_subdirectory(../JUCE "${CMAKE_CURRENT_BINARY_DIR}/JUCE_build")
+endif()
 
 # PLUGIN/APP NAME (for dynamic naming schemes)
-set(PLUGIN_NAME "${CMAKE_PROJECT_NAME}")
-set(CUSTOM_BUNDLE_ID "com.mach1.orientationserver")
-set(CUSTOM_APP_CODE "M1OS")
+set(CUSTOM_BUNDLE_ID "com.mach1.orientationserver.watcher")
+set(CUSTOM_APP_CODE "M1SW")
 
 # add the plugin targets
-juce_add_console_app(${PLUGIN_NAME}
+juce_add_console_app(${CMAKE_PROJECT_NAME}
                 VERSION ${CURRENT_VERSION}
                 COMPANY_NAME "Mach1"
                 COMPANY_WEBSITE "https://mach1.tech"
@@ -49,43 +44,33 @@ juce_add_console_app(${PLUGIN_NAME}
                 PLUGIN_MANUFACTURER_CODE "Mac1"
                 PLUGIN_CODE ${CUSTOM_APP_CODE}
                 BUNDLE_ID ${CUSTOM_BUNDLE_ID}
-                PLUGIN_NAME ${PLUGIN_NAME}
-                PRODUCT_NAME ${PLUGIN_NAME}
+                PLUGIN_NAME ${CMAKE_PROJECT_NAME}
+                PRODUCT_NAME ${CMAKE_PROJECT_NAME}
                 IS_SYNTH FALSE)
 
 # add required flags
-juce_generate_juce_header(${PLUGIN_NAME})
+juce_generate_juce_header(${CMAKE_PROJECT_NAME})
 
-target_compile_definitions(${PLUGIN_NAME}
+target_compile_definitions(${CMAKE_PROJECT_NAME}
     PUBLIC 
-    JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:${PLUGIN_NAME},JUCE_PROJECT_NAME>"
-    JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:${PLUGIN_NAME},JUCE_VERSION>"
+    JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:${CMAKE_PROJECT_NAME},JUCE_PROJECT_NAME>"
+    JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:${CMAKE_PROJECT_NAME},JUCE_VERSION>"
     JUCE_WEB_BROWSER=0
     JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_DISPLAY_SPLASH_SCREEN=0)
 
-# Set the C++ language standard requirenment for the "shared code" library target.
-# Setting this to PUBLIC ensures that all dependent targets will inherit the specified C++ standard.
-target_compile_features("${PLUGIN_NAME}" PUBLIC cxx_std_17)
 # Disable compiler extensions for the project targets (e.g. use -std=c++17 instead of -std=gnu++17).
 get_property(project_targets DIRECTORY "${PROJECT_SOURCE_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
 set_target_properties(${project_targets} PROPERTIES CXX_EXTENSIONS OFF)
 
 # add the sources
 add_subdirectory(Source)
-add_subdirectory(Resources)
-
-# Required for Linux happiness:
-# See https://forum.juce.com/t/loading-pytorch-model-using-binarydata/39997/2
-set_target_properties(Resources PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-set_target_properties(Resources PROPERTIES FOLDER "Targets")
-target_link_libraries(${PLUGIN_NAME} PRIVATE Resources)
 
 # definitions to replace the `JucePluginDefines.h`
-set(JucePlugin_Name ${PLUGIN_NAME})
-set(JucePlugin_Desc ${PLUGIN_NAME})
+set(JucePlugin_Name ${CMAKE_PROJECT_NAME})
+set(JucePlugin_Desc ${CMAKE_PROJECT_NAME})
 
-target_link_libraries(${PLUGIN_NAME} PRIVATE
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
@@ -94,35 +79,17 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
         juce::juce_events
         juce::juce_graphics
         juce::juce_gui_basics
-        juce::juce_audio_basics
-        juce::juce_audio_devices
-        juce::juce_opengl
         juce::juce_osc
-        juce_murka
-        m1_orientation_client
         )
-
-option(BUILD_DEBUG_UI "Build with debug GUI window" OFF)
-
-if (BUILD_DEBUG_UI)
-    target_compile_definitions(${PLUGIN_NAME} PUBLIC BUILD_DEBUG_UI=${BUILD_DEBUG_UI})
-endif()
-
-option(BUILD_UNIT_TESTS "Build JUCE prototype examples" OFF)
-
-if (BUILD_UNIT_TESTS)
-    enable_testing()
-    add_subdirectory(test/client)
-endif()
 
 ### IDE Generator post-config ###
 # IDEs:  Move the "shared code" source group (main target) out of the "Targets" folder
 #        to the top level.
-set_target_properties("${PLUGIN_NAME}" PROPERTIES FOLDER "")
+set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES FOLDER "")
 # IDEs:  Organise source file grouping.
-get_target_property(project_sources "${PLUGIN_NAME}" SOURCES)
+get_target_property(project_sources "${CMAKE_PROJECT_NAME}" SOURCES)
 #   If JuceHeader.h is generated, remove it from the source file list and handle it individually.
-get_target_property(juce_library_code "${PLUGIN_NAME}" JUCE_GENERATED_SOURCES_DIRECTORY)
+get_target_property(juce_library_code "${CMAKE_PROJECT_NAME}" JUCE_GENERATED_SOURCES_DIRECTORY)
 set(juce_header "${juce_library_code}/JuceHeader.h")
 list(REMOVE_ITEM project_sources "${juce_header}")
 

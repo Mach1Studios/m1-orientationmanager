@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
-file(STRINGS VERSION CURRENT_VERSION)
+file(STRINGS ../VERSION CURRENT_VERSION)
 project(M1-OrientationClient VERSION ${CURRENT_VERSION})
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
     cmake_policy(SET CMP0135 NEW)
 endif()
-
-include(FetchContent)
 
 # c++17 required for BLE
 set(CMAKE_CXX_STANDARD 17)
@@ -32,8 +30,10 @@ option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # add JUCE and other custom modules
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../JUCE)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Modules)
+if(${IS_ROOT_PROJECT})
+    add_subdirectory(../JUCE "${CMAKE_CURRENT_BINARY_DIR}/JUCE_build")
+    add_subdirectory(../Modules "${CMAKE_CURRENT_BINARY_DIR}/JUCE_Modules_build")
+endif()
 
 # PLUGIN/APP NAME (for dynamic naming schemes)
 set(CUSTOM_BUNDLE_ID "com.mach1.orientationclient")
