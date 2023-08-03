@@ -28,10 +28,11 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # add JUCE and other custom modules
 if(${IS_ROOT_PROJECT})
+    # TODO: Setup and link to deps directly
+else()
     add_subdirectory(../JUCE "${CMAKE_CURRENT_BINARY_DIR}/JUCE_build")
 endif()
 
-# PLUGIN/APP NAME (for dynamic naming schemes)
 set(CUSTOM_BUNDLE_ID "com.mach1.orientationserver.watcher")
 set(CUSTOM_APP_CODE "M1SW")
 

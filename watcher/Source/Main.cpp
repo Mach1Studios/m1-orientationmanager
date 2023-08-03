@@ -42,12 +42,11 @@ void startOrientationManager()
         socket.shutdown();
 
 		juce::File executableFile = juce::File::getSpecialLocation(juce::File::invokedExecutableFile);
+        juce::File appDirectory = executableFile.getParentDirectory();
 
 #ifdef JUCE_WINDOWS
-        juce::File appDirectory = executableFile.getParentDirectory();
 		juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager.exe");
 #else
-        juce::File appDirectory = executableFile.getParentDirectory();
 		juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager");
 #endif
         appDirectory.setAsCurrentWorkingDirectory();
@@ -57,7 +56,7 @@ void startOrientationManager()
 
 		juce::StringArray arguments;
 		arguments.add(exeFile.getFullPathName());
-		//arguments.add("--no-gui");
+		arguments.add("--no-gui");
 
         DBG("Starting M1-OrientationManager-Watcher...");
         DBG(exeFile.getFullPathName());

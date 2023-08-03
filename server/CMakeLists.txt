@@ -30,10 +30,13 @@ option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # add JUCE and other custom modules
-add_subdirectory(../JUCE "${CMAKE_CURRENT_BINARY_DIR}/JUCE_build")
-add_subdirectory(../Modules "${CMAKE_CURRENT_BINARY_DIR}/JUCE_Modules_build")
+if(${IS_ROOT_PROJECT})
+    # TODO: Setup and link to deps directly
+else()
+    add_subdirectory(../JUCE "${CMAKE_CURRENT_BINARY_DIR}/JUCE_build")
+    add_subdirectory(../Modules "${CMAKE_CURRENT_BINARY_DIR}/JUCE_Modules_build")
+endif()
 
-# PLUGIN/APP NAME (for dynamic naming schemes)
 set(CUSTOM_BUNDLE_ID "com.mach1.orientationserver")
 set(CUSTOM_APP_CODE "M1OS")
 
