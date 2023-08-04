@@ -42,9 +42,21 @@ void MainComponent::initialise()
     // Internal device emulator for debugging
     hardwareEmulator.setup();
     
-	std::string settingsFilePath = (juce::File::getCurrentWorkingDirectory().getFullPathName() + "/settings.json").toStdString();
-	m1OrientationOSCServer.initFromSettings(settingsFilePath);
-	//m1OrientationOSCServer.init(6345, 6346);
+    // We will assume the folders are properly created during the installation step
+    // TODO: make this file path search for `Mach1` dir
+    // Using common support files installation location
+    juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
+    std::string settingsFilePath;
+    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
+        // test for any windows OS
+        settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Mach1/settings.json").toStdString();
+    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+        // test for any mac OS
+        settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Application Support/Mach1/settings.json").toStdString();
+    } else {
+        settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Mach1/settings.json").toStdString();
+    }
+    m1OrientationOSCServer.initFromSettings(settingsFilePath, true);
 
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);

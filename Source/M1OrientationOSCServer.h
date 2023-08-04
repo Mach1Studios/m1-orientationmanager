@@ -52,7 +52,7 @@ public:
     
     virtual ~M1OrientationOSCServer();
 
-    bool init(int serverPort, int watcherPort);
+    bool init(int serverPort, int watcherPort, bool useWatcher);
 
     void update();
 

@@ -207,7 +207,7 @@ bool M1OrientationOSCServer::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
-bool M1OrientationOSCServer::init(int serverPort, int watcherPort) {
+bool M1OrientationOSCServer::init(int serverPort, int watcherPort, bool useWatcher = false) {
     // check the port
     juce::DatagramSocket socket(false);
     socket.setEnablePortReuse(false);
@@ -221,18 +221,20 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort) {
         this->watcherPort = watcherPort;
         this->isRunning = true;
 
-        std::thread([&]() {
-            while (this->isRunning) {
-                juce::OSCSender sender;
-                if (sender.connect("127.0.0.1", this->watcherPort)) {
-                    juce::OSCMessage msg("/ping");
-                    sender.send(msg);
-                    sender.disconnect();
+        if (useWatcher) {
+            std::thread([&]() {
+                while (this->isRunning) {
+                    juce::OSCSender sender;
+                    if (sender.connect("127.0.0.1", this->watcherPort)) {
+                        juce::OSCMessage msg("/ping");
+                        sender.send(msg);
+                        sender.disconnect();
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-        }).detach();
-
+            }).detach();
+        }
+        
         return true;
     }
     else {
