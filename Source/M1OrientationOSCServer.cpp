@@ -229,7 +229,9 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort, bool useWatch
                     juce::OSCSender sender;
                     if (sender.connect("127.0.0.1", this->watcherPort)) {
                         juce::OSCMessage msg("/Mach1/ActiveClients");
-                        msg.addInt32(getClients.size()); // report number of active clients, if number drops to 0 then watcher will shutdown
+                        if (getClients().size() > 0) {
+                            msg.addInt32(getClients().size()); // report number of active clients, if number drops to 0 then watcher will shutdown
+                        }
                         sender.send(msg);
                         sender.disconnect();
                     }
