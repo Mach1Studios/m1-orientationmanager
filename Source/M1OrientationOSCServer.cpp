@@ -84,14 +84,16 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         // protect port creation to only messages from panners
         auto port = message[0].getInt32();
 
-        if (std::find(registeredPluginPorts.begin(), registeredPluginPorts.end(),port) == registeredPluginPorts.end()) {
+        if (std::find(registeredPluginPorts.begin(), registeredPluginPorts.end(), port) == registeredPluginPorts.end()) {
             registeredPluginPorts.push_back(port);
             registeredPluginSender.push_back(new juce::OSCSender());
             registeredPluginSender.back()->connect("127.0.0.1", port); // connect to that newly discovered panner locally
+        } else {
+            DBG("Plugin port already registered: " + std::to_string(port));
         }
     }
     else {
-        std::cout << "not implemented!" << std::endl;
+        DBG("OSC Message not implemented: " + message.getAddressPattern().toString());
     }
 }
 
@@ -235,13 +237,11 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort, bool useWatch
                 }
             }).detach();
         }
-        
         return true;
     }
     else {
         return false;
     }
-    
 }
 
 void M1OrientationOSCServer::update() {
