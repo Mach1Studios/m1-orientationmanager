@@ -4,11 +4,16 @@ External orientation device manager and utilities geared toward aggregating diff
 ## Setup
 
 ### Build via CMake
-- `mkdir cmake-build && cd cmake-build`
-- `cmake ..` Create project files by adding the appropriate `-G Xcode` or `-G "Visual Studio 16 2019"` to the end of this line
-- `cmake --build .`
+- `cmake -Bbuild` Create project files by adding the appropriate `-G Xcode` or `-G "Visual Studio 16 2019"` to the end of this line
+- `cmake --build build`
 
 ### Build via .jucer
+- Compile the dependencies: `simpleble` and `metawear`:
+- `cd Builds/MacOSX/` or `cd Builds/VisualStudio2019`
+- `cmake ../../Source/SimpleBLE/simpleble -B../../Source/SimpleBLE/simpleble -DCMAKE_OSX_DEPLOYMENT_TARGET="10.15"`
+- `cmake --build ../../Source/SimpleBLE/simpleble`
+- `cmake ../../Source/Devices/MetaWear -B../../Source/Devices/MetaWear/build -DCMAKE_OSX_DEPLOYMENT_TARGET="10.15"`
+- `cmake --build ../../Source/Devices/MetaWear/build --config Release`
 - Open the `M1-OrientationManager-Server.jucer` and compile as needed
 
 ## Install

@@ -43,21 +43,23 @@ void MainComponent::initialise()
     hardwareEmulator.setup();
     
     // We will assume the folders are properly created during the installation step
-    // TODO: make this file path search for `Mach1` dir
+    juce::File settingsFile;
     // Using common support files installation location
     juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-    std::string settingsFilePath;
-    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-        // test for any windows OS
-        settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Mach1/settings.json").toStdString();
-    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-        // test for any mac OS
-        settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Application Support/Mach1/settings.json").toStdString();
-    } else {
-        settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Mach1/settings.json").toStdString();
-    }
-    m1OrientationOSCServer.initFromSettings(settingsFilePath, true);
 
+    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+        // test for any mac OS
+        settingsFile = m1SupportDirectory.getChildFile("Application Support").getChildFile("Mach1");
+    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
+        // test for any windows OS
+        settingsFile = m1SupportDirectory.getChildFile("Mach1");
+    } else {
+        settingsFile = m1SupportDirectory.getChildFile("Mach1");
+    }
+    settingsFile = settingsFile.getChildFile("settings.json");
+    DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
+    m1OrientationOSCServer.initFromSettings(settingsFile.getFullPathName().toStdString(), true);
+    
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
