@@ -12,7 +12,5 @@
 	</array>
 	<key>AssociatedBundleIdentifiers</key>
 	<string>com.mach1.watcher</string>
-	<string>com.mach1.spatial.monitor</string>
-	<string>com.mach1.spatial.player</string>
 </dict>
 </plist>
