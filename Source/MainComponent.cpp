@@ -24,6 +24,7 @@ void MainComponent::initialise()
 {
     murka::JuceMurkaBaseComponent::initialise();
 
+    // Setup for shared resources
 	std::string resourcesPath;
 	if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
 		resourcesPath = juce::File::getSpecialLocation(juce::File::SpecialLocationType::userApplicationDataDirectory).getChildFile("Application Support").getChildFile("/Mach1 Spatial System/resources").getFullPathName().toStdString();
@@ -33,14 +34,6 @@ void MainComponent::initialise()
 	}
 	printf("Resources Loaded From: %s \n", resourcesPath.c_str());
 	m.setResourcesPath(resourcesPath);
-    
-    // For debug testing you can set this to false to list all connectable BLE devices
-    hardwareBLE.displayOnlyKnownIMUs = true;
-    hardwareBLE.setup();
-    hardwareSerial.setup();
-    hardwareOSC.setup();
-    // Internal device emulator for debugging
-    hardwareEmulator.setup();
     
     // We will assume the folders are properly created during the installation step
     juce::File settingsFile;
@@ -59,6 +52,14 @@ void MainComponent::initialise()
     settingsFile = settingsFile.getChildFile("settings.json");
     DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
     m1OrientationOSCServer.initFromSettings(settingsFile.getFullPathName().toStdString(), true);
+    
+    // For debug testing you can set this to false to list all connectable BLE devices
+    hardwareBLE.displayOnlyKnownIMUs = true;
+    hardwareBLE.setup();
+    hardwareSerial.setup();
+    hardwareOSC.setup();
+    // Internal device emulator for debugging
+    hardwareEmulator.setup();
     
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);

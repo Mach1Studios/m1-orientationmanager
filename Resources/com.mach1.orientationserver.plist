@@ -4,13 +4,10 @@
 <dict>
 	<key>Label</key>
 	<string>com.mach1.orientationserver</string>
-	<key>KeepAlive</key>
-	<true/>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/Library/Application Support/Mach1/M1-OrientationManager</string>
+		<string>--no-gui</string>
 	</array>
-	<key>AssociatedBundleIdentifiers</key>
-	<string>com.mach1.watcher</string>
 </dict>
 </plist>
