@@ -37,7 +37,7 @@ add_subdirectory(Modules)
 
 # PLUGIN/APP NAME (for dynamic naming schemes)
 set(PLUGIN_NAME "${CMAKE_PROJECT_NAME}")
-set(CUSTOM_BUNDLE_ID "com.mach1.orientationmanager")
+set(CUSTOM_BUNDLE_ID "com.mach1.spatial.orientationmanager")
 set(CUSTOM_APP_CODE "M1OS")
 
 # add the plugin targets

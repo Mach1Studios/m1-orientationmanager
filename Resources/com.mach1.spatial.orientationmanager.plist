@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.mach1.orientationmanager</string>
+	<string>com.mach1.spatial.orientationmanager</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/Library/Application Support/Mach1/M1-OrientationManager</string>

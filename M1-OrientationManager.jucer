@@ -4,7 +4,7 @@
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="0"
               jucerFormatVersion="1" companyName="Mach1" version="0.0.1" companyEmail="whatsup@mach1.tech"
               companyWebsite="https://www.mach1.tech" companyCopyright="Mach1, Corp."
-              bundleIdentifier="com.mach1.orientationmanager" cppLanguageStandard="17">
+              bundleIdentifier="com.mach1.spatial.orientationmanager" cppLanguageStandard="17">
   <MAINGROUP id="Z4KsZJ" name="M1-OrientationManager">
     <FILE id="lbMTh3" name="AileronSemiBold.ttf" compile="0" resource="1"
           file="Resources/AileronSemiBold.ttf"/>
