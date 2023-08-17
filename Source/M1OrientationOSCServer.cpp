@@ -73,11 +73,12 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     }
     else if (message.getAddressPattern() == "/setMonitorYPR") {
         // receiving updated monitor YPR and mode
+        // Note: It is expected that the orientation manager receives orientation and sends it to a client and for the client to offset this orientation before sending it back to registered plugins, the adding of all orientations should happen on client side only
         monitor_mode = message[0].getInt32();
         monitor_yaw = message[1].getFloat32();
         monitor_pitch = message[2].getFloat32();
         monitor_roll = message[3].getFloat32();
-        // this is passed to any registered plugins via the "/monitor-settings" address
+        // this is used to update the orientation on the manager before passing back to any registered plugins via the "/monitor-settings" address
     }
     else if (message.getAddressPattern() == "/m1-register-plugin/port") {
         // registering new panner instance
@@ -88,6 +89,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             registeredPluginPorts.push_back(port);
             registeredPluginSender.push_back(new juce::OSCSender());
             registeredPluginSender.back()->connect("127.0.0.1", port); // connect to that newly discovered panner locally
+            DBG("Plugin registered: " + std::to_string(port));
         } else {
             DBG("Plugin port already registered: " + std::to_string(port));
         }

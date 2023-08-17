@@ -90,6 +90,7 @@ public:
                 m.addInt32(monitor_mode);
                 m.addFloat32(monitor_yaw); // expected normalised
                 m.addFloat32(monitor_pitch); // expected normalised
+                m.addFloat32(monitor_roll); // expected normalised
                 i->send(m);
             }
         }

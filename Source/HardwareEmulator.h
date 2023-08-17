@@ -35,9 +35,12 @@ public:
 			newOrientation.pitch = pitch; 
 			newOrientation.roll = roll; 
 			newOrientation.angleType = M1OrientationYPR::AngleType::DEGREES;
+            newOrientation.yaw_min = 0.;
+            newOrientation.yaw_max = 360.;
 			orientation.setYPR(newOrientation);
 
-			yaw = fmod((yaw + 0.1), 360);
+            yaw = std::fmod((yaw + 0.1), 360); // fmod 360 range
+            pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
             return 1;
         } else {
             // return for error handling
