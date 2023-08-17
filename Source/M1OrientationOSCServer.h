@@ -79,6 +79,7 @@ public:
     // Tracking for any plugin that does not need an m1_orientation_client but still needs feedback of orientation for UI purposes such as the M1-Panner plugin
     std::vector<int> registeredPluginPorts;
     std::vector<juce::OSCSender*> registeredPluginSender;
+    bool bTimerActive = false;
     int getNumberOfRegisteredPannerInstances() {
         return registeredPluginPorts.size();
     }
@@ -93,6 +94,11 @@ public:
                 m.addFloat32(monitor_roll); // expected normalised
                 i->send(m);
             }
+        }
+        
+        // TODO: check if any registered plugins closed
+        for (auto &i: registeredPluginSender) {
+            
         }
     }
     

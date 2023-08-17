@@ -80,7 +80,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         monitor_roll = message[3].getFloat32();
         // this is used to update the orientation on the manager before passing back to any registered plugins via the "/monitor-settings" address
     }
-    else if (message.getAddressPattern() == "/m1-register-plugin/port") {
+    else if (message.getAddressPattern() == "/m1-register-plugin") {
         // registering new panner instance
         // protect port creation to only messages from panners
         auto port = message[0].getInt32();
@@ -92,6 +92,16 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             DBG("Plugin registered: " + std::to_string(port));
         } else {
             DBG("Plugin port already registered: " + std::to_string(port));
+        }
+        if (!bTimerActive && registeredPluginSender.size() > 0) {
+            startTimer(60);
+            bTimerActive = true;
+        } else {
+            if (registeredPluginSender.size() == 0) {
+                // TODO: setup logic for deleting from `registeredPluginSender`
+                stopTimer();
+                bTimerActive = false;
+            }
         }
     }
     else {
