@@ -89,6 +89,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             foundPlugin.port = port;
             foundPlugin.messageSender = new juce::OSCSender();
             foundPlugin.messageSender->connect("127.0.0.1", port); // connect to that newly discovered panner locally
+            registeredPlugins.push_back(foundPlugin);
             DBG("Plugin registered: " + std::to_string(port));
         } else {
             DBG("Plugin port already registered: " + std::to_string(port));
