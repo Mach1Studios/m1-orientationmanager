@@ -11,6 +11,34 @@
 #include "HardwareAbstract.h"
 #include <thread>
 
+// TODO: refactor this
+class M1RegisteredPlugin {
+public:
+    // At a minimum we should expect port and if applicable name
+    // messages to ensure we do not delete this instance of a registered plugin
+    int port;
+    std::string name;
+    bool isPannerPlugin = false;
+    int input_mode;
+    float azimuth, elevation, diverge; // values expected unnormalized
+    float gain; // values expected unnormalized
+    
+    // pointer to store osc sender to communicate to registered plugin
+    juce::OSCSender* messageSender;
+};
+
+// search plugin by registered port number
+// TODO: potentially improve this with uuid concept
+struct find_plugin
+{
+    int port;
+    find_plugin(int port) : port(port) {}
+    bool operator () ( const M1RegisteredPlugin& p ) const
+    {
+        return p.port == port;
+    }
+};
+
 struct M1OrientationClientConnection {
     int port;
     juce::int64 time;
@@ -77,27 +105,23 @@ public:
     void command_disconnect();
 
     // Tracking for any plugin that does not need an m1_orientation_client but still needs feedback of orientation for UI purposes such as the M1-Panner plugin
-    std::vector<int> registeredPluginPorts;
-    std::vector<juce::OSCSender*> registeredPluginSender;
+    std::vector<M1RegisteredPlugin> registeredPlugins;
     bool bTimerActive = false;
-    int getNumberOfRegisteredPannerInstances() {
-        return registeredPluginPorts.size();
-    }
     
     void timerCallback() override {
-        if (registeredPluginSender.size() > 0) {
-            for (auto &i: registeredPluginSender) {
+        if (registeredPlugins.size() > 0) {
+            for (auto &i: registeredPlugins) {
                 juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-settings"));
                 m.addInt32(monitor_mode);
                 m.addFloat32(monitor_yaw); // expected normalised
                 m.addFloat32(monitor_pitch); // expected normalised
                 m.addFloat32(monitor_roll); // expected normalised
-                i->send(m);
+                i.messageSender->send(m);
             }
         }
         
         // TODO: check if any registered plugins closed
-        for (auto &i: registeredPluginSender) {
+        for (auto &i: registeredPlugins) {
             
         }
     }

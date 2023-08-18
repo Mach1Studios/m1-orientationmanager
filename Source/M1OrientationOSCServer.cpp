@@ -82,26 +82,52 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     }
     else if (message.getAddressPattern() == "/m1-register-plugin") {
         // registering new panner instance
-        // protect port creation to only messages from panners
         auto port = message[0].getInt32();
-
-        if (std::find(registeredPluginPorts.begin(), registeredPluginPorts.end(), port) == registeredPluginPorts.end()) {
-            registeredPluginPorts.push_back(port);
-            registeredPluginSender.push_back(new juce::OSCSender());
-            registeredPluginSender.back()->connect("127.0.0.1", port); // connect to that newly discovered panner locally
+        // protect port creation to only messages from registered plugin (example: an m1-panner)
+        if (std::find_if(registeredPlugins.begin(), registeredPlugins.end(), find_plugin(port)) == registeredPlugins.end()) {
+            M1RegisteredPlugin foundPlugin;
+            foundPlugin.port = port;
+            foundPlugin.messageSender = new juce::OSCSender();
+            foundPlugin.messageSender->connect("127.0.0.1", port); // connect to that newly discovered panner locally
             DBG("Plugin registered: " + std::to_string(port));
         } else {
             DBG("Plugin port already registered: " + std::to_string(port));
         }
-        if (!bTimerActive && registeredPluginSender.size() > 0) {
+        if (!bTimerActive && registeredPlugins.size() > 0) {
             startTimer(60);
             bTimerActive = true;
         } else {
-            if (registeredPluginSender.size() == 0) {
-                // TODO: setup logic for deleting from `registeredPluginSender`
+            if (registeredPlugins.size() == 0) {
+                // TODO: setup logic for deleting from `registeredPlugins`
                 stopTimer();
                 bTimerActive = false;
             }
+        }
+    }
+    else if (message.getAddressPattern() == "/panner-settings") {
+        if (message.size() > 0) { // check message size
+            auto plugin_port = message[0].getInt32();
+            if (message.size() == 6) {
+                auto input_mode = message[1].getInt32();
+                auto azi = message[2].getFloat32();
+                auto ele = message[3].getFloat32();
+                auto div = message[4].getFloat32();
+                auto gain = message[5].getFloat32();
+                DBG("[OSC] Panner: port="+std::to_string(plugin_port)+", in="+std::to_string(input_mode)+", az="+std::to_string(azi)+", el="+std::to_string(ele)+", di="+std::to_string(div)+", gain="+std::to_string(gain));
+                // Check if port matches expected registered-plugin port
+                if (registeredPlugins.size() > 0) {
+                    auto it = std::find_if(registeredPlugins.begin(), registeredPlugins.end(), find_plugin(plugin_port));
+                    auto index = it - registeredPlugins.begin(); // find the index from the found plugin
+                    registeredPlugins[index].isPannerPlugin = true;
+                    registeredPlugins[index].input_mode = input_mode;
+                    registeredPlugins[index].azimuth = azi;
+                    registeredPlugins[index].elevation = ele;
+                    registeredPlugins[index].diverge = div;
+                    registeredPlugins[index].gain = gain;
+                }
+            }
+        } else {
+            // port not found, error here
         }
     }
     else {
