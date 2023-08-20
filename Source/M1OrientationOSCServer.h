@@ -11,7 +11,7 @@
 #include "HardwareAbstract.h"
 #include <thread>
 
-// TODO: refactor this
+// TODO: refactor this class and the find_plugin struct
 class M1RegisteredPlugin {
 public:
     // At a minimum we should expect port and if applicable name
