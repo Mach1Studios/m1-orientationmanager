@@ -27,5 +27,25 @@ Currently this helper service executable is expected in a common data directory 
 - `cmake -Bbuild -G "Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX="%APP_DATA%\Mach1"`
 - `cmake --build --configuration Release --install`
 
+## Design
+Design and architecture of the project is described in the [Source](Source) directory, currently this project allows data transmission types to be defined via overrides of the [HardwareAbstract.h](Source/HardwareAbstract.h) while new devices using those data transmission types can be defined via the [Devices](Source/Devices) directory. 
+
+### Currently Supports
+
+#### Hardware / Data Transmission
+- [Serial](Source/HardwareSerial.h) _using rs232_
+- [BLE](Source/HardwareBLE.h) _using simpleble_
+- [OSC](Source/HardwareOSC.h)
+- [Camera](Source/HardwareCamera.h) _[WIP]_
+- [Emulator](Source/HardwareEmulator) _[primarily for debug]_
+
+#### Devices
+- [Supperware IMU](https://supperware.co.uk/)
+- [MetaWear/mBientLab IMUs](https://mbientlab.com/)
+- [M1 IMU](https://www.mach1.tech/products)
+- [WitMotion IMUs](https://www.wit-motion.com/) _[WIP]_
+
+_Please feel free to open an issue requesting a new device with device details_
+
 ## Credits
 This project heavily references and implements several design, UI and UX concepts from [nvsonic-head-tracker](https://github.com/trsonic/nvsonic-head-tracker) utility and expands upon it by handling and aggregating more connection types as well as creating a server/client design to handle dual direction communication between a network of clients.
