@@ -72,6 +72,10 @@ public:
                 }
             }
             
+            if (getConnectedDevice().getDeviceName().find("Nx Tracker") != std::string::npos) {
+                std::cout << "[BLE] Nx Tracker device: " << getConnectedDevice().getDeviceName() << ", " << getConnectedDevice().getDeviceAddress() << ", " << std::endl;
+            }
+            
             // TODO: Add magnometer activate function `bUseMagnoHeading`
             if (getConnectedDevice().getDeviceName().find("MetaWear") != std::string::npos || getConnectedDevice().getDeviceName().find("Mach1-M") != std::string::npos) {
                 float* a = metawearInterface.getAngle(); // MMC = Y=0, P=2, R=1
