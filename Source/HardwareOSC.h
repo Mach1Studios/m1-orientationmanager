@@ -81,7 +81,7 @@ public:
             newOrientationYPR.yaw = message[1].getFloat32() / 360;
             newOrientationYPR.pitch = (((((message[0].getFloat32() > 180.) ? abs(message[0].getFloat32() - 360.) : -message[0].getFloat32()))) * -1. + 90. ) / 180.;
             newOrientationYPR.roll = (((((message[2].getFloat32() > 180.) ? abs(message[2].getFloat32() - 360.) : message[2].getFloat32()))) * -1. + 90. ) / 180.;
-            newOrientationYPR.angleType = M1OrientationYPR::AngleType::NORMALED;
+            newOrientationYPR.angleType = M1OrientationYPR::AngleType::SIGNED_NORMALLED;
             orientation.setYPR(newOrientationYPR);
         }
         /// TouchOSC
@@ -90,7 +90,7 @@ public:
             newOrientationYPR.yaw = (((-1. - 1.) / (0. - 1.)) * ((message[0].getFloat32() - 360.) + 360.));
             newOrientationYPR.pitch = (((-1. - 1.) / (-180. - 1.)) * ((message[1].getFloat32() - 180.) + 180.));
             newOrientationYPR.roll = (((-1. - 1.) / (-180. - 1.)) * ((message[2].getFloat32() - 180.) + 180.));
-            newOrientationYPR.angleType = M1OrientationYPR::AngleType::NORMALED;
+            newOrientationYPR.angleType = M1OrientationYPR::AngleType::SIGNED_NORMALLED;
             orientation.setYPR(newOrientationYPR);
         }
     }
