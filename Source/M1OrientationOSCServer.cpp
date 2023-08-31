@@ -78,6 +78,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         monitor_yaw = message[1].getFloat32();
         monitor_pitch = message[2].getFloat32();
         monitor_roll = message[3].getFloat32();
+        DBG("[Monitor] Mode: "+std::to_string(monitor_mode)+", YPR="+std::to_string(monitor_yaw)+", "+std::to_string(monitor_pitch)+", "+std::to_string(monitor_roll));
         // this is used to update the orientation on the manager before passing back to any registered plugins via the "/monitor-settings" address
     }
     else if (message.getAddressPattern() == "/m1-register-plugin") {

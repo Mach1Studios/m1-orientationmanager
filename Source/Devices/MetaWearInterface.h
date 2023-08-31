@@ -43,6 +43,13 @@
 #include "metawear/sensor/sensor_common.h"
 #include "metawear/sensor/sensor_fusion.h"
 
+#define METAMOTION_READ_SERVICE_UUID    "0000180a-0000-1000-8000-00805f9b34fb"
+#define METAMOTION_READ_UUID            "00002a26-0000-1000-8000-00805f9b34fb"
+#define METAMOTION_NOTIFY_SERVICE_UUID  "326a9000-85cb-9195-d9dd-464cfbbae75a"
+#define METAMOTION_NOTIFY_UUID          "326a9006-85cb-9195-d9dd-464cfbbae75a"
+#define METAMOTION_WRITE_SERVICE_UUID   "326a9000-85cb-9195-d9dd-464cfbbae75a"
+#define METAMOTION_WRITE_UUID           "326a9001-85cb-9195-d9dd-464cfbbae75a"
+
 class MetaWearInterface {
 public:
     MetaWearInterface();
