@@ -17,7 +17,9 @@ file(GLOB source_files  Config.h
                         Devices/WitMotionInterface.h
                         Devices/WitMotionInterface.cpp
                         Devices/M1Interface.h
-                        Devices/M1Interface.cpp)
+                        Devices/M1Interface.cpp
+                        Devices/NxTrackerInterface.h
+                        Devices/NxTrackerInterface.cpp)
 
 target_sources(${PLUGIN_NAME} PRIVATE ${source_files})
 

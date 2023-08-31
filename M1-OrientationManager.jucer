@@ -49,6 +49,10 @@
               file="Source/Devices/WitMotionInterface.h"/>
         <FILE id="dUd7AP" name="WitMotionInterface.cpp" compile="1" resource="0"
               file="Source/Devices/WitMotionInterface.cpp"/>
+        <FILE id="pYyoLd" name="NxTrackerInterface.h" compile="0" resource="0"
+              file="Source/Devices/NxTrackerInterface.h"/>
+        <FILE id="kjRypB" name="NxTrackerInterface.cpp" compile="1" resource="0"
+              file="Source/Devices/NxTrackerInterface.cpp"/>
         <GROUP id="{8C5F57FE-36A1-82B3-2552-3143A4F0AC7F}" name="supperware">
           <GROUP id="{1F2E2B34-2A86-A514-8519-CD56FB10009E}" name="configpanel">
             <FILE id="ggfPS3" name="configPanel-BasePanel.h" compile="0" resource="0"
