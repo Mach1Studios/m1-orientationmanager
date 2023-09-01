@@ -88,11 +88,11 @@ void MainComponent::draw()
 
 	m.getCurrentFont()->drawString("orientation: ", offsetX, offsetY);
 	offsetY += 30;
-	m.getCurrentFont()->drawString("yaw: " + std::to_string(orientation.getYPR().yaw), offsetX, offsetY);
+	m.getCurrentFont()->drawString("yaw: " + std::to_string(orientation.getYPRinDegrees().yaw), offsetX, offsetY);
 	offsetY += 30;
-	m.getCurrentFont()->drawString("pitch: " + std::to_string(orientation.getYPR().pitch), offsetX, offsetY);
+	m.getCurrentFont()->drawString("pitch: " + std::to_string(orientation.getYPRinDegrees().pitch), offsetX, offsetY);
 	offsetY += 30;
-	m.getCurrentFont()->drawString("roll: " + std::to_string(orientation.getYPR().roll), offsetX, offsetY);
+	m.getCurrentFont()->drawString("roll: " + std::to_string(orientation.getYPRinDegrees().roll), offsetX, offsetY);
 	offsetY += 30;
 
 	offsetY += 20;

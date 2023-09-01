@@ -77,6 +77,7 @@ public:
                 newOrientation.yaw = a[0];
                 newOrientation.pitch = -a[2];
                 newOrientation.roll = -a[1];
+                newOrientation.angleType = M1OrientationYPR::DEGREES; // TODO: check this!
                 orientation.setYPR(newOrientation);
                 
                 // Update battery percentage

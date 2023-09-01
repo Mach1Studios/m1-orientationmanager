@@ -181,7 +181,7 @@ public:
             devices.push_back({comGetPortName(port_index), M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, comGetInternalName(port_index)});
         }
         /// SUPPERWARE MIDI SERIAL TESTING
-        // Added to the end of the serial port search to not break the serial port enumeration which is critical for connection
+        // Added to the end of the serial port search to not break the serial port enumeration from just above which is critical for connection
         juce::WaitableEvent completionEvent;
         juce::MessageManager::callAsync([this, &completionEvent]() {
             if (supperwareInterface.getTrackerDriver().canConnect()) {
@@ -242,9 +242,4 @@ public:
     M1OrientationDeviceInfo getConnectedDevice() override {
         return connectedDevice;
     }
-    
-    // Callback update from the SupperwareInterface object
-//    std::vector<float> trackerChanged(const HeadMatrix& headMatrix) override {
-//
-//    }
 };
