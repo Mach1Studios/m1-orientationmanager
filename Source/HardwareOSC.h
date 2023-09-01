@@ -49,23 +49,23 @@ public:
         else if ((message.getAddressPattern().toString().toStdString().find("quat") != std::string::npos || message.getAddressPattern().toString().toStdString().find("/quaternion") != std::string::npos) && message.size() == 4) {
             if (message[0].isFloat32()) {
                 newOrientationQuat.wIn = message[0].getFloat32();
-            } else if (message[0].isInt32()) {
-                newOrientationQuat.wIn = (float)message[0].getInt32();
+            } else {
+                // skip
             }
             if (message[1].isFloat32()) {
                 newOrientationQuat.xIn = message[1].getFloat32();
-            } else if (message[1].isInt32()) {
-                newOrientationQuat.xIn = (float)message[1].getInt32();
+            } else {
+                // skip
             }
             if (message[2].isFloat32()) {
                 newOrientationQuat.yIn = message[2].getFloat32();
-            } else if (message[2].isInt32()) {
-                newOrientationQuat.yIn = (float)message[2].getInt32();
+            } else {
+                // skip
             }
             if (message[3].isFloat32()) {
                 newOrientationQuat.zIn = message[3].getFloat32();
-            } else if (message[3].isInt32()) {
-                newOrientationQuat.zIn = (float)message[3].getInt32();
+            } else {
+                // skip
             }
             orientation.setQuat(newOrientationQuat);
         }
