@@ -299,7 +299,8 @@ void M1OrientationOSCServer::update() {
             //}
         }
 
-        M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRinDegrees();
+        M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRasSignedNormalled();
+        ypr.angleType = M1OrientationYPR::SIGNED_NORMALLED;
         if (!getTrackingYawEnabled()) ypr.yaw = 0;
         if (!getTrackingPitchEnabled()) ypr.pitch = 0;
         if (!getTrackingRollEnabled()) ypr.roll = 0;

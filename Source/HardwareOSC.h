@@ -30,21 +30,17 @@ public:
         /// GENERIC YPR
         M1OrientationYPR newOrientationYPR;
         M1OrientationQuat newOrientationQuat;
-        if ((message.getAddressPattern().toString() == "/orientation" || message.getAddressPattern().toString().toStdString().find("ypr") != std::string::npos || message.getAddressPattern().toString().toStdString().find("xyz") != std::string::npos) && message.size() == 3) {
+        if ((message.getAddressPattern().toString() == "/orientation" ||
+             message.getAddressPattern().toString() == "xyz" ||
+             message.getAddressPattern().toString().toStdString().find("ypr") != std::string::npos) && message.size() == 3) {
             if (message[0].isFloat32()) {
                 newOrientationYPR.yaw = message[0].getFloat32();
-            } else if (message[0].isInt32()) {
-                newOrientationYPR.yaw = (float)message[0].getInt32();
             }
             if (message[1].isFloat32()) {
                 newOrientationYPR.pitch = message[1].getFloat32();
-            } else if (message[1].isInt32()) {
-                newOrientationYPR.pitch = (float)message[1].getInt32();
             }
             if (message[2].isFloat32()) {
                 newOrientationYPR.roll = message[2].getFloat32();
-            } else if (message[2].isInt32()) {
-                newOrientationYPR.roll = (float)message[2].getInt32();
             }
             newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
             orientation.setYPR(newOrientationYPR);
@@ -81,12 +77,13 @@ public:
             newOrientationYPR.yaw = message[1].getFloat32() / 360;
             newOrientationYPR.pitch = (((((message[0].getFloat32() > 180.) ? abs(message[0].getFloat32() - 360.) : -message[0].getFloat32()))) * -1. + 90. ) / 180.;
             newOrientationYPR.roll = (((((message[2].getFloat32() > 180.) ? abs(message[2].getFloat32() - 360.) : message[2].getFloat32()))) * -1. + 90. ) / 180.;
-            newOrientationYPR.angleType = M1OrientationYPR::AngleType::SIGNED_NORMALLED;
+            newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
             orientation.setYPR(newOrientationYPR);
         }
         /// TouchOSC
         else if ((message.getAddressPattern().toString() == "/accxyz") && message.size() == 3) {
-            // TODO: fix parsing!
+            // TODO: parse accelerometer into primitive rotation data
+            // Warning: this does not yet represent orientation
             newOrientationYPR.yaw = (((-1. - 1.) / (0. - 1.)) * ((message[0].getFloat32() - 360.) + 360.));
             newOrientationYPR.pitch = (((-1. - 1.) / (-180. - 1.)) * ((message[1].getFloat32() - 180.) + 180.));
             newOrientationYPR.roll = (((-1. - 1.) / (-180. - 1.)) * ((message[2].getFloat32() - 180.) + 180.));

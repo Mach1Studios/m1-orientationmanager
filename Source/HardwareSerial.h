@@ -94,7 +94,6 @@ public:
                             newOrientation.yaw = m1Interface.decoded.y;
                             newOrientation.pitch = m1Interface.decoded.p;
                             newOrientation.roll = m1Interface.decoded.r;
-                            newOrientation.angleType = M1OrientationYPR::DEGREES;
                             orientation.setYPR(newOrientation);
                             // cleanup
                             queueBuffer.clear();
@@ -108,7 +107,6 @@ public:
                         newOrientation.yaw = witOrientationAngles[0];
                         newOrientation.pitch = witOrientationAngles[1];
                         newOrientation.roll = witOrientationAngles[2];
-                        newOrientation.angleType = M1OrientationYPR::DEGREES;
                         orientation.setYPR(newOrientation);
                         return 1;
                     } else {
@@ -244,9 +242,4 @@ public:
     M1OrientationDeviceInfo getConnectedDevice() override {
         return connectedDevice;
     }
-    
-    // Callback update from the SupperwareInterface object
-//    std::vector<float> trackerChanged(const HeadMatrix& headMatrix) override {
-//
-//    }
 };
