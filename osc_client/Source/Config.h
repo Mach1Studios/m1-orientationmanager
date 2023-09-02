@@ -3,15 +3,12 @@
 #define XSTR(x) STR(x)
 #define STR(x) #x
 
-#ifndef PI
-#define PI       3.14159265358979323846
-#endif
-
 /// Static Color Scheme
 #define M1_ACTION_YELLOW 255, 198, 30
 // 204, 204, 204 seen on ENABLED knobs in legacy as well
 #define ENABLED_PARAM 190, 190, 190
 #define DISABLED_PARAM 63, 63, 63
+#define BACKGROUND_COMPONENT 50, 50, 50
 #define BACKGROUND_GREY 40, 40, 40
 
 #define GRID_LINES_1_RGBA 68, 68, 68, 51//0.2 opacity //small grid lines
@@ -37,6 +34,7 @@
     #define PLUGIN_FONT "AileronSemiBold.ttf"
     #define BINARYDATA_FONT BinaryData::AileronSemiBold_ttf
     #define BINARYDATA_FONT_SIZE BinaryData::AileronSemiBold_ttfSize
+    #define DEFAULT_FONT_SIZE 11
 #endif
 #pragma message XSTR(PLUGIN_FONT)
 #pragma message XSTR(BINARYDATA_FONT)

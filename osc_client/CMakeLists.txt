@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 file(STRINGS VERSION CURRENT_VERSION)
-project(M1-OrientationClient VERSION ${CURRENT_VERSION})
+project(M1-OrientationOSC VERSION ${CURRENT_VERSION})
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
@@ -36,7 +36,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../JUCE)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Modules)
 
 # PLUGIN/APP NAME (for dynamic naming schemes)
-set(CUSTOM_BUNDLE_ID "com.mach1.orientationclient")
+set(CUSTOM_BUNDLE_ID "com.mach1.orientation.osc")
 set(CUSTOM_APP_CODE "M1OC")
 
 # add the plugin targets
@@ -72,7 +72,7 @@ set_target_properties(${project_targets} PROPERTIES CXX_EXTENSIONS OFF)
 
 # add the sources
 add_subdirectory(Source)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Resources)
+add_subdirectory(Resources)
 
 # Required for Linux happiness:
 # See https://forum.juce.com/t/loading-pytorch-model-using-binarydata/39997/2

@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="xUG2YD" name="M1-Orientation-TestClient" projectType="guiapp"
-              useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1" bundleIdentifier="com.mach1.orientation.testclient">
-  <MAINGROUP id="ChS6iJ" name="M1-Orientation-TestClient">
+<JUCERPROJECT id="xUG2YD" name="M1-OrientationOSC" projectType="guiapp" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              bundleIdentifier="com.mach1.orientation.testclient" companyWebsite="www.mach1.tech"
+              companyEmail="whatsup@mach1.tech" companyCopyright="Mach1, Corp."
+              companyName="Mach1">
+  <MAINGROUP id="ChS6iJ" name="M1-OrientationOSC">
+    <FILE id="e9rLim" name="mach1logo.png" compile="0" resource="1" file="../Resources/mach1logo.png"/>
+    <FILE id="VqUErL" name="bluetooth_icon.png" compile="0" resource="1"
+          file="../Modules/m1_orientation_client/Resources/bluetooth_icon.png"/>
+    <FILE id="KvFQht" name="camera_icon.png" compile="0" resource="1" file="../Modules/m1_orientation_client/Resources/camera_icon.png"/>
+    <FILE id="UlkxbT" name="tech_support_icon.png" compile="0" resource="1"
+          file="../Modules/m1_orientation_client/Resources/tech_support_icon.png"/>
+    <FILE id="ApIMKv" name="usb_icon.png" compile="0" resource="1" file="../Modules/m1_orientation_client/Resources/usb_icon.png"/>
+    <FILE id="MZ6L8y" name="wi-fi_icon.png" compile="0" resource="1" file="../Modules/m1_orientation_client/Resources/wi-fi_icon.png"/>
+    <FILE id="EHLyok" name="AileronSemiBold.ttf" compile="0" resource="1"
+          file="../Resources/AileronSemiBold.ttf"/>
     <GROUP id="{BC60B410-BD00-7BDD-673D-241847D2BE6B}" name="Source">
+      <FILE id="XHgfpM" name="Config.h" compile="0" resource="0" file="Source/Config.h"/>
       <FILE id="pr4zBT" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="s3n7J9" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="T4kPBp" name="MainComponent.cpp" compile="1" resource="0"
@@ -27,8 +40,8 @@
         <MODULEPATH id="juce_events" path="../../juce"/>
         <MODULEPATH id="juce_data_structures" path="../../juce"/>
         <MODULEPATH id="juce_core" path="../../juce"/>
-        <MODULEPATH id="juce_murka" path="Modules"/>
-        <MODULEPATH id="m1_orientation_client" path="Modules"/>
+        <MODULEPATH id="juce_murka" path="../Modules"/>
+        <MODULEPATH id="m1_orientation_client" path="../Modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2019 targetFolder="Builds/VisualStudio2019" extraDefs="&#10;MURKA_JUCE JUCE_OPENGL3">
@@ -45,8 +58,8 @@
         <MODULEPATH id="juce_opengl" path="../../M1/JUCE-6.1.6/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../M1/JUCE-6.1.6/modules"/>
         <MODULEPATH id="juce_osc" path="../../M1/JUCE-6.1.6/modules"/>
-        <MODULEPATH id="juce_murka" path="Modules"/>
-        <MODULEPATH id="m1_orientation_client" path="Modules"/>
+        <MODULEPATH id="juce_murka" path="..\Modules"/>
+        <MODULEPATH id="m1_orientation_client" path="..\Modules"/>
       </MODULEPATHS>
     </VS2019>
   </EXPORTFORMATS>
