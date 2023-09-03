@@ -6,11 +6,14 @@ MainComponent::MainComponent()
 {
 	// Make sure you set the size of the component after
 	// you add any child components.
-	juce::OpenGLAppComponent::setSize(300, 600);
+	juce::OpenGLAppComponent::setSize(350, 600);
+    
+    startTimer(10); // send output osc every 10ms
 }
 
 MainComponent::~MainComponent()
 {
+    stopTimer();
 }
 
 //==============================================================================
@@ -41,11 +44,37 @@ void MainComponent::initialise()
     m1logo.loadFromRawData(BinaryData::mach1logo_png, BinaryData::mach1logo_pngSize);
 }
 
-void MainComponent::timerCallback()
-{
-    if (m1OrientationOSCClient.isConnectedToServer()) {
+void MainComponent::update_osc_address_pattern(std::string new_pattern) {
+    if (output_osc_msg_address != new_pattern) {
+        output_osc_msg_address = new_pattern;
+    }
+}
+
+void MainComponent::update_osc_destination(std::string new_address, int new_port) {
+    if (output_osc_ip_address != new_address || output_osc_port != new_port) {
+        output_osc_ip_address = new_address;
+        output_osc_port = new_port;
+        output_osc_sender.disconnect();
+        isConnectedToOutput = output_osc_sender.connect(output_osc_ip_address, output_osc_port);
+    }
+}
+
+void MainComponent::timerCallback() {
+    if (m1OrientationOSCClient.isConnectedToServer() && isConnectedToOutput) {
         if (m1OrientationOSCClient.getCurrentDevice().getDeviceName() != "" && m1OrientationOSCClient.getCurrentDevice().getDeviceAddress() != "") {
-            //output_osc_sender
+            
+            if (output_send_as_ypr) {
+                output_osc_sender.send(juce::String(output_osc_msg_address),
+                    m1OrientationOSCClient.getOrientation().getYPRinDegrees().yaw,
+                    m1OrientationOSCClient.getOrientation().getYPRinDegrees().pitch,
+                    m1OrientationOSCClient.getOrientation().getYPRinDegrees().roll);
+            } else {
+                output_osc_sender.send(juce::String(output_osc_msg_address),
+                    m1OrientationOSCClient.getOrientation().getQuat().w,
+                    m1OrientationOSCClient.getOrientation().getQuat().x,
+                    m1OrientationOSCClient.getOrientation().getQuat().y,
+                    m1OrientationOSCClient.getOrientation().getQuat().z);
+            }
         }
     }
 }
@@ -177,7 +206,7 @@ void MainComponent::draw()
     m.setColor(BACKGROUND_GREY);
     m.clear();
         
-    m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE);
+    m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
 
     m.startFrame();
     m.setScreenScale((float)openGLContext.getRenderingScale());
@@ -191,49 +220,91 @@ void MainComponent::draw()
     int offsetY = 0;
 
     offsetX = 10;
-    offsetY = 20;
+    offsetY = 5;
 
     m.getCurrentFont()->drawString("connected: " + std::to_string(m1OrientationOSCClient.isConnectedToServer()), offsetX, offsetY);
+    
     offsetY += 30;
-
-    offsetY += 20;
-
+    
     Orientation orientation = m1OrientationOSCClient.getOrientation();
+    // orientation button
+    update_orientation_client_window(m, m1OrientationOSCClient, orientationControlWindow, showOrientationControlMenu, showedOrientationControlBefore);
 
     m.getCurrentFont()->drawString("orientation: ", offsetX, offsetY);
-    offsetY += 30;
-    m.getCurrentFont()->drawString("yaw: " + std::to_string(orientation.getYPRinDegrees().yaw), offsetX, offsetY);
-    offsetY += 30;
+    offsetY += 15;
+    m.getCurrentFont()->drawString("yaw:  " + std::to_string(orientation.getYPRinDegrees().yaw), offsetX, offsetY);
+    offsetY += 15;
     m.getCurrentFont()->drawString("pitch: " + std::to_string(orientation.getYPRinDegrees().pitch), offsetX, offsetY);
+    offsetY += 15;
+    m.getCurrentFont()->drawString("roll:   " + std::to_string(orientation.getYPRinDegrees().roll), offsetX, offsetY);
+    
     offsetY += 30;
-    m.getCurrentFont()->drawString("roll: " + std::to_string(orientation.getYPRinDegrees().roll), offsetX, offsetY);
-    offsetY += 30;
-
-    offsetY += 20;
-
+    
     m.getCurrentFont()->drawString("tracking enabled: ", offsetX, offsetY);
-    offsetY += 30;
-    m.getCurrentFont()->drawString("yaw: " + std::to_string(m1OrientationOSCClient.getTrackingYawEnabled()), offsetX, offsetY);
-    offsetY += 30;
+    offsetY += 15;
+    m.getCurrentFont()->drawString("yaw:  " + std::to_string(m1OrientationOSCClient.getTrackingYawEnabled()), offsetX, offsetY);
+    offsetY += 15;
     m.getCurrentFont()->drawString("pitch: " + std::to_string(m1OrientationOSCClient.getTrackingPitchEnabled()), offsetX, offsetY);
-    offsetY += 30;
-    m.getCurrentFont()->drawString("roll: " + std::to_string(m1OrientationOSCClient.getTrackingRollEnabled()), offsetX, offsetY);
-    offsetY += 30;
+    offsetY += 15;
+    m.getCurrentFont()->drawString("roll:   " + std::to_string(m1OrientationOSCClient.getTrackingRollEnabled()), offsetX, offsetY);
+    
+    offsetY += 50;
 
-    offsetY += 20;
+    // IP ADDRESS TEXTFIELD
+    m.setColor(ENABLED_PARAM);
+    m.prepare<murka::Label>({offsetX, offsetY, 200, 30}).withAlignment(TEXT_LEFT).text(output_osc_ip_address).draw();
+    m.setColor(BACKGROUND_COMPONENT);
+    m.enableFill();
+    m.drawRectangle(offsetX, offsetY, 200, 30);
+    
+    m.setColor(ENABLED_PARAM);
+    auto& ip_address_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&output_osc_ip_address);
+    ip_address_field.widgetBgColor.a = 0;
+    ip_address_field.drawBounds = false;
+    ip_address_field.draw();
+    
+    offsetY += 40;
+    
+    // IP PORT TEXTFIELD
+    m.setColor(ENABLED_PARAM);
+    m.prepare<murka::Label>({offsetX, offsetY, 100, 30}).withAlignment(TEXT_LEFT).text(std::to_string(output_osc_port)).draw();
+    m.setColor(BACKGROUND_COMPONENT);
+    m.enableFill();
+    m.drawRectangle(offsetX, offsetY, 100, 30);
+    
+    m.setColor(ENABLED_PARAM);
+    auto& ip_port_field = m.prepare<murka::TextField>({offsetX, offsetY, 100, 30}).onlyAllowNumbers(true).controlling(&output_osc_port);
+    ip_port_field.widgetBgColor.a = 0;
+    ip_port_field.drawBounds = false;
+    ip_port_field.draw();
+        
+    offsetY += 40;
+
+    // MSG ADDRESS PATTERN TEXTFIELD
+    m.setColor(ENABLED_PARAM);
+    m.prepare<murka::Label>({offsetX, offsetY, 200, 30}).withAlignment(TEXT_LEFT).text("/"+output_osc_msg_address).draw();
+    m.setColor(BACKGROUND_COMPONENT);
+    m.enableFill();
+    m.drawRectangle(offsetX, offsetY, 200, 30);
+    
+    m.setColor(ENABLED_PARAM);
+    auto& msg_address_pattern_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&output_osc_msg_address);
+    msg_address_pattern_field.widgetBgColor.a = 0;
+    msg_address_pattern_field.drawBounds = false;
+    msg_address_pattern_field.draw();
+
+    offsetY += 50;
+    
+    m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
 
     m.getCurrentFont()->drawString("device: " + m1OrientationOSCClient.getCurrentDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationOSCClient.getCurrentDevice().getDeviceType()], offsetX, offsetY);
     offsetY += 40;
-        
-    // orientation button
-    update_orientation_client_window(m, m1OrientationOSCClient, orientationControlWindow, showOrientationControlMenu, showedOrientationControlBefore);
-    
+
     /// OSC label
     m.setColor(200, 255);
-    m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE);
-
-    int labelYOffset;
-    auto& oscLabel = m.prepare<M1Label>(MurkaShape(m.getSize().width() - 100, m.getSize().height() - labelYOffset, 80, 20));
+    m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
+    
+    auto& oscLabel = m.prepare<M1Label>(MurkaShape(m.getSize().width() - 65, m.getSize().height() - 20, 80, 20));
     oscLabel.label = "OSC";
     oscLabel.alignment = TEXT_CENTER;
     oscLabel.enabled = false;
@@ -241,7 +312,7 @@ void MainComponent::draw()
     oscLabel.draw();
     
     m.setColor(200, 255);
-    m.drawImage(m1logo, 30, m.getSize().height() - labelYOffset, 161 / 3, 39 / 3);
+    m.drawImage(m1logo, 15, m.getSize().height() - 20, 161 / 4, 39 / 4);
     
     m.end();
 }
