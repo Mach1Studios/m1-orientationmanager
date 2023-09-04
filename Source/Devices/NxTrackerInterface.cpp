@@ -30,7 +30,7 @@ void NxTrackerInterface::sendStartCommand() {
     }
 }
 
-std::vector<float> NxTrackerInterface::getNormalisedQuat(std::vector<uint8_t> data) {
+std::vector<float> NxTrackerInterface::parseQuatData(std::vector<uint8_t> data) {
     const float halfOfSignedShort = 16384.0;
 
     signed short val0 = (signed short)((data[1] << 8) | data[0]); //Q0
@@ -53,7 +53,7 @@ M1OrientationQuat NxTrackerInterface::getRotationQuat() {
         if (rx_data.has_value()) {
             std::string str = rx_data.value();
             std::vector<uint8_t> data(str.begin(), str.end()); // convert incoming data string to bytes
-            std::vector<float> read_quat = getNormalisedQuat(data);
+            std::vector<float> read_quat = parseQuatData(data);
             
             M1OrientationQuat newQuat;
             newQuat.w = read_quat[0];

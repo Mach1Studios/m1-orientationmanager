@@ -36,5 +36,5 @@ public:
     
 private:
     
-    std::vector<float> getNormalisedQuat(std::vector<uint8_t> data);
+    std::vector<float> parseQuatData(std::vector<uint8_t> data);
 };
