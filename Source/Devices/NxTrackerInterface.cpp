@@ -68,13 +68,17 @@ M1OrientationQuat NxTrackerInterface::getRotationQuat() {
 }
 
 void NxTrackerInterface::recenter() {
-    
+    // TODO: implement this
 }
 
 int NxTrackerInterface::getBatteryLevel() {
-    return battery_level;
+    // TODO: implement this
+    // - find the write_request needed
+    //return battery_level;
 }
 
 void NxTrackerInterface::disconnect() {
-    
+    if (deviceInterface->is_connected()) {
+        deviceInterface->disconnect();
+    }
 }
