@@ -10,6 +10,7 @@
 #include "simpleble/SimpleBLE.h"
 
 // include device specific
+#include "Devices/NxTrackerInterface.h"
 #include "Devices/MetaWearInterface.h"
 
 #include <chrono>
@@ -47,6 +48,7 @@ public:
     
     // Device Interfaces
     MetaWearInterface metawearInterface;
+    NxTrackerInterface nxtrackerInterface;
     bool isConnected = false;
     bool displayOnlyKnownIMUs = true;
     
@@ -66,7 +68,12 @@ public:
             }
             
             if (getConnectedDevice().getDeviceName().find("Nx Tracker") != std::string::npos) {
-                std::cout << "[BLE] Nx Tracker device: " << getConnectedDevice().getDeviceName() << ", " << getConnectedDevice().getDeviceAddress() << ", " << std::endl;
+                //std::cout << "[BLE] Nx Tracker device: " << getConnectedDevice().getDeviceName() << ", " << getConnectedDevice().getDeviceAddress() << ", " << std::endl;
+                M1OrientationQuat newOrientation = nxtrackerInterface.getRotationQuat();
+                orientation.setQuat(newOrientation);
+                
+                int b = nxtrackerInterface.getBatteryLevel();
+                getConnectedDevice().batteryPercentage = b;
             }
             
             // TODO: Add magnometer activate function `bUseMagnoHeading`
@@ -151,8 +158,15 @@ public:
                 }
             } else {
                 /// SHOW KNOWN BLE DEVICES USING DEVICE NAME FILTERS
+
+                // SHOW NX TRACKER BLE
+                if (discovered_ble_devices[i].identifier()->find("Nx Tracker") != std::string::npos) {
+                    devices.push_back({ discovered_ble_devices[i].identifier().value_or("UNKNOWN"), M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE, discovered_ble_devices[i].address().value_or("UNKNOWN"), discovered_ble_devices[i].rssi().value_or(0) });
+                    nxtrackerInterface.set_peripheral_device(discovered_ble_devices[i]);
+                }
+                
+                // SHOW METAWEAR/METAMOTION/MACH1-M BLE
                 if (discovered_ble_devices[i].identifier()->find("MetaWear") != std::string::npos ||  discovered_ble_devices[i].identifier()->find("Mach1-M") != std::string::npos) {
-                    /// SHOW METAWEAR/METAMOTION/MACH1-M BLE ONLY
                     devices.push_back({ discovered_ble_devices[i].identifier().value_or("UNKNOWN"), M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE, discovered_ble_devices[i].address().value_or("UNKNOWN"), discovered_ble_devices[i].rssi().value_or(0) });
                     // Setup and construct MetaWearInterface device with pointer to peripheral
                     metawearInterface.set_peripheral_device(discovered_ble_devices[i]);
@@ -173,8 +187,14 @@ public:
                     
                     discovered_ble_devices[i].connect();
                     
+                    // IF NX TRACKER
+                    if (matchedDevice->getDeviceName().find("NX Tracker") != std::string::npos) {
+                        nxtrackerInterface.sendStartCommand();
+                        // Report to the manager that it's connected
+                        statusCallback(true, "BLE: MetaMotion Device Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
+
                     // IF METAMOTION
-                    if (matchedDevice->getDeviceName().find("MetaWear") != std::string::npos || matchedDevice->getDeviceName().find("Mach1-M") != std::string::npos) {
+                    } else if (matchedDevice->getDeviceName().find("MetaWear") != std::string::npos || matchedDevice->getDeviceName().find("Mach1-M") != std::string::npos) {
                         // setup meta motion
                         MblMwBtleConnection btleConnection;
                         btleConnection.context = &metawearInterface;
