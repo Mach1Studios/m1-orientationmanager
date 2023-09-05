@@ -192,29 +192,10 @@ void MainComponent::setStatus(bool success, std::string message)
 
 void MainComponent::draw()
 {
-    // This clears the context with our background.
-    //juce::OpenGLHelpers::clear(juce::Colour(255.0, 198.0, 30.0));
-    
-    float scale = (float)openGLContext.getRenderingScale() * 0.7; // (Desktop::getInstance().getMainMouseSource().getScreenPosition().x / 300.0); //  0.7;
-
-    if (scale != m.getScreenScale()) {
-        m.setScreenScale(scale);
-        m.updateFontsTextures(&m);
-        m.clearFontsTextures();
-    }
-   
-    m.setColor(BACKGROUND_GREY);
-    m.clear();
-        
     m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
-
-    m.startFrame();
-    m.setScreenScale((float)openGLContext.getRenderingScale());
 
     m.clear(20);
     m.setColor(255);
-
-    m.begin();
 
     int offsetX = 0;
     int offsetY = 0;
@@ -317,8 +298,6 @@ void MainComponent::draw()
     
     m.setColor(200, 255);
     m.drawImage(m1logo, 15, m.getSize().height() - 20, 161 / 4, 39 / 4);
-    
-    m.end();
 }
 
 void MainComponent::paint(juce::Graphics& g)
