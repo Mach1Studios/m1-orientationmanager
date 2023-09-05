@@ -64,12 +64,12 @@ void MainComponent::timerCallback() {
         if (m1OrientationOSCClient.getCurrentDevice().getDeviceName() != "" && m1OrientationOSCClient.getCurrentDevice().getDeviceAddress() != "") {
             
             if (output_send_as_ypr) {
-                output_osc_sender.send(juce::String(output_osc_msg_address),
+                output_osc_sender.send(juce::String("/"+output_osc_msg_address),
                     m1OrientationOSCClient.getOrientation().getYPRinDegrees().yaw,
                     m1OrientationOSCClient.getOrientation().getYPRinDegrees().pitch,
                     m1OrientationOSCClient.getOrientation().getYPRinDegrees().roll);
             } else {
-                output_osc_sender.send(juce::String(output_osc_msg_address),
+                output_osc_sender.send(juce::String("/"+output_osc_msg_address),
                     m1OrientationOSCClient.getOrientation().getQuat().w,
                     m1OrientationOSCClient.getOrientation().getQuat().x,
                     m1OrientationOSCClient.getOrientation().getQuat().y,
@@ -251,46 +251,46 @@ void MainComponent::draw()
     offsetY += 50;
 
     // IP ADDRESS TEXTFIELD
-    m.setColor(ENABLED_PARAM);
-    m.prepare<murka::Label>({offsetX, offsetY, 200, 30}).withAlignment(TEXT_LEFT).text(output_osc_ip_address).draw();
     m.setColor(BACKGROUND_COMPONENT);
     m.enableFill();
     m.drawRectangle(offsetX, offsetY, 200, 30);
+    m.disableFill();
     
     m.setColor(ENABLED_PARAM);
     auto& ip_address_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&output_osc_ip_address);
     ip_address_field.widgetBgColor.a = 0;
     ip_address_field.drawBounds = false;
+    ip_address_field.hint = output_osc_ip_address;
     ip_address_field.draw();
     
     offsetY += 40;
     
     // IP PORT TEXTFIELD
-    m.setColor(ENABLED_PARAM);
-    m.prepare<murka::Label>({offsetX, offsetY, 100, 30}).withAlignment(TEXT_LEFT).text(std::to_string(output_osc_port)).draw();
     m.setColor(BACKGROUND_COMPONENT);
     m.enableFill();
     m.drawRectangle(offsetX, offsetY, 100, 30);
-    
+    m.disableFill();
+
     m.setColor(ENABLED_PARAM);
     auto& ip_port_field = m.prepare<murka::TextField>({offsetX, offsetY, 100, 30}).onlyAllowNumbers(true).controlling(&output_osc_port);
     ip_port_field.widgetBgColor.a = 0;
     ip_port_field.drawBounds = false;
+    ip_port_field.hint = std::to_string(output_osc_port);
     ip_port_field.draw();
         
     offsetY += 40;
 
     // MSG ADDRESS PATTERN TEXTFIELD
-    m.setColor(ENABLED_PARAM);
-    m.prepare<murka::Label>({offsetX, offsetY, 200, 30}).withAlignment(TEXT_LEFT).text("/"+output_osc_msg_address).draw();
     m.setColor(BACKGROUND_COMPONENT);
     m.enableFill();
     m.drawRectangle(offsetX, offsetY, 200, 30);
+    m.disableFill();
     
     m.setColor(ENABLED_PARAM);
     auto& msg_address_pattern_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&output_osc_msg_address);
     msg_address_pattern_field.widgetBgColor.a = 0;
     msg_address_pattern_field.drawBounds = false;
+    msg_address_pattern_field.hint = "/"+output_osc_msg_address;
     msg_address_pattern_field.draw();
 
     offsetY += 50;
