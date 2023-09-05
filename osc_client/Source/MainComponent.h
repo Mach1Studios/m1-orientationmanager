@@ -58,12 +58,12 @@ private:
     M1OrientationOSCClient m1OrientationOSCClient;
     M1OrientationYPR currentOrientation;
     
-    M1OrientationClientWindow orientationControlWindow;
+    M1OrientationClientWindow* orientationControlWindow;
     bool showOrientationControlMenu = false;
     bool showedOrientationControlBefore = false;
     bool showMonitorModeDropdown = false;
     
-    void update_orientation_client_window(murka::Murka &m, M1OrientationOSCClient &m1OrientationOSCClient, M1OrientationClientWindow &orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore);
+    void update_orientation_client_window(murka::Murka &m, M1OrientationOSCClient &m1OrientationOSCClient, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

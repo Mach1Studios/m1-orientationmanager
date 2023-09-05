@@ -79,7 +79,7 @@ void MainComponent::timerCallback() {
     }
 }
 
-void MainComponent::update_orientation_client_window(murka::Murka &m, M1OrientationOSCClient &m1OrientationOSCClient, M1OrientationClientWindow &orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore) {
+void MainComponent::update_orientation_client_window(murka::Murka &m, M1OrientationOSCClient &m1OrientationOSCClient, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore) {
     std::vector<M1OrientationClientWindowDeviceSlot> slots;
     
     std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCClient.getDevices();
@@ -137,14 +137,14 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     
     if (showOrientationControlMenu) {
         bool showOrientationSettingsPanelInsideWindow = (m1OrientationOSCClient.getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone);
-        orientationControlWindow = m.prepare<M1OrientationClientWindow>({ m.getSize().width() - 218 - 5 , 5, 218, 240 + 100 * showOrientationSettingsPanelInsideWindow })
+        orientationControlWindow = &(m.prepare<M1OrientationClientWindow>({ m.getSize().width() - 218 - 5 , 5, 218, 240 + 100 * showOrientationSettingsPanelInsideWindow })
             .withDeviceList(slots)
             .withSettingsPanelEnabled(showOrientationSettingsPanelInsideWindow)
             .onClickOutside([&]() {
                 if (!orientationControlButton.hovered) { // Only switch showing the orientation control if we didn't click on the button
                     showOrientationControlMenu = !showOrientationControlMenu;
                     if (showOrientationControlMenu && !showedOrientationControlBefore) {
-                        orientationControlWindow.startRefreshing();
+                        orientationControlWindow->startRefreshing();
                     }
                 }
             })
@@ -177,8 +177,8 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
                      m1OrientationOSCClient.getOrientation().getYPRinDegrees().yaw,
                      m1OrientationOSCClient.getOrientation().getYPRinDegrees().pitch,
                      m1OrientationOSCClient.getOrientation().getYPRinDegrees().roll
-            );
-            orientationControlWindow.draw();
+            ));
+            orientationControlWindow->draw();
     }
 }
 
@@ -221,8 +221,9 @@ void MainComponent::draw()
 
     offsetX = 10;
     offsetY = 5;
-
-    m.getCurrentFont()->drawString("connected: " + std::to_string(m1OrientationOSCClient.isConnectedToServer()), offsetX, offsetY);
+    
+    std::string connect_msg = (m1OrientationOSCClient.isConnectedToServer()) ? "YES" : "NO";
+    m.getCurrentFont()->drawString("CONNECTED: " + connect_msg, offsetX, offsetY);
     
     offsetY += 30;
     
@@ -230,23 +231,26 @@ void MainComponent::draw()
     // orientation button
     update_orientation_client_window(m, m1OrientationOSCClient, orientationControlWindow, showOrientationControlMenu, showedOrientationControlBefore);
 
-    m.getCurrentFont()->drawString("orientation: ", offsetX, offsetY);
+    m.getCurrentFont()->drawString("ORIENTATION: ", offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("yaw:  " + std::to_string(orientation.getYPRinDegrees().yaw), offsetX, offsetY);
+    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRinDegrees().yaw), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("pitch: " + std::to_string(orientation.getYPRinDegrees().pitch), offsetX, offsetY);
+    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getYPRinDegrees().pitch), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("roll:   " + std::to_string(orientation.getYPRinDegrees().roll), offsetX, offsetY);
+    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getYPRinDegrees().roll), offsetX, offsetY);
     
     offsetY += 30;
     
-    m.getCurrentFont()->drawString("tracking enabled: ", offsetX, offsetY);
+    m.getCurrentFont()->drawString("TRACKING: ", offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("yaw:  " + std::to_string(m1OrientationOSCClient.getTrackingYawEnabled()), offsetX, offsetY);
+    std::string yaw_enabled_msg = (m1OrientationOSCClient.getTrackingYawEnabled()) ? "ENABLED" : "DISABLED";
+    m.getCurrentFont()->drawString("Y:  " + yaw_enabled_msg, offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("pitch: " + std::to_string(m1OrientationOSCClient.getTrackingPitchEnabled()), offsetX, offsetY);
+    std::string pitch_enabled_msg = (m1OrientationOSCClient.getTrackingPitchEnabled()) ? "ENABLED" : "DISABLED";
+    m.getCurrentFont()->drawString("P: " + pitch_enabled_msg, offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("roll:   " + std::to_string(m1OrientationOSCClient.getTrackingRollEnabled()), offsetX, offsetY);
+    std::string roll_enabled_msg = (m1OrientationOSCClient.getTrackingRollEnabled()) ? "ENABLED" : "DISABLED";
+    m.getCurrentFont()->drawString("R:   " + roll_enabled_msg, offsetX, offsetY);
     
     offsetY += 50;
 
@@ -297,7 +301,7 @@ void MainComponent::draw()
     
     m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
 
-    m.getCurrentFont()->drawString("device: " + m1OrientationOSCClient.getCurrentDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationOSCClient.getCurrentDevice().getDeviceType()], offsetX, offsetY);
+    m.getCurrentFont()->drawString("DEVICE: " + m1OrientationOSCClient.getCurrentDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationOSCClient.getCurrentDevice().getDeviceType()], offsetX, offsetY);
     offsetY += 40;
 
     /// OSC label
