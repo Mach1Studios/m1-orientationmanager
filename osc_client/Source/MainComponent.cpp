@@ -25,21 +25,9 @@ void MainComponent::initialise()
 {
 	murka::JuceMurkaBaseComponent::initialise();
 
-    // We will assume the folders are properly created during the installation step
+    // This tool only looks for sibling M1-OrientationManager executables and "settings.json" file
     juce::File settingsFile;
-    // Using common support files installation location
-    juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-
-    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-        // test for any mac OS
-        settingsFile = m1SupportDirectory.getChildFile("Application Support").getChildFile("Mach1");
-    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-        // test for any windows OS
-        settingsFile = m1SupportDirectory.getChildFile("Mach1");
-    } else {
-        settingsFile = m1SupportDirectory.getChildFile("Mach1");
-    }
-    settingsFile = settingsFile.getChildFile("settings.json");
+    settingsFile = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile("settings.json");
     DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
 
     m1OrientationOSCClient.initFromSettings(settingsFile.getFullPathName().toStdString(), false); // the bool determines if we want to also launch the watcher helper executable to relaunch the server after any unexepected crashes
