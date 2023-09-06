@@ -47,5 +47,12 @@ Design and architecture of the project is described in the [Source](Source) dire
 
 _Please feel free to open an issue requesting a new device with device details_
 
+## TODO
+- Finish camera implementation
+- Allow camera to be added to any paired IMU for fusion calculations (fixing drift when face orientation is detected periodically)
+- Add CI/CD for the OSC tool for users who need a more portable osc output tool
+- Add service handling for windows
+- Add service handling for linux
+
 ## Credits
 This project heavily references and implements several design, UI and UX concepts from [nvsonic-head-tracker](https://github.com/trsonic/nvsonic-head-tracker) utility and expands upon it by handling and aggregating more connection types as well as creating a server/client design to handle dual direction communication between a network of clients.

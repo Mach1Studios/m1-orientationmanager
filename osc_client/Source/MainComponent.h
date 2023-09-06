@@ -6,6 +6,7 @@
 
 #include "Config.h"
 #include "TextField.h"
+#include "M1Checkbox.h"
 #include "m1_orientation_client/UI/M1Label.h"
 #include "m1_orientation_client/UI/M1OrientationWindowToggleButton.h"
 #include "m1_orientation_client/UI/M1OrientationClientWindow.h"
@@ -37,10 +38,13 @@ public:
     
     bool isConnectedToOutput = false;
     juce::OSCSender output_osc_sender;
-    std::string output_osc_ip_address = "127.0.0.1";
-    int output_osc_port = 9999;
-    std::string output_osc_msg_address = "orientation";
-    bool output_send_as_ypr = true; 
+    std::string requested_osc_ip_address = "127.0.0.1";
+    std::string current_osc_ip_address = "";
+    int requested_osc_port = 9999;
+    int current_osc_port;
+    std::string requested_osc_msg_address = "orientation";
+    std::string current_osc_msg_address = "";
+    bool output_send_as_ypr = true;
     
     bool yawActive = true;
     bool pitchActive = true;

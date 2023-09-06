@@ -22,6 +22,7 @@
       <FILE id="s3n7J9" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="T4kPBp" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
+      <FILE id="Pfs97t" name="M1Checkbox.h" compile="0" resource="0" file="Source/M1Checkbox.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>

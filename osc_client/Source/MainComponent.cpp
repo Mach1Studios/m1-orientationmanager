@@ -9,6 +9,10 @@ MainComponent::MainComponent()
 	juce::OpenGLAppComponent::setSize(350, 600);
     
     startTimer(10); // send output osc every 10ms
+    
+    // initial osc output start
+    update_osc_address_pattern(requested_osc_msg_address);
+    update_osc_destination(requested_osc_ip_address, requested_osc_port);
 }
 
 MainComponent::~MainComponent()
@@ -45,36 +49,36 @@ void MainComponent::initialise()
 }
 
 void MainComponent::update_osc_address_pattern(std::string new_pattern) {
-    if (output_osc_msg_address != new_pattern) {
-        output_osc_msg_address = new_pattern;
+    if (current_osc_msg_address != new_pattern) {
+        current_osc_msg_address = new_pattern;
     }
 }
 
 void MainComponent::update_osc_destination(std::string new_address, int new_port) {
-    if (output_osc_ip_address != new_address || output_osc_port != new_port) {
-        output_osc_ip_address = new_address;
-        output_osc_port = new_port;
+    if (current_osc_ip_address != new_address || current_osc_port != new_port) {
         output_osc_sender.disconnect();
-        isConnectedToOutput = output_osc_sender.connect(output_osc_ip_address, output_osc_port);
+        isConnectedToOutput = output_osc_sender.connect(new_address, new_port);
+        if (isConnectedToOutput) {
+            // apply connection for next check
+            current_osc_ip_address = new_address;
+            current_osc_port = new_port;
+        }
     }
 }
 
 void MainComponent::timerCallback() {
     if (m1OrientationOSCClient.isConnectedToServer() && isConnectedToOutput) {
-        if (m1OrientationOSCClient.getCurrentDevice().getDeviceName() != "" && m1OrientationOSCClient.getCurrentDevice().getDeviceAddress() != "") {
-            
-            if (output_send_as_ypr) {
-                output_osc_sender.send(juce::String("/"+output_osc_msg_address),
-                    m1OrientationOSCClient.getOrientation().getYPRinDegrees().yaw,
-                    m1OrientationOSCClient.getOrientation().getYPRinDegrees().pitch,
-                    m1OrientationOSCClient.getOrientation().getYPRinDegrees().roll);
-            } else {
-                output_osc_sender.send(juce::String("/"+output_osc_msg_address),
-                    m1OrientationOSCClient.getOrientation().getQuat().w,
-                    m1OrientationOSCClient.getOrientation().getQuat().x,
-                    m1OrientationOSCClient.getOrientation().getQuat().y,
-                    m1OrientationOSCClient.getOrientation().getQuat().z);
-            }
+        if (output_send_as_ypr) {
+            output_osc_sender.send(juce::String("/"+current_osc_msg_address),
+                m1OrientationOSCClient.getOrientation().getYPRinDegrees().yaw,
+                m1OrientationOSCClient.getOrientation().getYPRinDegrees().pitch,
+                m1OrientationOSCClient.getOrientation().getYPRinDegrees().roll);
+        } else {
+            output_osc_sender.send(juce::String("/"+current_osc_msg_address),
+                m1OrientationOSCClient.getOrientation().getQuat().w,
+                m1OrientationOSCClient.getOrientation().getQuat().x,
+                m1OrientationOSCClient.getOrientation().getQuat().y,
+                m1OrientationOSCClient.getOrientation().getQuat().z);
         }
     }
 }
@@ -206,6 +210,10 @@ void MainComponent::draw()
     std::string connect_msg = (m1OrientationOSCClient.isConnectedToServer()) ? "YES" : "NO";
     m.getCurrentFont()->drawString("CONNECTED: " + connect_msg, offsetX, offsetY);
     
+    offsetY += 15;
+
+    m.getCurrentFont()->drawString("DEVICE: " + m1OrientationOSCClient.getCurrentDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationOSCClient.getCurrentDevice().getDeviceType()], offsetX, offsetY);
+    
     offsetY += 30;
     
     Orientation orientation = m1OrientationOSCClient.getOrientation();
@@ -230,7 +238,7 @@ void MainComponent::draw()
     std::string roll_enabled_msg = (m1OrientationOSCClient.getTrackingRollEnabled()) ? "ENABLED" : "DISABLED";
     m.getCurrentFont()->drawString("R:   " + roll_enabled_msg, offsetX, offsetY);
     
-    offsetY += 50;
+    offsetY += 30;
 
     // IP ADDRESS TEXTFIELD
     m.setColor(BACKGROUND_COMPONENT);
@@ -239,10 +247,10 @@ void MainComponent::draw()
     m.disableFill();
     
     m.setColor(ENABLED_PARAM);
-    auto& ip_address_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&output_osc_ip_address);
+    auto& ip_address_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&requested_osc_ip_address);
     ip_address_field.widgetBgColor.a = 0;
     ip_address_field.drawBounds = false;
-    ip_address_field.hint = output_osc_ip_address;
+    ip_address_field.hint = requested_osc_ip_address;
     ip_address_field.draw();
     
     offsetY += 40;
@@ -254,11 +262,15 @@ void MainComponent::draw()
     m.disableFill();
 
     m.setColor(ENABLED_PARAM);
-    auto& ip_port_field = m.prepare<murka::TextField>({offsetX, offsetY, 100, 30}).onlyAllowNumbers(true).controlling(&output_osc_port);
+    auto& ip_port_field = m.prepare<murka::TextField>({offsetX, offsetY, 100, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
     ip_port_field.widgetBgColor.a = 0;
     ip_port_field.drawBounds = false;
-    ip_port_field.hint = std::to_string(output_osc_port);
+    ip_port_field.hint = std::to_string(requested_osc_port);
     ip_port_field.draw();
+    
+    if (ip_port_field.editingFinished || ip_address_field.editingFinished) {
+        update_osc_destination(requested_osc_ip_address, requested_osc_port);
+    }
         
     offsetY += 40;
 
@@ -269,23 +281,27 @@ void MainComponent::draw()
     m.disableFill();
     
     m.setColor(ENABLED_PARAM);
-    auto& msg_address_pattern_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&output_osc_msg_address);
+    auto& msg_address_pattern_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
     msg_address_pattern_field.widgetBgColor.a = 0;
     msg_address_pattern_field.drawBounds = false;
-    msg_address_pattern_field.hint = "/"+output_osc_msg_address;
+    msg_address_pattern_field.hint = "/"+requested_osc_msg_address;
     msg_address_pattern_field.draw();
-
-    offsetY += 50;
     
-    m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
-
-    m.getCurrentFont()->drawString("DEVICE: " + m1OrientationOSCClient.getCurrentDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationOSCClient.getCurrentDevice().getDeviceType()], offsetX, offsetY);
+    if (msg_address_pattern_field.editingFinished) {
+        update_osc_address_pattern(requested_osc_msg_address);
+    }
+    
     offsetY += 40;
-
+    
+    auto& sendAsYprButton = m.prepare<M1Checkbox>({ offsetX, offsetY, 120, 20 })
+    .controlling(&output_send_as_ypr)
+    .withLabel("SEND AS YPR");
+    sendAsYprButton.fontSize = DEFAULT_FONT_SIZE-2;
+    sendAsYprButton.enabled = true;
+    sendAsYprButton.draw();
+    
     /// OSC label
     m.setColor(200, 255);
-    m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
-    
     auto& oscLabel = m.prepare<M1Label>(MurkaShape(m.getSize().width() - 65, m.getSize().height() - 20, 80, 20));
     oscLabel.label = "OSC";
     oscLabel.alignment = TEXT_CENTER;
