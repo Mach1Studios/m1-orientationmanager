@@ -209,9 +209,6 @@ void MainComponent::draw()
     offsetY += 30;
     
     Orientation orientation = m1OrientationOSCClient.getOrientation();
-    // orientation button
-    update_orientation_client_window(m, m1OrientationOSCClient, orientationControlWindow, showOrientationControlMenu, showedOrientationControlBefore);
-
     m.getCurrentFont()->drawString("ORIENTATION: ", offsetX, offsetY);
     offsetY += 15;
     m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRinDegrees().yaw), offsetX, offsetY);
@@ -298,6 +295,9 @@ void MainComponent::draw()
     
     m.setColor(200, 255);
     m.drawImage(m1logo, 15, m.getSize().height() - 20, 161 / 4, 39 / 4);
+    
+    // orientation button
+    update_orientation_client_window(m, m1OrientationOSCClient, orientationControlWindow, showOrientationControlMenu, showedOrientationControlBefore);
 }
 
 void MainComponent::paint(juce::Graphics& g)
