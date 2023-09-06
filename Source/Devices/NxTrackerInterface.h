@@ -1,6 +1,6 @@
 //
 //  M1-OrientationManager
-//  Copyright © 2022 Mach1. All rights reserved.
+//  Copyright © 2023 Mach1. All rights reserved.
 //
 
 #pragma once
@@ -11,11 +11,13 @@
 #include "m1_orientation_client/M1OrientationTypes.h"
 #include "simpleble/SimpleBLE.h"
 
+// Credit: [Raees Kattali](github.com/kattaliraees) for discovering the data command and characteristic UUIDs
+// Credit: [Michael G. Wagner](https://www.youtube.com/michaelgwagner) for discovering the data translation and type conversion
+
 #define NXTRACKER_GAP_ADVERTISE_SERVICE_UUID "A010"
 #define NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID "0000a010-5761-7665-7341-7564696f4c74"
 #define NXTRACKER_ORIENTATION_DATA_GATT_CHARATERISTIC_UUID "0000a015-5761-7665-7341-7564696f4c74"
 #define NXTRACKER_START_WRITE_GATT_CHARACTERISTIC_UUID "0000a011-5761-7665-7341-7564696f4c74"
-#define NXTRACKER_START_COMMAND "0x32 0x00 0x00 0x00 0x01"
 
 class NxTrackerInterface {
 public:

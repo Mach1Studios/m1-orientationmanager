@@ -26,7 +26,8 @@ bool NxTrackerInterface::set_peripheral_device(SimpleBLE::Peripheral& peripheral
 
 void NxTrackerInterface::sendStartCommand() {
     if (deviceInterface != nullptr) {
-        deviceInterface->write_request(NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID, NXTRACKER_START_WRITE_GATT_CHARACTERISTIC_UUID, NXTRACKER_START_COMMAND);
+        std::string start_command = {0x32, 0x00, 0x00, 0x00, 0x01};
+        deviceInterface->write_request(NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID, NXTRACKER_START_WRITE_GATT_CHARACTERISTIC_UUID, start_command);
     }
 }
 
@@ -48,6 +49,7 @@ std::vector<float> NxTrackerInterface::parseQuatData(std::vector<uint8_t> data) 
 
 M1OrientationQuat NxTrackerInterface::getRotationQuat() {
     if (deviceInterface->is_connected()) {
+        // TODO: switch to a notify command to get data as soon as available by the rate dictated by device
         std::optional<SimpleBLE::ByteArray> rx_data = deviceInterface->read(NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID, NXTRACKER_ORIENTATION_DATA_GATT_CHARATERISTIC_UUID);
 
         if (rx_data.has_value()) {
@@ -72,9 +74,16 @@ void NxTrackerInterface::recenter() {
 }
 
 int NxTrackerInterface::getBatteryLevel() {
-    // TODO: implement this
-    // - find the write_request needed
-    //return battery_level;
+    std::optional<SimpleBLE::ByteArray> rx_data = deviceInterface->read("180f", "2a19"); // battery UUID
+    if (rx_data.has_value()) {
+        std::string batt_value_ascii = rx_data.value();
+        const int length = batt_value_ascii.length();
+        if (length > 0) {
+            
+            //battery_level = (int)batt_value_ascii; // cast to int to convert from ascii -> decimal
+            //return battery_level;
+        }
+    }
 }
 
 void NxTrackerInterface::disconnect() {
