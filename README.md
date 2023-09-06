@@ -47,6 +47,15 @@ Design and architecture of the project is described in the [Source](Source) dire
 
 _Please feel free to open an issue requesting a new device with device details_
 
+## OSC Tool
+This repo also includes a flexible and simple UI app to show an example of interfacing with the M1-OrientationManager background service and output the calculated orientation via OSC to any IP + port for use with other software. 
+
+This can be found in the [osc_client](osc_client) directory.
+
+### Setup
+- Build via CMake or JUCE to compile the contents of [osc_client](osc_client) via the same methods described above
+- Copy the [settings.json](Resources/settings.json) and built M1-OrientationManager executable to be alongside (as siblings) the M1-OrientationOSC app/exe within the same directory
+
 ## TODO
 - Finish camera implementation
 - Allow camera to be added to any paired IMU for fusion calculations (fixing drift when face orientation is detected periodically)
