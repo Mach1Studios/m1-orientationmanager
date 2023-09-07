@@ -101,9 +101,10 @@ public:
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
+    void command_updateOscDevice(int new_port, std::string new_msg_address_pattern);
     void command_recenter();
     void command_disconnect();
-
+    
     // Tracking for any plugin that does not need an m1_orientation_client but still needs feedback of orientation for UI purposes such as the M1-Panner plugin
     std::vector<M1RegisteredPlugin> registeredPlugins;
     bool bTimerActive = false;
@@ -116,14 +117,14 @@ public:
                 m.addFloat32(monitor_yaw); // expected normalised
                 m.addFloat32(monitor_pitch); // expected normalised
                 m.addFloat32(monitor_roll); // expected normalised
+                //m.addInt32(monitor_output_mode); // TODO: add the output configuration to sync plugins when requested
                 i.messageSender->send(m);
             }
         }
         
         // TODO: check if any registered plugins closed
-        for (auto &i: registeredPlugins) {
-            
-        }
+        //for (auto &i: registeredPlugins) {
+        //}
     }
     
     void close();

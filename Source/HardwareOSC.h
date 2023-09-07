@@ -14,10 +14,12 @@ public:
     M1OrientationDeviceInfo connectedDevice;
     std::vector<M1OrientationDeviceInfo> devices;
     bool isConnected = false;
-    int oscDevicePort = 9901;
 
-    bool connectOscReceiver() {
-        bool isConnected = connect(oscDevicePort);
+    bool connectOscReceiver(int new_port) {
+        if (isConnected) {
+            juce::OSCReceiver::disconnect();
+        }
+        bool isConnected = connect(connectedDevice.osc_port);
         addListener(this);
         return isConnected;
     }
@@ -30,8 +32,52 @@ public:
         /// GENERIC YPR
         M1OrientationYPR newOrientationYPR;
         M1OrientationQuat newOrientationQuat;
-        if ((message.getAddressPattern().toString() == "/orientation" ||
-             message.getAddressPattern().toString() == "xyz" ||
+        
+        /// Custom address pattern
+        if (connectedDevice.osc_msg_addr_pttrn != "" && connectedDevice.osc_msg_addr_pttrn != "/orientation") {
+            if (message.size() <= 3) {
+                // we still allow just yaw or just yaw & pitch messages
+                if (message[0].isFloat32()) {
+                    newOrientationYPR.yaw = message[0].getFloat32();
+                }
+                if (message.size() <= 2 && message[1].isFloat32()) {
+                    newOrientationYPR.pitch = message[1].getFloat32();
+                }
+                if (message.size() <= 3 && message[2].isFloat32()) {
+                    newOrientationYPR.roll = message[2].getFloat32();
+                }
+                newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
+                orientation.setYPR(newOrientationYPR);
+            } else if (message.size() == 4) {
+                // we dont check for partial messages as quaternion requires all 4 for calculation
+                if (message[0].isFloat32()) {
+                    newOrientationQuat.wIn = message[0].getFloat32();
+                } else {
+                    // skip
+                }
+                if (message[1].isFloat32()) {
+                    newOrientationQuat.xIn = message[1].getFloat32();
+                } else {
+                    // skip
+                }
+                if (message[2].isFloat32()) {
+                    newOrientationQuat.yIn = message[2].getFloat32();
+                } else {
+                    // skip
+                }
+                if (message[3].isFloat32()) {
+                    newOrientationQuat.zIn = message[3].getFloat32();
+                } else {
+                    // skip
+                }
+                orientation.setQuat(newOrientationQuat);
+            } else {
+                // return warning or error that we do not know how to parse this message
+            }
+        }
+        /// Predefined address patterns
+        else if ((message.getAddressPattern().toString() == "/orientation" ||
+             message.getAddressPattern().toString().toStdString().find("xyz") != std::string::npos ||
              message.getAddressPattern().toString().toStdString().find("ypr") != std::string::npos) && message.size() == 3) {
             if (message[0].isFloat32()) {
                 newOrientationYPR.yaw = message[0].getFloat32();
@@ -129,7 +175,11 @@ public:
         devices.clear();
         
         // TODO: create OSC object and pushback
-        devices.push_back({ "OSC Input", M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, std::to_string(oscDevicePort) });
+        devices.push_back({
+            "OSC Input", // name
+            M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, // type
+            "127.0.0.1" // address
+        });
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {
@@ -140,7 +190,7 @@ public:
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
             connectedDevice = *matchedDevice;
-            isConnected = connectOscReceiver();
+            isConnected = connectOscReceiver(9901); // initial connection with default port
             if (isConnected) {
                 statusCallback(true, "OSC: Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
                 return;

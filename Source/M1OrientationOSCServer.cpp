@@ -57,6 +57,11 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         bool enable = message[0].getInt32();
         command_setTrackingRollEnabled(enable);
     }
+    else if (message.getAddressPattern() == "/setOscDeviceSettings") {
+        int new_port = message[0].getInt32();
+        std::string new_pttrn = message[1].getString().toStdString();
+        command_updateOscDevice(new_port, new_pttrn);
+    }
     else if (message.getAddressPattern() == "/recenter") {
         command_recenter();
     }
@@ -182,8 +187,8 @@ void M1OrientationOSCServer::send_getCurrentDevice(const std::vector<M1Orientati
     msg.addString(device.getDeviceName());
     msg.addInt32(device.getDeviceType());
     msg.addString(device.getDeviceAddress());
+    
     auto signalStrength = device.getDeviceSignalStrength();
-
     bool hasStrength = std::holds_alternative<int>(signalStrength);
     msg.addInt32(hasStrength ? 1 : 0);
     if (hasStrength) {
@@ -387,4 +392,17 @@ void M1OrientationOSCServer::command_setTrackingRollEnabled(bool enable) {
 
 void M1OrientationOSCServer::command_recenter() {
     orientation.resetOrientation();
+}
+
+void M1OrientationOSCServer::command_updateOscDevice(int new_port, std::string new_msg_address_pattern) {
+    if (currentDevice.getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC) {
+        if (currentDevice.osc_port != new_port) {
+            // update port
+            currentDevice.osc_port = new_port;
+        }
+        if (currentDevice.osc_msg_addr_pttrn != new_msg_address_pattern) {
+            // update custom message pattern
+            currentDevice.osc_msg_addr_pttrn = new_msg_address_pattern;
+        }
+    }
 }

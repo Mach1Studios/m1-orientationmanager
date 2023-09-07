@@ -82,6 +82,7 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
         orientationControlWindow = &(m.prepare<M1OrientationClientWindow>({ m.getSize().width() - 218 - 5 , 5, 218, 240 + 100 * showOrientationSettingsPanelInsideWindow })
             .withDeviceList(slots)
             .withSettingsPanelEnabled(showOrientationSettingsPanelInsideWindow)
+            .withOscSettingsEnabled((m1OrientationOSCServer.getConnectedDevice().getDeviceType() == M1OrientationManagerDeviceTypeOSC))
             .onClickOutside([&]() {
                 if (!orientationControlButton.hovered) { // Only switch showing the orientation control if we didn't click on the button
                     showOrientationControlMenu = !showOrientationControlMenu;
@@ -95,6 +96,9 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
             })
             .onRefreshClicked([&]() {
                 m1OrientationOSCServer.command_refreshDevices();
+            })
+            .onOscSettingsChanged([&](int port, std::string addr_pttrn) {
+                m1OrientationOSCServer.command_updateOscDevice(port, addr_pttrn);
             })
             .onYPRSwitchesClicked([&](int whichone) {
                 if (whichone == 0)
