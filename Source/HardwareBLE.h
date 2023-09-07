@@ -191,7 +191,7 @@ public:
                     if (matchedDevice->getDeviceName().find("NX Tracker") != std::string::npos) {
                         nxtrackerInterface.sendStartCommand();
                         // Report to the manager that it's connected
-                        statusCallback(true, "BLE: MetaMotion Device Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
+                        statusCallback(true, "BLE: Nx Tracker Device Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
 
                     // IF METAMOTION
                     } else if (matchedDevice->getDeviceName().find("MetaWear") != std::string::npos || matchedDevice->getDeviceName().find("Mach1-M") != std::string::npos) {

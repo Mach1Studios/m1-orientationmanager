@@ -16,6 +16,10 @@
 
 #include "M1OrientationOSCServer.h"
 
+#include "m1_orientation_client/UI/M1Label.h"
+#include "m1_orientation_client/UI/M1OrientationWindowToggleButton.h"
+#include "m1_orientation_client/UI/M1OrientationClientWindow.h"
+
 using namespace murka;
 
 //==============================================================================
@@ -36,6 +40,10 @@ public:
 
     void initialise() override;
     void draw() override;
+    
+    bool yawActive = true;
+    bool pitchActive = true;
+    bool rollActive = true;
 
 private:
     //==============================================================================
@@ -45,6 +53,13 @@ private:
 	HardwareEmulator hardwareEmulator;
     	
     M1OrientationOSCServer m1OrientationOSCServer;
+
+    M1OrientationClientWindow* orientationControlWindow;
+    bool showOrientationControlMenu = false;
+    bool showedOrientationControlBefore = false;
+    bool showMonitorModeDropdown = false;
+    
+    void update_orientation_client_window(murka::Murka &m, M1OrientationOSCServer &m1OrientationOSCServer, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

@@ -20,6 +20,112 @@ MainComponent::~MainComponent()
 }
 
 //==============================================================================
+
+void MainComponent::update_orientation_client_window(murka::Murka &m, M1OrientationOSCServer &m1OrientationOSCServer, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore) {
+    std::vector<M1OrientationClientWindowDeviceSlot> slots;
+    
+    std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+    for (int i = 0; i < devices.size(); i++) {
+        std::string icon = "";
+        if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial && devices[i].getDeviceName().find("Bluetooth-Incoming-Port") != std::string::npos) {
+            icon = "bt";
+        } else if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial && devices[i].getDeviceName().find("Mach1-") != std::string::npos) {
+            icon = "bt";
+        } else if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE) {
+            icon = "bt";
+        } else if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial) {
+            icon = "usb";
+        } else if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeCamera) {
+            icon = "camera";
+        } else if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeEmulator) {
+            icon = "none";
+        } else {
+            icon = "wifi";
+        }
+                
+        std::string name = devices[i].getDeviceName();
+        slots.push_back({ icon, name, name == m1OrientationOSCServer.getConnectedDevice().getDeviceName(), i, [&](int idx)
+            {
+                m1OrientationOSCServer.command_startTrackingUsingDevice(devices[idx]);
+            }
+        });
+    }
+    
+    auto& orientationControlButton = m.prepare<M1OrientationWindowToggleButton>({ m.getSize().width() - 40 - 5, 5, 40, 40 }).onClick([&](M1OrientationWindowToggleButton& b) {
+        showOrientationControlMenu = !showOrientationControlMenu;
+    })
+        .withInteractiveOrientationGimmick(m1OrientationOSCServer.getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone, m1OrientationOSCServer.getOrientation().getYPRinDegrees().yaw)
+        .draw();
+    
+    // TODO: move this to be to the left of the orientation client window button
+    if (std::holds_alternative<bool>(m1OrientationOSCServer.getConnectedDevice().batteryPercentage)) {
+        // it's false, which means the battery percentage is unknown
+    } else {
+        // it has a battery percentage value
+        int battery_value = std::get<int>(m1OrientationOSCServer.getConnectedDevice().batteryPercentage);
+        m.getCurrentFont()->drawString("Battery: " + std::to_string(battery_value), m.getWindowWidth() - 100, m.getWindowHeight() - 100);
+    }
+    
+    if (orientationControlButton.hovered && (m1OrientationOSCServer.getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone)) {
+        std::string deviceReportString = "CONNECTED DEVICE: " + m1OrientationOSCServer.getConnectedDevice().getDeviceName();
+        auto font = m.getCurrentFont();
+        auto bbox = font->getStringBoundingBox(deviceReportString, 0, 0);
+        //m.setColor(40, 40, 40, 200);
+        // TODO: fix this bounding box (doesnt draw the same place despite matching settings with Label.draw
+        //m.drawRectangle(     m.getSize().width() - 40 - 10 /* padding */ - bbox.width - 5, 5, bbox.width + 10, 40);
+        m.setColor(230, 230, 230);
+        m.prepare<M1Label>({ m.getSize().width() - 40 - 10 /* padding */ - bbox.width - 5, 5 + 10, bbox.width + 10, 40 }).text(deviceReportString).withTextAlignment(TEXT_CENTER).draw();
+    }
+    
+    if (showOrientationControlMenu) {
+        bool showOrientationSettingsPanelInsideWindow = (m1OrientationOSCServer.getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone);
+        orientationControlWindow = &(m.prepare<M1OrientationClientWindow>({ m.getSize().width() - 218 - 5 , 5, 218, 240 + 100 * showOrientationSettingsPanelInsideWindow })
+            .withDeviceList(slots)
+            .withSettingsPanelEnabled(showOrientationSettingsPanelInsideWindow)
+            .onClickOutside([&]() {
+                if (!orientationControlButton.hovered) { // Only switch showing the orientation control if we didn't click on the button
+                    showOrientationControlMenu = !showOrientationControlMenu;
+                    if (showOrientationControlMenu && !showedOrientationControlBefore) {
+                        orientationControlWindow->startRefreshing();
+                    }
+                }
+            })
+            .onDisconnectClicked([&]() {
+                m1OrientationOSCServer.command_disconnect();
+            })
+            .onRefreshClicked([&]() {
+                m1OrientationOSCServer.command_refreshDevices();
+            })
+            .onYPRSwitchesClicked([&](int whichone) {
+                if (whichone == 0)
+                    // yaw clicked
+                    yawActive = !yawActive;
+                if (whichone == 1)
+                    // pitch clicked
+                    pitchActive = !pitchActive;
+                if (whichone == 2)
+                    // roll clicked
+                    rollActive = !rollActive;
+            })
+            .withYPRTrackingSettings(
+                                     m1OrientationOSCServer.getTrackingYawEnabled(),
+                                     m1OrientationOSCServer.getTrackingPitchEnabled(),
+                                     m1OrientationOSCServer.getTrackingRollEnabled(),
+                                     std::pair<int, int>(0, 180),
+                                     std::pair<int, int>(0, 180),
+                                     std::pair<int, int>(0, 180)
+            )
+            .withYPR(
+                     m1OrientationOSCServer.getOrientation().getYPRinDegrees().yaw,
+                     m1OrientationOSCServer.getOrientation().getYPRinDegrees().pitch,
+                     m1OrientationOSCServer.getOrientation().getYPRinDegrees().roll
+            ));
+            orientationControlWindow->draw();
+    }
+}
+
+//==============================================================================
+
 void MainComponent::initialise()
 {
     murka::JuceMurkaBaseComponent::initialise();
@@ -76,149 +182,55 @@ void MainComponent::draw()
 	auto clients = m1OrientationOSCServer.getClients();
 
 //#ifdef BUILD_DEBUG_UI
-	m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE);
-	m.clear(20);
-	m.setColor(255);
+    m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
 
-	int offsetY = 0;
-	int offsetX = 0;
-	
-	offsetX = 10;
-	offsetY = 20;
+    m.clear(20);
+    m.setColor(255);
 
-	m.getCurrentFont()->drawString("orientation: ", offsetX, offsetY);
-	offsetY += 30;
-	m.getCurrentFont()->drawString("yaw: " + std::to_string(orientation.getYPRinDegrees().yaw), offsetX, offsetY);
-	offsetY += 30;
-	m.getCurrentFont()->drawString("pitch: " + std::to_string(orientation.getYPRinDegrees().pitch), offsetX, offsetY);
-	offsetY += 30;
-	m.getCurrentFont()->drawString("roll: " + std::to_string(orientation.getYPRinDegrees().roll), offsetX, offsetY);
-	offsetY += 30;
+    int offsetX = 0;
+    int offsetY = 0;
 
-	offsetY += 20;
-
-	m.getCurrentFont()->drawString("tracking enabled: ", offsetX, offsetY);
-	offsetY += 30;
-	m.getCurrentFont()->drawString("yaw: " + std::to_string(m1OrientationOSCServer.getTrackingYawEnabled()), offsetX, offsetY);
-	offsetY += 30;
-	m.getCurrentFont()->drawString("pitch: " + std::to_string(m1OrientationOSCServer.getTrackingPitchEnabled()), offsetX, offsetY);
-	offsetY += 30;
-	m.getCurrentFont()->drawString("roll: " + std::to_string(m1OrientationOSCServer.getTrackingRollEnabled()), offsetX, offsetY);
-	offsetY += 30;
-
-	offsetY += 20;
-
-	m.getCurrentFont()->drawString("device: " + device.getDeviceName() + ":" + M1OrientationDeviceTypeName[device.getDeviceType()], offsetX, offsetY);
-	offsetY += 40;
-
-	m.getCurrentFont()->drawString("devices: ", offsetX, offsetY);
-	offsetY += 40;
-	std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
-	for (auto& device : devices) {
-		m.getCurrentFont()->drawString("> ["+M1OrientationDeviceTypeName[device.getDeviceType()]+"]: "+device.getDeviceName(), offsetX, offsetY);
-		offsetY += 40;
-	}
-
-	offsetX = 220;
-	offsetY = 20;
-	
-	m.getCurrentFont()->drawString("clients: " + std::to_string(clients.size()), offsetX, offsetY);
-	offsetY += 40;
-	for (int i = 0; i < clients.size(); i++) {
-		m.getCurrentFont()->drawString("> " + std::to_string(clients[i].port), offsetX, offsetY);
-		offsetY += 30;
-	}
-	offsetY += 40;
-
-	offsetX = 400;
-	offsetY = 20;
-
-	auto& refreshDeviceButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("refresh devices");
-	refreshDeviceButton.draw();
-	if (refreshDeviceButton.pressed) {
-        // TODO: clear the previous list of devices?
-        // should clear be handled
-		m1OrientationOSCServer.command_refreshDevices();
-	}
-	offsetY += 50;
-
-	 auto& selectDevice1Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 1");
-	 selectDevice1Button.draw();
-	 if (selectDevice1Button.pressed) {
-	 	std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
-	 	if (devices.size() > 0) {
-			m1OrientationOSCServer.command_startTrackingUsingDevice(devices[0]);
-	 	}
-	 }
-	 offsetY += 50;
-
-    auto& selectDevice2Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 2");
-    selectDevice2Button.draw();
-    if (selectDevice2Button.pressed) {
-        std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
-        if (devices.size() > 1) {
-           m1OrientationOSCServer.command_startTrackingUsingDevice(devices[1]);
-        }
-    }
-    offsetY += 50;
-
-    auto& selectDevice3Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 3");
-    selectDevice3Button.draw();
-    if (selectDevice3Button.pressed) {
-        std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
-        if (devices.size() > 1) {
-           m1OrientationOSCServer.command_startTrackingUsingDevice(devices[2]);
-        }
-    }
-    offsetY += 50;
-
-    auto& selectDevice4Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 4");
-    selectDevice4Button.draw();
-    if (selectDevice4Button.pressed) {
-        std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
-        if (devices.size() > 1) {
-           m1OrientationOSCServer.command_startTrackingUsingDevice(devices[3]);
-        }
-    }
-    offsetY += 50;
+    offsetX = 10;
+    offsetY = 5;
     
-    auto& selectDevice5Button = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("select device 5");
-    selectDevice5Button.draw();
-    if (selectDevice5Button.pressed) {
-        std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
-        if (devices.size() > 1) {
-           m1OrientationOSCServer.command_startTrackingUsingDevice(devices[4]);
-        }
+    m.getCurrentFont()->drawString("DEVICE: " + m1OrientationOSCServer.getConnectedDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationOSCServer.getConnectedDevice().getDeviceType()], offsetX, offsetY);
+    
+    offsetY += 30;
+    
+    m.getCurrentFont()->drawString("ORIENTATION: ", offsetX, offsetY);
+    offsetY += 15;
+    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRinDegrees().yaw), offsetX, offsetY);
+    offsetY += 15;
+    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getYPRinDegrees().pitch), offsetX, offsetY);
+    offsetY += 15;
+    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getYPRinDegrees().roll), offsetX, offsetY);
+    
+    offsetY += 30;
+    
+    m.getCurrentFont()->drawString("TRACKING: ", offsetX, offsetY);
+    offsetY += 15;
+    std::string yaw_enabled_msg = (m1OrientationOSCServer.getTrackingYawEnabled()) ? "ENABLED" : "DISABLED";
+    m.getCurrentFont()->drawString("Y:  " + yaw_enabled_msg, offsetX, offsetY);
+    offsetY += 15;
+    std::string pitch_enabled_msg = (m1OrientationOSCServer.getTrackingPitchEnabled()) ? "ENABLED" : "DISABLED";
+    m.getCurrentFont()->drawString("P: " + pitch_enabled_msg, offsetX, offsetY);
+    offsetY += 15;
+    std::string roll_enabled_msg = (m1OrientationOSCServer.getTrackingRollEnabled()) ? "ENABLED" : "DISABLED";
+    m.getCurrentFont()->drawString("R:   " + roll_enabled_msg, offsetX, offsetY);
+    
+    offsetY += 30;
+    
+    std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+    for (auto& device : devices) {
+        m.getCurrentFont()->drawString("> ["+M1OrientationDeviceTypeName[device.getDeviceType()]+"]: "+device.getDeviceName(), offsetX, offsetY);
+        offsetY += 15;
     }
-    offsetY += 50;
 
-	auto& toggleYawButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toggle yaw");
-	toggleYawButton.draw();
-	if (toggleYawButton.pressed) {
-		m1OrientationOSCServer.command_setTrackingYawEnabled(!m1OrientationOSCServer.getTrackingYawEnabled());
-	}
-	offsetY += 50;
-
-	auto& togglePitchButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toggle pitch");
-	togglePitchButton.draw();
-	if (togglePitchButton.pressed) {
-		m1OrientationOSCServer.command_setTrackingPitchEnabled(!m1OrientationOSCServer.getTrackingPitchEnabled());
-	}
-	offsetY += 50;
-
-	auto& toggleRollButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("toggle roll");
-	toggleRollButton.draw();
-	if (toggleRollButton.pressed) {
-		m1OrientationOSCServer.command_setTrackingRollEnabled(!m1OrientationOSCServer.getTrackingRollEnabled());
-	}
-	offsetY += 50;
-
-	auto& disconnectButton = m.prepare<murka::Button>({ offsetX, offsetY, 130, 30 }).text("disconnect");
-	disconnectButton.draw();
-	if (disconnectButton.pressed) {
-		m1OrientationOSCServer.command_disconnect();
-	}
-	offsetY += 50;
+    //m.setColor(200, 255);
+    //m.drawImage(m1logo, 15, m.getSize().height() - 20, 161 / 4, 39 / 4);
+    
+    // orientation button
+    update_orientation_client_window(m, m1OrientationOSCServer, orientationControlWindow, showOrientationControlMenu, showedOrientationControlBefore);
 //#endif // end of debug UI macro
 }
 
