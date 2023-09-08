@@ -12,7 +12,7 @@
 #include "simpleble/SimpleBLE.h"
 
 // Credit: [Raees Kattali](github.com/kattaliraees) for discovering the data command and characteristic UUIDs
-// Credit: [Michael G. Wagner](https://www.youtube.com/michaelgwagner) for discovering the data translation and type conversion
+// Credit: [Michael G. Wagner](youtube.com/michaelgwagner) for discovering the data translation and type conversion
 
 #define NXTRACKER_GAP_ADVERTISE_SERVICE_UUID "A010"
 #define NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID "0000a010-5761-7665-7341-7564696f4c74"

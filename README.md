@@ -40,8 +40,10 @@ Design and architecture of the project is described in the [Source](Source) dire
 - [Emulator](Source/HardwareEmulator) _[primarily for debug]_
 
 #### Devices
+- Custom Input OSC
 - [Supperware IMU](https://supperware.co.uk/)
 - [MetaWear/mBientLab IMUs](https://mbientlab.com/)
+- [Waves Nx Tracker IMU](https://www.waves.com/hardware/nx-head-tracker)
 - [M1 IMU](https://www.mach1.tech/products)
 - [WitMotion IMUs](https://www.wit-motion.com/) _[WIP]_
 
