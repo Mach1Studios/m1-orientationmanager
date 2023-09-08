@@ -58,10 +58,10 @@ M1OrientationQuat NxTrackerInterface::getRotationQuat() {
             std::vector<float> read_quat = parseQuatData(data);
             
             M1OrientationQuat newQuat;
-            newQuat.w = read_quat[0];
-            newQuat.x = read_quat[1];
-            newQuat.y = read_quat[2];
-            newQuat.z = read_quat[3];
+            newQuat.wIn = read_quat[0];
+            newQuat.xIn = read_quat[1];
+            newQuat.yIn = read_quat[2];
+            newQuat.zIn = read_quat[3];
             return newQuat;
         }
     } else {
