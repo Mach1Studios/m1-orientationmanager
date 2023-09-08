@@ -93,9 +93,9 @@ void SupperwareInterface::connectSupperware()
     // connect/disconnect
     if (midiState == Midi::State::Available || midiState == Midi::State::Bootloader) {
         trackerDriver.connect();
-        trackerDriver.turnOn(true, false);
+        trackerDriver.turnOn(true, true);
     } else if (midiState == Midi::State::Connected) {
-        trackerDriver.turnOn(true, false);
+        trackerDriver.turnOn(true, true);
     } else {
         // Error: not available
     }
