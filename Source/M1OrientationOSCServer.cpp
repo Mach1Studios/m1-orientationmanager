@@ -304,18 +304,22 @@ void M1OrientationOSCServer::update() {
             //}
         }
 
-        M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRasSignedNormalled();
-        ypr.angleType = M1OrientationYPR::SIGNED_NORMALLED;
-        if (!getTrackingYawEnabled()) ypr.yaw = 0;
-        if (!getTrackingPitchEnabled()) ypr.pitch = 0;
-        if (!getTrackingRollEnabled()) ypr.roll = 0;
-        orientation.setYPR(ypr);
-
-        juce::OSCMessage msg("/getOrientation");
-        msg.addFloat32(ypr.yaw);
-        msg.addFloat32(ypr.pitch);
-        msg.addFloat32(ypr.roll);
-        send(clients, msg);
+        // check if we disconnected
+        if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
+            M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRasSignedNormalled();
+            ypr.angleType = M1OrientationYPR::SIGNED_NORMALLED;
+            if (!getTrackingYawEnabled()) ypr.yaw = 0.0;
+            if (!getTrackingPitchEnabled()) ypr.pitch = 0.0;
+            if (!getTrackingRollEnabled()) ypr.roll = 0.0;
+            orientation.setYPR(ypr);
+            
+            // update clients
+            juce::OSCMessage msg("/getOrientation");
+            msg.addFloat32(ypr.yaw);
+            msg.addFloat32(ypr.pitch);
+            msg.addFloat32(ypr.roll);
+            send(clients, msg);
+        }
     }
 }
 

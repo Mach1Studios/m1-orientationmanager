@@ -77,11 +77,10 @@ int NxTrackerInterface::getBatteryLevel() {
     std::optional<SimpleBLE::ByteArray> rx_data = deviceInterface->read("180f", "2a19"); // battery UUID
     if (rx_data.has_value()) {
         std::string batt_value_ascii = rx_data.value();
-        const int length = batt_value_ascii.length();
-        if (length > 0) {
-            
-            //battery_level = (int)batt_value_ascii; // cast to int to convert from ascii -> decimal
-            //return battery_level;
+        std::vector<uint8_t> data(batt_value_ascii.begin(), batt_value_ascii.end()); // convert incoming data string to bytes
+        int battery_data = data[0];
+        if (battery_data >= 0 || battery_data <= 100) {
+            return battery_data;
         }
     }
 }

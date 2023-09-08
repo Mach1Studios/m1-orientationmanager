@@ -188,7 +188,7 @@ public:
                     discovered_ble_devices[i].connect();
                     
                     // IF NX TRACKER
-                    if (matchedDevice->getDeviceName().find("NX Tracker") != std::string::npos) {
+                    if (matchedDevice->getDeviceName().find("Nx Tracker") != std::string::npos) {
                         nxtrackerInterface.sendStartCommand();
                         // Report to the manager that it's connected
                         statusCallback(true, "BLE: Nx Tracker Device Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
