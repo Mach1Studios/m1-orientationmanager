@@ -33,7 +33,7 @@
 #include <sys/time.h>
 #endif
 
-#define SCAN_TIMEOUT_MS 3000
+#define SCAN_TIMEOUT_MS 2000
 
 #define NORDIC_UART_SERVICE_UUID "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
 #define NORDIC_UART_CHAR_RX      "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
@@ -127,6 +127,7 @@ public:
     void refreshDevices() override {
         // clear device list
         devices.clear();
+        discovered_ble_devices.clear();
         
         auto ble_list = SimpleBLE::Safe::Adapter::get_adapters();
         
@@ -147,8 +148,6 @@ public:
         });
         adapter.scan_for(SCAN_TIMEOUT_MS);
         
-        devices.clear();
-
         // TODO: create a switch UI for filtering only known IMU devices vs showing all BLE
         for (int i = 0; i < discovered_ble_devices.size(); ++i){
             if (!displayOnlyKnownIMUs){
