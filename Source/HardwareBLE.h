@@ -71,7 +71,6 @@ public:
                 //std::cout << "[BLE] Nx Tracker device: " << getConnectedDevice().getDeviceName() << ", " << getConnectedDevice().getDeviceAddress() << ", " << std::endl;
                 M1OrientationQuat newOrientation = nxtrackerInterface.getRotationQuat();
                 orientation.setQuat(newOrientation);
-                
                 int b = nxtrackerInterface.getBatteryLevel();
                 getConnectedDevice().batteryPercentage = b;
             }
@@ -233,6 +232,7 @@ public:
                         });
                         // Report to the manager that it's connected
                         statusCallback(true, "BLE: MetaMotion Device Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
+                        
                     } else { // NOT ANY FILTERED/KNOWN IMU DEVICES
                         // TODO: return message if any error
                         statusCallback(false, "BLE: Device "+matchedDevice->getDeviceName()+" is not yet supported", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());

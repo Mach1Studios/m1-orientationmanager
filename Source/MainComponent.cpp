@@ -63,7 +63,7 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     } else {
         // it has a battery percentage value
         int battery_value = std::get<int>(m1OrientationOSCServer.getConnectedDevice().batteryPercentage);
-        m.getCurrentFont()->drawString("Battery: " + std::to_string(battery_value), m.getWindowWidth() - 100, m.getWindowHeight() - 100);
+        m.getCurrentFont()->drawString("Battery: " + std::to_string(battery_value), m.getSize().width() - 50 - 40 - 5, 10);
     }
     
     if (orientationControlButton.hovered && (m1OrientationOSCServer.getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone)) {

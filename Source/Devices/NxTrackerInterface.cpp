@@ -33,11 +33,11 @@ void NxTrackerInterface::sendStartCommand() {
 
 std::vector<float> NxTrackerInterface::parseQuatData(std::vector<uint8_t> data) {
     const float halfOfSignedShort = 16384.0;
-
+    
     signed short val0 = (signed short)((data[1] << 8) | data[0]); //Q0
-    signed short val2 = (signed short)((data[3] << 8) | data[2]); //Q2
+    signed short val3 = (signed short)((data[3] << 8) | data[2]); //Q2
     signed short val1 = (signed short)((data[5] << 8) | data[4]); //Q1
-    signed short val3 = (signed short)((data[7] << 8) | data[6]); //Q3
+    signed short val2 = (signed short)((data[7] << 8) | data[6]); //Q3
 
     float n_q0 = static_cast<float>(val0) / halfOfSignedShort;
     float n_q1 = static_cast<float>(val1) / halfOfSignedShort;
