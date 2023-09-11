@@ -42,7 +42,20 @@ struct find_plugin
 struct M1OrientationClientConnection {
     int port;
     juce::int64 time;
+    std::string name;
 };
+
+// search clients by name and return indices
+// TODO: potentially improve this with uuid concept
+static std::vector<int> find_clients_by_name(std::vector<M1OrientationClientConnection> arr, std::string search_term){
+    std::vector<int> indices;
+    for(int i = 0; i < arr.size(); i++){
+        if(arr[i].name == search_term){
+            indices.push_back(i);
+        }
+    }
+    return indices;
+}
 
 class M1OrientationOSCServer : 
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
@@ -54,7 +67,8 @@ class M1OrientationOSCServer :
     int serverPort = 0;
     int watcherPort = 0;
     bool isRunning = false;
-    
+    int monitor_count = 0;
+
     float monitor_yaw, monitor_pitch, monitor_roll;
     int monitor_mode = 0;
 
@@ -110,6 +124,8 @@ public:
     bool bTimerActive = false;
     
     void timerCallback() override {
+        
+        // update registered plugins on current orientation
         if (registeredPlugins.size() > 0) {
             for (auto &i: registeredPlugins) {
                 juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-settings"));

@@ -9,9 +9,11 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     if (message.getAddressPattern() == "/addClient") {
         // add client to clients list
         int port = message[0].getInt32();
+        std::string client_name = "";
         bool found = false;
 
         for (auto& client : clients) {
+            // check if client already exists
             if (client.port == port) {
                 client.time = juce::Time::currentTimeMillis();
                 found = true;
@@ -19,19 +21,36 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         }
 
         if (!found) {
+            // add new client
             M1OrientationClientConnection client;
             client.port = port;
             client.time = juce::Time::currentTimeMillis();
+            client.name = client_name;
+            if (message.size() > 1) {
+                // grab the string name for client
+                // this is used to check for multiple M1-Monitor instances
+                client_name = message[1].getString().toStdString();
+                if (client_name == "m1-monitor") {
+                    monitor_count++;
+                }
+            }
             clients.push_back(client);
         }
 
+        // respond back to client the connection
         juce::OSCSender sender;
         if (sender.connect("127.0.0.1", port)) {
             juce::OSCMessage msg("/connectedToServer");
             sender.send(msg);
+            // check for more than 1 instance of a single instance required client
+            if (monitor_count > 1) {
+                juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-disable"));
+                m.addInt32(1); // bool for true (disable)
+                sender.send(m);
+            }
         }
 
-        std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, 0 } };
+        //std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, 0 } };
         send_getDevices(clients);
         send_getCurrentDevice(clients);
         send_getTrackingYawEnabled(clients);
@@ -70,9 +89,29 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     }
     else if (message.getAddressPattern() == "/removeClient") {
         int search_port = message[0].getInt32();
+        std::string client_name;
+        
+        if (message.size() > 1) {
+            // grab the string name for client
+            // this is used to check for multiple M1-Monitor instances
+            client_name = message[1].getString().toStdString();
+            if (client_name == "m1-monitor") {
+                monitor_count--;
+            }
+        }
+        
         for (int index = 0; index < clients.size(); index++) {
             if (clients[index].port = message[0].getInt32()) {
                 clients.erase(clients.begin() + index);
+            }
+            if (monitor_count <= 1) {
+                juce::OSCSender sender;
+                if (sender.connect("127.0.0.1", clients[index].port)) {
+                    // send a message to each client to re-enable
+                    juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-disable"));
+                    m.addInt32(0); // bool for false (enable)
+                    sender.send(m);
+                }
             }
         }
     }
@@ -101,7 +140,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             DBG("Plugin port already registered: " + std::to_string(port));
         }
         if (!bTimerActive && registeredPlugins.size() > 0) {
-            startTimer(60);
+            startTimer(30);
             bTimerActive = true;
         } else {
             if (registeredPlugins.size() == 0) {
