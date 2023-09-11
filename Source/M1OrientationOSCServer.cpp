@@ -25,13 +25,14 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             M1OrientationClientConnection client;
             client.port = port;
             client.time = juce::Time::currentTimeMillis();
-            client.name = client_name;
             if (message.size() > 1) {
                 // grab the string name for client
-                // this is used to check for multiple M1-Monitor instances
                 client_name = message[1].getString().toStdString();
-                if (client_name == "m1-monitor") {
+                client.name = client_name;
+                // this is used to check for multiple M1-Monitor instances
+                if (client.name == "m1-monitor") {
                     monitor_count++;
+                    DBG("[Monitor] Number of instances: "+std::to_string(monitor_count));
                 }
             }
             clients.push_back(client);
@@ -50,7 +51,6 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             }
         }
 
-        //std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, 0 } };
         send_getDevices(clients);
         send_getCurrentDevice(clients);
         send_getTrackingYawEnabled(clients);
@@ -90,18 +90,16 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     else if (message.getAddressPattern() == "/removeClient") {
         int search_port = message[0].getInt32();
         std::string client_name;
-        
-        if (message.size() > 1) {
-            // grab the string name for client
-            // this is used to check for multiple M1-Monitor instances
-            client_name = message[1].getString().toStdString();
-            if (client_name == "m1-monitor") {
-                monitor_count--;
-            }
-        }
-        
+                
         for (int index = 0; index < clients.size(); index++) {
             if (clients[index].port = message[0].getInt32()) {
+                if (message.size() > 1) {
+                    // grab the string name for client
+                    // this is used to check for multiple M1-Monitor instances
+                    if (clients[index].name == "m1-monitor") {
+                        monitor_count--;
+                    }
+                }
                 clients.erase(clients.begin() + index);
             }
             if (monitor_count <= 1) {
@@ -111,6 +109,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
                     juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-disable"));
                     m.addInt32(0); // bool for false (enable)
                     sender.send(m);
+                    DBG("[Monitor] Number of instances: "+std::to_string(monitor_count));
                 }
             }
         }
