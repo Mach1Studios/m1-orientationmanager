@@ -1,4 +1,4 @@
-# M1-OrientationManager
+# m1-orientationmanager
 External orientation device manager and utilities geared toward aggregating different headtracking methods.
 
 ## Setup
@@ -14,7 +14,7 @@ External orientation device manager and utilities geared toward aggregating diff
 - `cmake --build ../../Source/SimpleBLE/simpleble`
 - `cmake ../../Source/Devices/MetaWear -B../../Source/Devices/MetaWear/build -DCMAKE_OSX_DEPLOYMENT_TARGET="10.15"`
 - `cmake --build ../../Source/Devices/MetaWear/build --config Release`
-- Open the `M1-OrientationManager-Server.jucer` and compile as needed
+- Open the `m1-orientationmanager.jucer` and compile as needed
 
 ## Install
 Currently this helper service executable is expected in a common data directory of each local machine, and where applicable to be managed by a service agent or LaunchAgent.
@@ -50,13 +50,13 @@ Design and architecture of the project is described in the [Source](Source) dire
 _Please feel free to open an issue requesting a new device with device details_
 
 ## OSC Tool
-This repo also includes a flexible and simple UI app to show an example of interfacing with the M1-OrientationManager background service and output the calculated orientation via OSC to any IP + port for use with other software. 
+This repo also includes a flexible and simple UI app to show an example of interfacing with the m1-orientationmanager background service and output the calculated orientation via OSC to any IP + port for use with other software. 
 
 This can be found in the [osc_client](osc_client) directory.
 
 ### Setup
 - Build via CMake or JUCE to compile the contents of [osc_client](osc_client) via the same methods described above
-- Copy the [settings.json](Resources/settings.json) and built M1-OrientationManager executable to be alongside (as siblings) the M1-OrientationOSC app/exe within the same directory
+- Copy the [settings.json](Resources/settings.json) and built m1-orientationmanager executable to be alongside (as siblings) the M1-OrientationOSC app/exe within the same directory
 
 ## TODO
 - Finish camera implementation

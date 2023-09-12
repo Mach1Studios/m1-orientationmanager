@@ -1,4 +1,4 @@
-# M1-OrientationManager
+# m1-orientationmanager
 
 ## Hardware : Defining a new data transmission type
 - New communitation protocol is defined via `Hardware[comm].h`, these describe ways to transmit data from a headtracking device to this server. Simply include the [`HardwareAbstract.h`](HardwareAbstract.h) and override the needed functions

@@ -1,5 +1,5 @@
 //
-//  M1-OrientationManager
+//  m1-orientationmanager
 //  Copyright © 2022 Mach1. All rights reserved.
 //
 

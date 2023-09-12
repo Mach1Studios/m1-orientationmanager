@@ -25,7 +25,7 @@ void MainComponent::initialise()
 {
 	murka::JuceMurkaBaseComponent::initialise();
 
-    // This tool only looks for sibling M1-OrientationManager executables and "settings.json" file
+    // This tool only looks for sibling m1-orientationmanager executables and "settings.json" file
     juce::File settingsFile;
     settingsFile = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile("settings.json");
     DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
