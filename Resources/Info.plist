@@ -7,7 +7,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Icon.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.mach1.orientationserver</string>
+	<string>com.mach1.spatial.orientationmanager</string>
 	<key>CFBundleName</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleDisplayName</key>
@@ -29,14 +29,6 @@
       <key>NSAllowsArbitraryLoads</key>
       <true/>
     </dict>
-    <key>NSSupportsAutomaticGraphicsSwitching</key>
-    <true/>
-    <key>NSHighResolutionCapable</key>
-    <true/>
-    <key>NSRequiresAquaSystemAppearance</key>
-    <false/>
-    <key>NSQuitAlwaysKeepsWindows</key>
-    <false/>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>This app requires Bluetooth to search and connect to Bluetooth enabled devices</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
