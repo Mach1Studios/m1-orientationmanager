@@ -46,14 +46,15 @@ struct M1OrientationClientConnection {
 
 class M1OrientationOSCServer : 
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
-    public M1OrientationManagerOSCSettings, juce::Timer
+    public M1OrientationManagerOSCSettings,
+    public juce::MultiTimer
 {
     juce::OSCReceiver receiver; 
 
     std::vector<M1OrientationClientConnection> clients;
     int serverPort = 0;
-    int watcherPort = 0;
     bool isRunning = false;
+    juce::int64 shutdownCounterTime = 0;
     
     float monitor_yaw, monitor_pitch, monitor_roll;
     int monitor_mode = 0;
@@ -79,15 +80,11 @@ class M1OrientationOSCServer :
 public:
     
     virtual ~M1OrientationOSCServer();
-
-    bool init(int serverPort, int watcherPort, bool useWatcher);
-
+    bool init(int serverPort);
     void update();
 
     Orientation getOrientation();
-
     void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
-
     std::vector<M1OrientationClientConnection> getClients();
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getConnectedDevice();
@@ -109,22 +106,61 @@ public:
     std::vector<M1RegisteredPlugin> registeredPlugins;
     bool bTimerActive = false;
     
-    void timerCallback() override {
-        if (registeredPlugins.size() > 0) {
-            for (auto &i: registeredPlugins) {
-                juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-settings"));
-                m.addInt32(monitor_mode);
-                m.addFloat32(monitor_yaw); // expected normalised
-                m.addFloat32(monitor_pitch); // expected normalised
-                m.addFloat32(monitor_roll); // expected normalised
-                //m.addInt32(monitor_output_mode); // TODO: add the output configuration to sync plugins when requested
-                i.messageSender->send(m);
+    void timerCallback(int timerID) override {
+        if (timerID == 0) {
+            if (registeredPlugins.size() > 0) {
+                for (auto &i: registeredPlugins) {
+                    juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-settings"));
+                    m.addInt32(monitor_mode);
+                    m.addFloat32(monitor_yaw); // expected normalised
+                    m.addFloat32(monitor_pitch); // expected normalised
+                    m.addFloat32(monitor_roll); // expected normalised
+                    //m.addInt32(monitor_output_mode); // TODO: add the output configuration to sync plugins when requested
+                    i.messageSender->send(m);
+                }
+            }
+            
+            // TODO: check if any registered plugins closed
+            //for (auto &i: registeredPlugins) {
+            //}
+        }
+        
+        // TIMER 1 = m1-orientationmanager ping timer
+        // this is used to ping the clients to check if the m1-orientationmanager has crashed
+        // TODO: use service to analyze the std--out//std--err on the daemon and remove this watchdog
+        if (timerID == 1) {
+            juce::int64 currentTime = juce::Time::currentTimeMillis();
+
+            if (getClients().size() > 0) {
+                for (int i = 0; i < getClients().size(); i++) {
+                    juce::OSCSender sender;
+                    if (sender.connect("127.0.0.1", clients[i].port)) {
+                        DBG("[Watchdog] Pinging port "+std::to_string(clients[i].port));
+                        juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/Mach1/ActiveClients"));
+                        if (getClients().size() > 0) {
+                            m.addInt32(getClients().size()); // report number of active clients, if number drops to 0 then commence a shutdown timer
+                        } else {
+                            m.addInt32(0);
+                        }
+                        sender.send(m);
+                        sender.disconnect();
+                    }
+                }
             }
         }
         
-        // TODO: check if any registered plugins closed
-        //for (auto &i: registeredPlugins) {
-        //}
+        /*
+        // TIMER 2 = Shutdown timer
+        // this is used when there are no m1_orientation_client's found
+        //to start a countdown to shutdown this service
+        if (timerID == 2) {
+            juce::int64 currentTime = juce::Time::currentTimeMillis();
+            DBG("TIMER[2]: " + std::to_string(currentTime - shutdownCounterTime));
+            if (currentTime > shutdownCounterTime && currentTime - shutdownCounterTime > 120000) {
+                JUCEApplicationBase::quit(); // exit successfully to prompt service managers to not restart
+            }
+        }
+         */
     }
     
     void close();

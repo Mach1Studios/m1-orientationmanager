@@ -7,6 +7,11 @@
 
 void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message) {
     if (message.getAddressPattern() == "/addClient") {
+        // start watchdog timer
+        startTimer(1, 100);
+        // start shutdown timer
+        //startTimer(2, 200);
+
         // add client to clients list
         int port = message[0].getInt32();
         bool found = false;
@@ -18,6 +23,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             }
         }
 
+        // first time finding this client
         if (!found) {
             M1OrientationClientConnection client;
             client.port = port;
@@ -31,7 +37,6 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             sender.send(msg);
         }
 
-        std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, 0 } };
         send_getDevices(clients);
         send_getCurrentDevice(clients);
         send_getTrackingYawEnabled(clients);
@@ -101,12 +106,12 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             DBG("Plugin port already registered: " + std::to_string(port));
         }
         if (!bTimerActive && registeredPlugins.size() > 0) {
-            startTimer(60);
+            startTimer(0, 30);
             bTimerActive = true;
         } else {
             if (registeredPlugins.size() == 0) {
                 // TODO: setup logic for deleting from `registeredPlugins`
-                stopTimer();
+                stopTimer(0);
                 bTimerActive = false;
             }
         }
@@ -140,6 +145,13 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     else {
         DBG("OSC Message not implemented: " + message.getAddressPattern().toString());
     }
+    /*
+    // update shutdown timer; shutdown timer begins when a client is first connected
+    // the countdown is restarted whenever we receieve an OSC message
+    if (clients.size() > 0) {
+        juce::int64 shutdownCounterTime = juce::Time::currentTimeMillis();
+    }
+     */
 }
 
 bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
@@ -222,6 +234,9 @@ void M1OrientationOSCServer::send_getTrackingRollEnabled(const std::vector<M1Ori
 }
 
 M1OrientationOSCServer::~M1OrientationOSCServer() {
+    stopTimer(0);
+    stopTimer(1);
+    //stopTimer(2);
     close();
 }
  
@@ -254,7 +269,7 @@ bool M1OrientationOSCServer::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
-bool M1OrientationOSCServer::init(int serverPort, int watcherPort, bool useWatcher = false) {
+bool M1OrientationOSCServer::init(int serverPort) {
     // check the port
     juce::DatagramSocket socket(false);
     socket.setEnablePortReuse(false);
@@ -265,29 +280,7 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort, bool useWatch
         receiver.addListener(this);
 
         this->serverPort = serverPort;
-        this->watcherPort = watcherPort;
         this->isRunning = true;
-
-        if (useWatcher) {
-            std::thread([&]() {
-                while (this->isRunning) {
-                    juce::OSCSender sender;
-                    if (sender.connect("127.0.0.1", this->watcherPort)) {
-                        DBG("[Watcher] Pinging port "+std::to_string(this->watcherPort));
-                        juce::OSCMessage msg("/Mach1/ActiveClients");
-                        if (getClients().size() > 0) {
-                            msg.addInt32(getClients().size()); // report number of active clients, if number drops to 0 then watcher will shutdown
-                        } else {
-                            msg.addInt32(0);
-                        }
-                        sender.send(msg);
-                        sender.disconnect();
-                    }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                }
-            }).detach();
-        }
-        return true;
     }
     else {
         return false;

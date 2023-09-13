@@ -30,7 +30,7 @@ void MainComponent::initialise()
     settingsFile = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile("settings.json");
     DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
 
-    m1OrientationOSCClient.initFromSettings(settingsFile.getFullPathName().toStdString(), false); // the bool determines if we want to also launch the watcher helper executable to relaunch the server after any unexepected crashes
+    m1OrientationOSCClient.initFromSettings(settingsFile.getFullPathName().toStdString());
 	m1OrientationOSCClient.setStatusCallback(std::bind(&MainComponent::setStatus, this, std::placeholders::_1, std::placeholders::_2));
     
     m1logo.loadFromRawData(BinaryData::mach1logo_png, BinaryData::mach1logo_pngSize);
