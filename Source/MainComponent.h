@@ -47,11 +47,11 @@ public:
 
 private:
     //==============================================================================
+    // TODO: move hardware classes and server to main thread
     HardwareBLE hardwareBLE;
     HardwareSerial hardwareSerial;
 	HardwareOSC hardwareOSC;
 	HardwareEmulator hardwareEmulator;
-    	
     M1OrientationOSCServer m1OrientationOSCServer;
 
     M1OrientationClientWindow* orientationControlWindow;

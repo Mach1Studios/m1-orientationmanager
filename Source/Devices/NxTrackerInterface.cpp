@@ -47,26 +47,29 @@ std::vector<float> NxTrackerInterface::parseQuatData(std::vector<uint8_t> data) 
     return {n_q0, n_q1, n_q2, n_q3};
 }
 
+void NxTrackerInterface::updateOrientationQuat(M1OrientationQuat newValue) {
+    // called from the notify thread in BLE
+    currentOrientationQuat = newValue; // TODO: should currentOrientationQuat be std::atomic?
+}
+
 M1OrientationQuat NxTrackerInterface::getRotationQuat() {
     if (deviceInterface->is_connected()) {
-        // TODO: switch to a notify command to get data as soon as available by the rate dictated by device
-        std::optional<SimpleBLE::ByteArray> rx_data = deviceInterface->read(NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID, NXTRACKER_ORIENTATION_DATA_GATT_CHARATERISTIC_UUID);
-
-        if (rx_data.has_value()) {
-            std::string str = rx_data.value();
-            std::vector<uint8_t> data(str.begin(), str.end()); // convert incoming data string to bytes
-            std::vector<float> read_quat = parseQuatData(data);
-            
-            M1OrientationQuat newQuat;
-            newQuat.wIn = read_quat[0];
-            newQuat.xIn = read_quat[1];
-            newQuat.yIn = read_quat[2];
-            newQuat.zIn = read_quat[3];
-            return newQuat;
-        }
-    } else {
-        // return error?
+        deviceInterface->notify(NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID, NXTRACKER_ORIENTATION_DATA_GATT_CHARATERISTIC_UUID,
+                                [&](SimpleBLE::ByteArray rx_data) {
+                    std::string str = rx_data;
+                    std::vector<uint8_t> data(str.begin(), str.end()); // convert incoming data string to bytes
+                    std::vector<float> read_quat = parseQuatData(data);
+                    
+                    M1OrientationQuat newQuat;
+                    newQuat.wIn = read_quat[0];
+                    newQuat.xIn = read_quat[1];
+                    newQuat.yIn = read_quat[2];
+                    newQuat.zIn = read_quat[3];
+                    updateOrientationQuat(newQuat);
+                }
+        );
     }
+    return currentOrientationQuat;
 }
 
 void NxTrackerInterface::recenter() {

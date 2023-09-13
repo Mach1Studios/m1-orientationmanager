@@ -38,5 +38,8 @@ public:
     
 private:
     
+    void updateOrientationQuat(M1OrientationQuat newValue);
+    M1OrientationQuat currentOrientationQuat;
+    
     std::vector<float> parseQuatData(std::vector<uint8_t> data);
 };

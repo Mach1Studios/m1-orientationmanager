@@ -60,6 +60,7 @@ public:
 				   m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 				   m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
 				   m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
+                    
 				   while (true) {
 					   m1OrientationOSCServer.update();
 					   juce::Thread::sleep(30);
