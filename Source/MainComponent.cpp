@@ -6,12 +6,12 @@
 #include "MainComponent.h"
 
 //==============================================================================
-MainComponent::MainComponent()
+MainComponent::MainComponent(M1OrientationOSCServer* server)
 {
     // Make sure you set the size of the component after
     // you add any child components.
     juce::OpenGLAppComponent::setSize(800, 600);
-
+    m1OrientationOSCServer = server;
 }
 
 MainComponent::~MainComponent()
@@ -21,10 +21,10 @@ MainComponent::~MainComponent()
 
 //==============================================================================
 
-void MainComponent::update_orientation_client_window(murka::Murka &m, M1OrientationOSCServer &m1OrientationOSCServer, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore) {
+void MainComponent::update_orientation_client_window(murka::Murka &m, M1OrientationOSCServer* m1OrientationOSCServer, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore) {
     std::vector<M1OrientationClientWindowDeviceSlot> slots;
     
-    std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+    std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer->getDevices();
     for (int i = 0; i < devices.size(); i++) {
         std::string icon = "";
         if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial && devices[i].getDeviceName().find("Bluetooth-Incoming-Port") != std::string::npos) {
@@ -44,9 +44,9 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
         }
                 
         std::string name = devices[i].getDeviceName();
-        slots.push_back({ icon, name, name == m1OrientationOSCServer.getConnectedDevice().getDeviceName(), i, [&](int idx)
+        slots.push_back({ icon, name, name == m1OrientationOSCServer->getConnectedDevice().getDeviceName(), i, [&](int idx)
             {
-                m1OrientationOSCServer.command_startTrackingUsingDevice(devices[idx]);
+                m1OrientationOSCServer->command_startTrackingUsingDevice(devices[idx]);
             }
         });
     }
@@ -54,20 +54,20 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     auto& orientationControlButton = m.prepare<M1OrientationWindowToggleButton>({ m.getSize().width() - 40 - 5, 5, 40, 40 }).onClick([&](M1OrientationWindowToggleButton& b) {
         showOrientationControlMenu = !showOrientationControlMenu;
     })
-        .withInteractiveOrientationGimmick(m1OrientationOSCServer.getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone, m1OrientationOSCServer.getOrientation().getYPRinDegrees().yaw)
+        .withInteractiveOrientationGimmick(m1OrientationOSCServer->getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone, m1OrientationOSCServer->getOrientation().getYPRinDegrees().yaw)
         .draw();
     
     // TODO: move this to be to the left of the orientation client window button
-    if (std::holds_alternative<bool>(m1OrientationOSCServer.getConnectedDevice().batteryPercentage)) {
+    if (std::holds_alternative<bool>(m1OrientationOSCServer->getConnectedDevice().batteryPercentage)) {
         // it's false, which means the battery percentage is unknown
     } else {
         // it has a battery percentage value
-        int battery_value = std::get<int>(m1OrientationOSCServer.getConnectedDevice().batteryPercentage);
+        int battery_value = std::get<int>(m1OrientationOSCServer->getConnectedDevice().batteryPercentage);
         m.getCurrentFont()->drawString("Battery: " + std::to_string(battery_value), m.getSize().width() - 50 - 40 - 5, 10);
     }
     
-    if (orientationControlButton.hovered && (m1OrientationOSCServer.getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone)) {
-        std::string deviceReportString = "CONNECTED DEVICE: " + m1OrientationOSCServer.getConnectedDevice().getDeviceName();
+    if (orientationControlButton.hovered && (m1OrientationOSCServer->getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone)) {
+        std::string deviceReportString = "CONNECTED DEVICE: " + m1OrientationOSCServer->getConnectedDevice().getDeviceName();
         auto font = m.getCurrentFont();
         auto bbox = font->getStringBoundingBox(deviceReportString, 0, 0);
         //m.setColor(40, 40, 40, 200);
@@ -78,11 +78,11 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     }
     
     if (showOrientationControlMenu) {
-        bool showOrientationSettingsPanelInsideWindow = (m1OrientationOSCServer.getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone);
+        bool showOrientationSettingsPanelInsideWindow = (m1OrientationOSCServer->getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone);
         orientationControlWindow = &(m.prepare<M1OrientationClientWindow>({ m.getSize().width() - 218 - 5 , 5, 218, 240 + 100 * showOrientationSettingsPanelInsideWindow })
             .withDeviceList(slots)
             .withSettingsPanelEnabled(showOrientationSettingsPanelInsideWindow)
-            .withOscSettingsEnabled((m1OrientationOSCServer.getConnectedDevice().getDeviceType() == M1OrientationManagerDeviceTypeOSC))
+            .withOscSettingsEnabled((m1OrientationOSCServer->getConnectedDevice().getDeviceType() == M1OrientationManagerDeviceTypeOSC))
             .onClickOutside([&]() {
                 if (!orientationControlButton.hovered) { // Only switch showing the orientation control if we didn't click on the button
                     showOrientationControlMenu = !showOrientationControlMenu;
@@ -92,13 +92,13 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
                 }
             })
             .onDisconnectClicked([&]() {
-                m1OrientationOSCServer.command_disconnect();
+                m1OrientationOSCServer->command_disconnect();
             })
             .onRefreshClicked([&]() {
-                m1OrientationOSCServer.command_refreshDevices();
+                m1OrientationOSCServer->command_refreshDevices();
             })
             .onOscSettingsChanged([&](int port, std::string addr_pttrn) {
-                m1OrientationOSCServer.command_updateOscDevice(port, addr_pttrn);
+                m1OrientationOSCServer->command_updateOscDevice(port, addr_pttrn);
             })
             .onYPRSwitchesClicked([&](int whichone) {
                 if (whichone == 0)
@@ -112,17 +112,17 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
                     rollActive = !rollActive;
             })
             .withYPRTrackingSettings(
-                                     m1OrientationOSCServer.getTrackingYawEnabled(),
-                                     m1OrientationOSCServer.getTrackingPitchEnabled(),
-                                     m1OrientationOSCServer.getTrackingRollEnabled(),
+                                     m1OrientationOSCServer->getTrackingYawEnabled(),
+                                     m1OrientationOSCServer->getTrackingPitchEnabled(),
+                                     m1OrientationOSCServer->getTrackingRollEnabled(),
                                      std::pair<int, int>(0, 180),
                                      std::pair<int, int>(0, 180),
                                      std::pair<int, int>(0, 180)
             )
             .withYPR(
-                     m1OrientationOSCServer.getOrientation().getYPRinDegrees().yaw,
-                     m1OrientationOSCServer.getOrientation().getYPRinDegrees().pitch,
-                     m1OrientationOSCServer.getOrientation().getYPRinDegrees().roll
+                     m1OrientationOSCServer->getOrientation().getYPRinDegrees().yaw,
+                     m1OrientationOSCServer->getOrientation().getYPRinDegrees().pitch,
+                     m1OrientationOSCServer->getOrientation().getYPRinDegrees().roll
             ));
             orientationControlWindow->draw();
     }
@@ -144,46 +144,14 @@ void MainComponent::initialise()
 	}
 	printf("Resources Loaded From: %s \n", resourcesPath.c_str());
 	m.setResourcesPath(resourcesPath);
-    
-    // We will assume the folders are properly created during the installation step
-    juce::File settingsFile;
-    // Using common support files installation location
-    juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-
-    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-        // test for any mac OS
-        settingsFile = m1SupportDirectory.getChildFile("Application Support").getChildFile("Mach1");
-    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-        // test for any windows OS
-        settingsFile = m1SupportDirectory.getChildFile("Mach1");
-    } else {
-        settingsFile = m1SupportDirectory.getChildFile("Mach1");
-    }
-    settingsFile = settingsFile.getChildFile("settings.json");
-    DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
-    m1OrientationOSCServer.initFromSettings(settingsFile.getFullPathName().toStdString(), true);
-    
-    // For debug testing you can set this to false to list all connectable BLE devices
-    hardwareBLE.displayOnlyKnownIMUs = true;
-    hardwareBLE.setup();
-    hardwareSerial.setup();
-    hardwareOSC.setup();
-    // Internal device emulator for debugging
-    hardwareEmulator.setup();
-    
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeEmulator, &hardwareEmulator);
 }
 
 //==============================================================================
 void MainComponent::draw()
 {
-	m1OrientationOSCServer.update();
-	Orientation orientation = m1OrientationOSCServer.getOrientation();
-    M1OrientationDeviceInfo device = m1OrientationOSCServer.getConnectedDevice();
-	auto clients = m1OrientationOSCServer.getClients();
+	Orientation orientation = m1OrientationOSCServer->getOrientation();
+    M1OrientationDeviceInfo device = m1OrientationOSCServer->getConnectedDevice();
+	auto clients = m1OrientationOSCServer->getClients();
 
 //#ifdef BUILD_DEBUG_UI
     m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
@@ -197,7 +165,7 @@ void MainComponent::draw()
     offsetX = 10;
     offsetY = 5;
     
-    m.getCurrentFont()->drawString("DEVICE: " + m1OrientationOSCServer.getConnectedDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationOSCServer.getConnectedDevice().getDeviceType()], offsetX, offsetY);
+    m.getCurrentFont()->drawString("DEVICE: " + m1OrientationOSCServer->getConnectedDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationOSCServer->getConnectedDevice().getDeviceType()], offsetX, offsetY);
     
     offsetY += 30;
     
@@ -213,18 +181,18 @@ void MainComponent::draw()
     
     m.getCurrentFont()->drawString("TRACKING: ", offsetX, offsetY);
     offsetY += 15;
-    std::string yaw_enabled_msg = (m1OrientationOSCServer.getTrackingYawEnabled()) ? "ENABLED" : "DISABLED";
+    std::string yaw_enabled_msg = (m1OrientationOSCServer->getTrackingYawEnabled()) ? "ENABLED" : "DISABLED";
     m.getCurrentFont()->drawString("Y:  " + yaw_enabled_msg, offsetX, offsetY);
     offsetY += 15;
-    std::string pitch_enabled_msg = (m1OrientationOSCServer.getTrackingPitchEnabled()) ? "ENABLED" : "DISABLED";
+    std::string pitch_enabled_msg = (m1OrientationOSCServer->getTrackingPitchEnabled()) ? "ENABLED" : "DISABLED";
     m.getCurrentFont()->drawString("P: " + pitch_enabled_msg, offsetX, offsetY);
     offsetY += 15;
-    std::string roll_enabled_msg = (m1OrientationOSCServer.getTrackingRollEnabled()) ? "ENABLED" : "DISABLED";
+    std::string roll_enabled_msg = (m1OrientationOSCServer->getTrackingRollEnabled()) ? "ENABLED" : "DISABLED";
     m.getCurrentFont()->drawString("R:   " + roll_enabled_msg, offsetX, offsetY);
     
     offsetY += 30;
     
-    std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+    std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer->getDevices();
     for (auto& device : devices) {
         m.getCurrentFont()->drawString("> ["+M1OrientationDeviceTypeName[device.getDeviceType()]+"]: "+device.getDeviceName(), offsetX, offsetY);
         offsetY += 15;

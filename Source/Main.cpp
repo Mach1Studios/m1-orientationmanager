@@ -16,7 +16,7 @@
 #include "MainComponent.h"
 
 //==============================================================================
-class M1OrientationDeviceServerApplication  : public juce::JUCEApplication
+class M1OrientationDeviceServerApplication  : public juce::JUCEApplication, private juce::Timer
 {
 public:
     //==============================================================================
@@ -29,56 +29,56 @@ public:
     //==============================================================================
     void initialise (const juce::String& commandLine) override
     {
-        // This method is where you should put your application's initialisation code..
-		if (JUCEApplicationBase::getCommandLineParameterArray().indexOf("--no-gui") >= 0) {
-			std::thread([&]() {
-			   HardwareBLE hardwareBLE;
-			   HardwareSerial hardwareSerial;
-			   HardwareOSC hardwareOSC;
-			   M1OrientationOSCServer m1OrientationOSCServer;
-
-                // We will assume the folders are properly created during the installation step
-                // TODO: make this file path search for `Mach1` dir
-                // Using common support files installation location
-                juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-                std::string settingsFilePath;
-                if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-                    // test for any windows OS
-                    settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Mach1/settings.json").toStdString();
-                } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-                    // test for any mac OS
-                    settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Application Support/Mach1/settings.json").toStdString();
-                } else {
-                    settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Mach1/settings.json").toStdString();
-                }
-
-                if (m1OrientationOSCServer.initFromSettings(settingsFilePath, true)) {
-				   hardwareBLE.displayOnlyKnownIMUs = true;
-				   hardwareBLE.setup();
-				   hardwareSerial.setup();
-				   hardwareOSC.setup();
-				   m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
-				   m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
-				   m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
-                    
-				   while (true) {
-					   m1OrientationOSCServer.update();
-					   juce::Thread::sleep(30);
-				   }
-			   }
-
-			}).detach();
-
-			juce::MessageManager::getInstance()->runDispatchLoop();
+        // We will assume the folders are properly created during the installation step
+        // TODO: make this file path search for `Mach1` dir
+        // Using common support files installation location
+        juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
+        std::string settingsFilePath;
+        if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
+            // test for any windows OS
+            settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Mach1/settings.json").toStdString();
+        } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+            // test for any mac OS
+            settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Application Support/Mach1/settings.json").toStdString();
         } else {
-            mainWindow.reset(new MainWindow(getApplicationName()));
+            settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Mach1/settings.json").toStdString();
         }
+
+        if (m1OrientationOSCServer.initFromSettings(settingsFilePath, false)) {
+            hardwareBLE.displayOnlyKnownIMUs = true;
+            hardwareBLE.setup(); // move this to its own thread
+            hardwareSerial.setup(); // move this to its own thread
+            hardwareOSC.setup(); // move this to its own thread
+            m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
+            m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
+            m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
+            
+            // emulator for debug
+            hardwareEmulator.setup();
+            m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeEmulator, &hardwareEmulator);
+        }
+
+        // starts the update loop
+        startTimer(15);
+        
+        if (JUCEApplicationBase::getCommandLineParameterArray().indexOf("--no-gui") >= 0) {
+            /// WITHOUT GUI
+
+        } else {
+            /// WITH GUI
+            mainWindow.reset(new MainWindow(getApplicationName(), &m1OrientationOSCServer));
+        }
+    }
+    
+    void timerCallback() override
+    {
+        // update loop for threaded device server
+        m1OrientationOSCServer.update();
     }
 
     void shutdown() override
     {
-        // Add your application's shutdown code here..
-
+        stopTimer();
         mainWindow = nullptr; // (deletes our window)
     }
 
@@ -105,14 +105,15 @@ public:
     class MainWindow    : public juce::DocumentWindow
     {
     public:
-        MainWindow (juce::String name)
+        MainWindow (juce::String name, M1OrientationOSCServer* server)
             : DocumentWindow (name,
                               juce::Desktop::getInstance().getDefaultLookAndFeel()
                                                           .findColour (juce::ResizableWindow::backgroundColourId),
                               DocumentWindow::allButtons)
         {
+            m1OrientationOSCServer = server;
             setUsingNativeTitleBar (true);
-            setContentOwned (new MainComponent(), true);
+            setContentOwned (new MainComponent(server), true);
 
            #if JUCE_IOS || JUCE_ANDROID
             setFullScreen (true);
@@ -140,11 +141,18 @@ public:
         */
 
     private:
+        M1OrientationOSCServer* m1OrientationOSCServer;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
 
 private:
     std::unique_ptr<MainWindow> mainWindow;
+public:
+    HardwareBLE hardwareBLE;
+    HardwareSerial hardwareSerial;
+    HardwareOSC hardwareOSC;
+    HardwareEmulator hardwareEmulator; // debug
+    M1OrientationOSCServer m1OrientationOSCServer;
 };
 
 //==============================================================================

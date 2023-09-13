@@ -31,7 +31,7 @@ class MainComponent : public JuceMurkaBaseComponent
 {
 public:
     //==============================================================================
-    MainComponent();
+    MainComponent(M1OrientationOSCServer* m1OrientationOSCServer);
     ~MainComponent() override;
 
     //==============================================================================
@@ -47,19 +47,14 @@ public:
 
 private:
     //==============================================================================
-    // TODO: move hardware classes and server to main thread
-    HardwareBLE hardwareBLE;
-    HardwareSerial hardwareSerial;
-	HardwareOSC hardwareOSC;
-	HardwareEmulator hardwareEmulator;
-    M1OrientationOSCServer m1OrientationOSCServer;
 
+    M1OrientationOSCServer* m1OrientationOSCServer;
     M1OrientationClientWindow* orientationControlWindow;
     bool showOrientationControlMenu = false;
     bool showedOrientationControlBefore = false;
     bool showMonitorModeDropdown = false;
     
-    void update_orientation_client_window(murka::Murka &m, M1OrientationOSCServer &m1OrientationOSCServer, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore);
+    void update_orientation_client_window(murka::Murka &m, M1OrientationOSCServer* m1OrientationOSCServer, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
