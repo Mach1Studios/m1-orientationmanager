@@ -60,6 +60,7 @@ M1OrientationQuat NxTrackerInterface::getRotationQuat() {
                     std::vector<uint8_t> data(str.begin(), str.end()); // convert incoming data string to bytes
                     std::vector<float> read_quat = parseQuatData(data);
                     
+                    // TODO: fix this quaternion to work as expected
                     M1OrientationQuat newQuat;
                     newQuat.wIn = read_quat[0];
                     newQuat.xIn = read_quat[1];
