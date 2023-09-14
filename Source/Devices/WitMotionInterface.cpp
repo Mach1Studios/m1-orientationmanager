@@ -8,6 +8,9 @@
 //==============================================================================
 WitMotionInterface::WitMotionInterface()
 {
+    prev_angle[0] = 0.0f;
+    prev_angle[1] = 0.0f;
+    prev_angle[2] = 0.0f;
 }
 
 WitMotionInterface::~WitMotionInterface()

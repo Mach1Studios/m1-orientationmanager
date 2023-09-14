@@ -58,6 +58,7 @@ public:
     bool bUseMagnoHeading = true;
     float* getAngle();
     float outputEuler[4];
+    float prev_outputEuler[4];
     float angle_shift[3];
     int getBatteryLevel();
     int battery_level;

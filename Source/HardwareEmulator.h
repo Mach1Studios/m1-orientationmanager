@@ -20,7 +20,10 @@ public:
     std::vector<M1OrientationDeviceInfo> devices;
 	float yaw = 0;
 	float pitch = 0;
-	float roll = 0; 
+	float roll = 0;
+    float prev_yaw = 0;
+    float prev_pitch = 0;
+    float prev_roll = 0;
 	bool isConnected = false;
 
     int setup() override {
@@ -30,17 +33,25 @@ public:
 
     int update() override {
         if (isConnected){
-			M1OrientationYPR newOrientation;
-			newOrientation.yaw = yaw; 
-			newOrientation.pitch = pitch; 
-			newOrientation.roll = roll; 
-			newOrientation.angleType = M1OrientationYPR::AngleType::DEGREES;
-            newOrientation.yaw_min = 0.;
-            newOrientation.yaw_max = 360.;
-			orientation.setYPR(newOrientation);
+			M1OrientationYPR new_ypr_delta;
 
             yaw = std::fmod((yaw + 0.1), 360); // fmod 360 range
             pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
+
+            new_ypr_delta.yaw = yaw - prev_yaw;
+            new_ypr_delta.pitch = pitch - prev_pitch;
+            new_ypr_delta.roll = roll - prev_roll;
+            new_ypr_delta.angleType = M1OrientationYPR::AngleType::DEGREES;
+            new_ypr_delta.yaw_min = 0.0f, new_ypr_delta.pitch_min = -180.0f, new_ypr_delta.roll_min = -180.0f;
+            new_ypr_delta.yaw_max = 360.0f, new_ypr_delta.pitch_max = 180.0f, new_ypr_delta.roll_max = 180.0f;
+
+            // apply the delta as offset
+            M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_ypr_delta);
+            orientation.offsetYPR(new_orientation_delta_normalled);
+
+            prev_yaw = yaw;
+            prev_pitch = pitch;
+            prev_roll = roll;
             return 1;
         } else {
             // return for error handling
@@ -91,8 +102,4 @@ public:
         return connectedDevice;
     }
     
-    // Callback update from the SupperwareInterface object
-//    std::vector<float> trackerChanged(const HeadMatrix& headMatrix) override {
-//
-//    }
 };

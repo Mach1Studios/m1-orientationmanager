@@ -46,6 +46,7 @@ public:
     float gyro[3];
     //angle
     float angle[3];
+    float prev_angle[3];
     //magnetic field
     float magnetic_field[3];
 

@@ -131,7 +131,7 @@ void MetaWearInterface::enable_fusion_sampling(MblMwMetaWearBoard* board) {
     auto fusion_signal = mbl_mw_sensor_fusion_get_data_signal(board, MBL_MW_SENSOR_FUSION_DATA_EULER_ANGLE);
     mbl_mw_datasignal_subscribe(fusion_signal, this, [](void* context, const MblMwData* data) -> void {
         auto *wrapper = static_cast<MetaWearInterface *>(context);
-        
+
         auto euler = (MblMwEulerAngles*)data->value;
         if (wrapper->bUseMagnoHeading){ // externally set use of magnometer to correct IMU or not
             wrapper->outputEuler[0] = euler->heading;

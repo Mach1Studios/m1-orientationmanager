@@ -42,6 +42,7 @@ public:
     
     // Public current orientation
     std::vector<float> currentOrientation;
+    std::vector<float> previousOrientation; // used to calculate delta
 
 private:
     Listener* listener;

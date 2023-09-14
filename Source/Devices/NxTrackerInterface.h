@@ -30,6 +30,7 @@ public:
     
     void sendStartCommand();
     M1OrientationQuat getRotationQuat();
+    M1OrientationQuat prev_quat; // used to calculate delta
     void recenter();
     int getBatteryLevel();
     int battery_level;
@@ -39,7 +40,7 @@ public:
 private:
     
     void updateOrientationQuat(M1OrientationQuat newValue);
-    M1OrientationQuat currentOrientationQuat;
-    
+    // Public current orientation
+    M1OrientationQuat current_quat;
     std::vector<float> parseQuatData(std::vector<uint8_t> data);
 };

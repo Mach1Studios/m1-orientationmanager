@@ -50,7 +50,6 @@ void SupperwareInterface::trackerMidiConnectionChanged(Midi::State newState)
         {
             headMatrix.zero();
         }
-        //if (listener) listener->trackerChanged(headMatrix);
     }
 }
 
@@ -59,7 +58,6 @@ void SupperwareInterface::trackerMidiConnectionChanged(Midi::State newState)
 void SupperwareInterface::trackerOrientation(float yawRadian, float pitchRadian, float rollRadian)
 {
     headMatrix.setOrientationYPR(yawRadian, pitchRadian, rollRadian);
-    //if (listener) listener->trackerChanged(headMatrix);
     
     //update public orientation
     currentOrientation.clear();
@@ -71,7 +69,6 @@ void SupperwareInterface::trackerOrientation(float yawRadian, float pitchRadian,
 void SupperwareInterface::trackerOrientationQ(float qw, float qx, float qy, float qz)
 {
     headMatrix.setOrientationQuaternion(qw, qx, qy, qz);
-    //if (listener) listener->trackerChanged(headMatrix);
     
     //update public orientation
     currentOrientation.clear();
@@ -93,9 +90,9 @@ void SupperwareInterface::connectSupperware()
     // connect/disconnect
     if (midiState == Midi::State::Available || midiState == Midi::State::Bootloader) {
         trackerDriver.connect();
-        trackerDriver.turnOn(true, true);
+        trackerDriver.turnOn(true, false);
     } else if (midiState == Midi::State::Connected) {
-        trackerDriver.turnOn(true, true);
+        trackerDriver.turnOn(true, false);
     } else {
         // Error: not available
     }

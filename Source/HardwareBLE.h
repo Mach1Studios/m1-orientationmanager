@@ -52,6 +52,10 @@ public:
     bool isConnected = false;
     bool displayOnlyKnownIMUs = true;
     
+    // previous value storage
+    M1OrientationYPR prev_ypr;
+    M1OrientationQuat prev_q;
+
     int setup() override {
         // Setup callback functions
         refreshDevices();
@@ -69,8 +73,18 @@ public:
             
             if (getConnectedDevice().getDeviceName().find("Nx Tracker") != std::string::npos) {
                 //std::cout << "[BLE] Nx Tracker device: " << getConnectedDevice().getDeviceName() << ", " << getConnectedDevice().getDeviceAddress() << ", " << std::endl;
-                M1OrientationQuat newOrientation = nxtrackerInterface.getRotationQuat();
-                orientation.setQuat(newOrientation);
+                M1OrientationQuat new_orientation_delta;
+                
+                // QInitial * QTransition = QFinal
+                // QTransition = QFinal * inverse(QInitial)
+                new_orientation_delta.wIn = nxtrackerInterface.getRotationQuat().w * nxtrackerInterface.prev_quat.w;
+                new_orientation_delta.xIn = nxtrackerInterface.getRotationQuat().x * -nxtrackerInterface.prev_quat.x;
+                new_orientation_delta.yIn = nxtrackerInterface.getRotationQuat().y * -nxtrackerInterface.prev_quat.y;
+                new_orientation_delta.zIn = nxtrackerInterface.getRotationQuat().z * -nxtrackerInterface.prev_quat.z;
+                
+                // apply the delta as offset
+                orientation.offsetQuat(new_orientation_delta);
+
                 int b = nxtrackerInterface.getBatteryLevel();
                 getConnectedDevice().batteryPercentage = b;
             }
@@ -79,13 +93,24 @@ public:
             if (getConnectedDevice().getDeviceName().find("MetaWear") != std::string::npos || getConnectedDevice().getDeviceName().find("Mach1-M") != std::string::npos) {
                 float* a = metawearInterface.getAngle(); // MMC = Y=0, P=2, R=1
                 //std::cout << "[BLE] MetaWear device: " << a[0] << ", " << a[2] << ", " << a[1] << std::endl;
-                M1OrientationYPR newOrientation;
-                newOrientation.yaw = a[0];
-                newOrientation.pitch = -a[2];
-                newOrientation.roll = -a[1];
-                newOrientation.angleType = M1OrientationYPR::DEGREES; // TODO: check this!
-                orientation.setYPR(newOrientation);
+                M1OrientationYPR new_orientation_delta;
+                new_orientation_delta.yaw = a[0] - prev_ypr.yaw;
+                new_orientation_delta.pitch = -a[2] - prev_ypr.pitch;
+                new_orientation_delta.roll = -a[1] - prev_ypr.roll;
+                new_orientation_delta.angleType = M1OrientationYPR::DEGREES;
+                new_orientation_delta.yaw_min = 0.0f, new_orientation_delta.pitch_min = -180.0f, new_orientation_delta.roll_min = -180.0f;
+                new_orientation_delta.yaw_max = 360.0f, new_orientation_delta.pitch_max = 180.0f, new_orientation_delta.roll_max = 180.0f;
+
+                // apply the delta as offset
+                M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_orientation_delta);
+                orientation.offsetYPR(new_orientation_delta_normalled);
                 
+                // update the previous for next calculation
+                prev_ypr.yaw = a[0];
+                prev_ypr.pitch = -a[2];
+                prev_ypr.roll = -a[1];
+                prev_ypr.angleType = M1OrientationYPR::DEGREES;
+
                 // Update battery percentage
                 int b = metawearInterface.getBatteryLevel();
                 getConnectedDevice().batteryPercentage = b;

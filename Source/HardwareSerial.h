@@ -8,6 +8,9 @@
 //   Connect to any device freely (some devices have specific connection requirements like the Supperware)
 //   Update devices and use name filtering again to do specific update routines
 
+// Orientation Flow:
+//   Devices can only offset the current orientation which is sent to clients
+
 #pragma once
 
 #include <JuceHeader.h>
@@ -19,7 +22,7 @@
 #include "Devices/M1Interface.h"
 #include "Devices/WitMotionInterface.h"
 
-class HardwareSerial : public HardwareAbstract/*, SupperwareInterface::Listener*/ {
+class HardwareSerial : public HardwareAbstract {
 public:
     Orientation orientation;
     M1OrientationDeviceInfo connectedDevice;
@@ -28,6 +31,10 @@ public:
     int connectedSerialPortIndex;
     bool isConnected = false;
     juce::StringPairArray portlist;
+    
+    // previous value storage for non-defined devices
+    M1OrientationYPR prev_ypr;
+    M1OrientationQuat prev_q;
 
     // Device Interfaces
     M1Interface m1Interface;
@@ -35,8 +42,6 @@ public:
     WitMotionInterface witmotionInterface;
 
     int setup() override {
-        // TODO: move the orientation update into this listener callback
-        //supperwareInterface.setListener(this);
         refreshDevices();
         return 1;
     }
@@ -57,21 +62,47 @@ public:
             /// ORIENTATION UPDATE: SUPPERWARE
             if (getConnectedDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos) {
                 if (supperwareInterface.getTrackerDriver().isConnected()) {
+                    
+                    supperwareInterface.previousOrientation.resize(supperwareInterface.currentOrientation.size());
+                    
                     if (supperwareInterface.currentOrientation.size() == 3) {
-                        M1OrientationYPR newOrientation;
-                        newOrientation.yaw = supperwareInterface.currentOrientation[0];
-                        newOrientation.pitch = supperwareInterface.currentOrientation[1];
-                        newOrientation.roll = supperwareInterface.currentOrientation[2];
-                        newOrientation.angleType = M1OrientationYPR::AngleType::DEGREES;
-                        orientation.setYPR(newOrientation);
+                        M1OrientationYPR new_orientation_delta;
+                        
+                        // calculate the delta
+                        new_orientation_delta.yaw = supperwareInterface.currentOrientation[0] - supperwareInterface.previousOrientation[0];
+                        new_orientation_delta.pitch = supperwareInterface.currentOrientation[1] - supperwareInterface.previousOrientation[1];
+                        new_orientation_delta.roll = supperwareInterface.currentOrientation[2] - supperwareInterface.previousOrientation[2];
+                        new_orientation_delta.angleType = M1OrientationYPR::AngleType::DEGREES;
+                        new_orientation_delta.yaw_min = 0.0f, new_orientation_delta.pitch_min = -180.0f, new_orientation_delta.roll_min = -180.0f;
+                        new_orientation_delta.yaw_max = 360.0f, new_orientation_delta.pitch_max = 180.0f, new_orientation_delta.roll_max = 180.0f;
+                                                
+                        // apply the delta as offset
+                        M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_orientation_delta);
+                        orientation.offsetYPR(new_orientation_delta_normalled);
+                        
+                        // update the previous for next calculation
+                        supperwareInterface.previousOrientation[0] = supperwareInterface.currentOrientation[0];
+                        supperwareInterface.previousOrientation[1] = supperwareInterface.currentOrientation[1];
+                        supperwareInterface.previousOrientation[2] = supperwareInterface.currentOrientation[2];
                         return 1;
+                        
                     } else if (supperwareInterface.currentOrientation.size() == 4) {
-                        M1OrientationQuat newOrientation;
-                        newOrientation.wIn = supperwareInterface.currentOrientation[0];
-                        newOrientation.xIn = supperwareInterface.currentOrientation[1];
-                        newOrientation.yIn = supperwareInterface.currentOrientation[2];
-                        newOrientation.zIn = supperwareInterface.currentOrientation[3];
-                        orientation.setQuat(newOrientation);
+                        M1OrientationQuat new_orientation_delta;
+                        // QInitial * QTransition = QFinal
+                        // QTransition = QFinal * inverse(QInitial)
+                        new_orientation_delta.wIn = supperwareInterface.currentOrientation[0] * supperwareInterface.previousOrientation[0];
+                        new_orientation_delta.xIn = supperwareInterface.currentOrientation[1] * -supperwareInterface.previousOrientation[1];
+                        new_orientation_delta.yIn = supperwareInterface.currentOrientation[2] * -supperwareInterface.previousOrientation[2];
+                        new_orientation_delta.zIn = supperwareInterface.currentOrientation[3] * -supperwareInterface.previousOrientation[3];
+                        
+                        // apply the delta as offset
+                        orientation.offsetQuat(new_orientation_delta);
+                        
+                        // update the previous for next calculation
+                        supperwareInterface.previousOrientation[0] = supperwareInterface.currentOrientation[0];
+                        supperwareInterface.previousOrientation[1] = supperwareInterface.currentOrientation[1];
+                        supperwareInterface.previousOrientation[2] = supperwareInterface.currentOrientation[2];
+                        supperwareInterface.previousOrientation[3] = supperwareInterface.currentOrientation[3];
                         return 1;
                     } else {
                         // error or do nothing
@@ -85,30 +116,58 @@ public:
                 /// ORIENTATION UPDATE: SERIAL
                 while ((queueString.length() > 0) || (queueBuffer.size() > 0)) {
                     /// UPDATES FOR KNOWN MACH1 IMUs
-                    if (getConnectedDevice().getDeviceName().find("Mach1-") != std::string::npos || getConnectedDevice().getDeviceName().find("HC-06-DevB") != std::string::npos || getConnectedDevice().getDeviceName().find("witDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("m1YostDevice") != std::string::npos || getConnectedDevice().getDeviceName().find("usbmodem") != std::string::npos ||
-                        getConnectedDevice().getDeviceName().find("usbmodem1434302") != std::string::npos || getConnectedDevice().getDeviceName().find("m1Device") != std::string::npos) {
+                    if (getConnectedDevice().getDeviceName().find("Mach1-") != std::string::npos || getConnectedDevice().getDeviceName().find("HC-06-DevB") != std::string::npos ||  getConnectedDevice().getDeviceName().find("usbmodem1434302") != std::string::npos || getConnectedDevice().getDeviceName().find("m1Device") != std::string::npos) {
 
                         m1Interface.updateOrientation(queueString, queueBuffer);
                         if (m1Interface.anythingNewDetected) {
-                            M1OrientationYPR newOrientation;
-                            newOrientation.yaw = m1Interface.decoded.y;
-                            newOrientation.pitch = m1Interface.decoded.p;
-                            newOrientation.roll = m1Interface.decoded.r;
-                            orientation.setYPR(newOrientation);
+                            M1OrientationYPR new_orientation_delta;
+                            
+                            // calculate the delta
+                            new_orientation_delta.yaw = m1Interface.decoded.y - m1Interface.last_decoded.y;
+                            new_orientation_delta.pitch = m1Interface.decoded.p - m1Interface.last_decoded.p;
+                            new_orientation_delta.roll = m1Interface.decoded.r - m1Interface.last_decoded.r;
+                            new_orientation_delta.angleType = M1OrientationYPR::AngleType::DEGREES;
+                            new_orientation_delta.yaw_min = -180.0f, new_orientation_delta.pitch_min = -180.0f, new_orientation_delta.roll_min = -180.0f;
+                            new_orientation_delta.yaw_max = 180.0f, new_orientation_delta.pitch_max = 180.0f, new_orientation_delta.roll_max = 180.0f;
+
+                            // apply the delta as offset
+                            M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_orientation_delta);
+                            orientation.offsetYPR(new_orientation_delta_normalled);
+                            
+                            // update the previous for next calculation
+                            m1Interface.last_decoded.y = m1Interface.decoded.y;
+                            m1Interface.last_decoded.p = m1Interface.decoded.p;
+                            m1Interface.last_decoded.r = m1Interface.decoded.r;
+
                             // cleanup
                             queueBuffer.clear();
                             queueString.clear();
                             return 1;
                         }
+                        
                     } else if (getConnectedDevice().getDeviceName().find("wit") != std::string::npos) {
                         /// UPDATES FOR WITMOTION DEVICES
                         float* witOrientationAngles = witmotionInterface.updateOrientation(readBuffer, 128);
-                        M1OrientationYPR newOrientation;
-                        newOrientation.yaw = witOrientationAngles[0];
-                        newOrientation.pitch = witOrientationAngles[1];
-                        newOrientation.roll = witOrientationAngles[2];
-                        orientation.setYPR(newOrientation);
+                        M1OrientationYPR new_orientation_delta;
+                        
+                        // calculate the delta
+                        new_orientation_delta.yaw = witOrientationAngles[0] - witmotionInterface.prev_angle[0];
+                        new_orientation_delta.pitch = witOrientationAngles[1] - witmotionInterface.prev_angle[1];
+                        new_orientation_delta.roll = witOrientationAngles[2] - witmotionInterface.prev_angle[2];
+                        new_orientation_delta.angleType = M1OrientationYPR::AngleType::DEGREES;
+                        new_orientation_delta.yaw_min = -180.0f, new_orientation_delta.pitch_min = -180.0f, new_orientation_delta.roll_min = -180.0f;
+                        new_orientation_delta.yaw_max = 180.0f, new_orientation_delta.pitch_max = 180.0f, new_orientation_delta.roll_max = 180.0f;
+                        
+                        // apply the delta as offset
+                        M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_orientation_delta);
+                        orientation.offsetYPR(new_orientation_delta_normalled);
+                        
+                        // update the previous for next calculation
+                        witmotionInterface.prev_angle[0] = witOrientationAngles[0];
+                        witmotionInterface.prev_angle[1] = witOrientationAngles[1];
+                        witmotionInterface.prev_angle[2] = witOrientationAngles[2];
                         return 1;
+                        
                     } else {
                         /// UPDATES FOR GENERIC DEVICES
                         
@@ -127,20 +186,43 @@ public:
                             juce::StringArray receivedSerialData = juce::StringArray::fromTokens(receivedSerialDataLines[i], ",", "\""); // expect delimited characters of ,
                             
                             if(receivedSerialData.size() == 4) {
-                                M1OrientationQuat newOrientation;
-                                newOrientation.wIn = receivedSerialData[0].getFloatValue();
-                                newOrientation.xIn = receivedSerialData[1].getFloatValue();
-                                newOrientation.yIn = receivedSerialData[2].getFloatValue();
-                                newOrientation.zIn = receivedSerialData[3].getFloatValue();
-                                orientation.setQuat(newOrientation);
+                                M1OrientationQuat new_orientation_delta;
+                                
+                                new_orientation_delta.wIn = receivedSerialData[0].getFloatValue() * prev_q.w;
+                                new_orientation_delta.xIn = receivedSerialData[1].getFloatValue() * -prev_q.x;
+                                new_orientation_delta.yIn = receivedSerialData[2].getFloatValue() * -prev_q.y;
+                                new_orientation_delta.zIn = receivedSerialData[3].getFloatValue() * -prev_q.z;
+                                
+                                // apply the delta as offset
+                                orientation.offsetQuat(new_orientation_delta);
+                                
+                                // update the previous for next calculation
+                                prev_q.w = receivedSerialData[0].getFloatValue();
+                                prev_q.x = receivedSerialData[1].getFloatValue();
+                                prev_q.y = receivedSerialData[2].getFloatValue();
+                                prev_q.z = receivedSerialData[3].getFloatValue();
                                 return 1;
+                                
                             } else if (receivedSerialData.size() == 3) {
-                                // TODO: for safety if previous string arrays were 4 float value captures maybe skip this? 
-                                M1OrientationYPR newOrientation;
-                                newOrientation.yaw = receivedSerialData[0].getFloatValue();
-                                newOrientation.pitch = receivedSerialData[1].getFloatValue();
-                                newOrientation.roll = receivedSerialData[2].getFloatValue();
-                                orientation.setYPR(newOrientation);
+                                M1OrientationYPR new_orientation_delta;
+                                
+                                // calculate the delta
+                                new_orientation_delta.yaw = receivedSerialData[0].getFloatValue() - prev_ypr.yaw;
+                                new_orientation_delta.pitch = receivedSerialData[1].getFloatValue() - prev_ypr.pitch;
+                                new_orientation_delta.roll = receivedSerialData[2].getFloatValue() - prev_ypr.roll;
+                                new_orientation_delta.angleType = M1OrientationYPR::AngleType::DEGREES;
+                                new_orientation_delta.yaw_min = -180.0f, new_orientation_delta.pitch_min = -180.0f, new_orientation_delta.roll_min = -180.0f;
+                                new_orientation_delta.yaw_max = 180.0f, new_orientation_delta.pitch_max = 180.0f, new_orientation_delta.roll_max = 180.0f;
+                                
+                                // apply the delta as offset
+                                M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_orientation_delta);
+                                orientation.offsetYPR(new_orientation_delta_normalled);
+                                
+                                // update the previous for next calculation
+                                prev_ypr.yaw = receivedSerialData[0].getFloatValue();
+                                prev_ypr.pitch = receivedSerialData[1].getFloatValue();
+                                prev_ypr.roll = receivedSerialData[2].getFloatValue();
+                                
                                 return 1;
                             } else {
                                 // ignore incomplete messages

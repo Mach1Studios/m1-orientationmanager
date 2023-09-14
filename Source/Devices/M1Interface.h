@@ -26,6 +26,7 @@ public:
     int trailingPoints = 4;
     float lastY = 0, lastP = 0, lastR = 0;
     CalcResult decoded;
+    CalcResult last_decoded;
     bool anythingNewDetected = false;
 
     void setDeviceTrailingPoints(int trailingpoints);

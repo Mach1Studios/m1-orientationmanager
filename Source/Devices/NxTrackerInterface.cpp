@@ -49,7 +49,8 @@ std::vector<float> NxTrackerInterface::parseQuatData(std::vector<uint8_t> data) 
 
 void NxTrackerInterface::updateOrientationQuat(M1OrientationQuat newValue) {
     // called from the notify thread in BLE
-    currentOrientationQuat = newValue; // TODO: should currentOrientationQuat be std::atomic?
+    prev_quat = current_quat;
+    current_quat = newValue; // TODO: should currentOrientationQuat be std::atomic?
 }
 
 M1OrientationQuat NxTrackerInterface::getRotationQuat() {
@@ -70,7 +71,7 @@ M1OrientationQuat NxTrackerInterface::getRotationQuat() {
                 }
         );
     }
-    return currentOrientationQuat;
+    return current_quat;
 }
 
 void NxTrackerInterface::recenter() {
