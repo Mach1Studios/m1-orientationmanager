@@ -14,10 +14,6 @@ MetaWearInterface::~MetaWearInterface()
 {
 }
 
-//SimpleBLE::Peripheral* MetaWearInterface::get_peripheral_device(){
-//    return this->peripheral;
-//}
-
 bool MetaWearInterface::set_peripheral_device(SimpleBLE::Peripheral& peripheral) {
     if (peripheral.address() == "UNKNOWN"){
         return false;

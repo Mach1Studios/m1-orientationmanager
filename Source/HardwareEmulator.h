@@ -35,19 +35,18 @@ public:
         if (isConnected){
 			M1OrientationYPR new_ypr_delta;
 
-            yaw = std::fmod((yaw + 0.1), 360); // fmod 360 range
+            yaw = std::fmod((yaw + 0.1), 180); // fmod 360 range
             pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
 
             new_ypr_delta.yaw = yaw - prev_yaw;
             new_ypr_delta.pitch = pitch - prev_pitch;
             new_ypr_delta.roll = roll - prev_roll;
             new_ypr_delta.angleType = M1OrientationYPR::AngleType::DEGREES;
-            new_ypr_delta.yaw_min = 0.0f, new_ypr_delta.pitch_min = -180.0f, new_ypr_delta.roll_min = -180.0f;
-            new_ypr_delta.yaw_max = 360.0f, new_ypr_delta.pitch_max = 180.0f, new_ypr_delta.roll_max = 180.0f;
+            new_ypr_delta.yaw_min = -180.0f, new_ypr_delta.pitch_min = -180.0f, new_ypr_delta.roll_min = -180.0f;
+            new_ypr_delta.yaw_max = 180.0f, new_ypr_delta.pitch_max = 180.0f, new_ypr_delta.roll_max = 180.0f;
 
             // apply the delta as offset
-            M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_ypr_delta);
-            orientation.offsetYPR(new_orientation_delta_normalled);
+            orientation.offsetYPR(new_ypr_delta);
 
             prev_yaw = yaw;
             prev_pitch = pitch;

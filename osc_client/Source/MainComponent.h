@@ -60,7 +60,6 @@ private:
     // Orientation Manager/Client
     void setStatus(bool success, std::string message);
     M1OrientationOSCClient m1OrientationOSCClient;
-    M1OrientationYPR currentOrientation;
     
     M1OrientationClientWindow* orientationControlWindow;
     bool showOrientationControlMenu = false;

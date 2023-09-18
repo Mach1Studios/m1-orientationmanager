@@ -46,6 +46,9 @@ Design and architecture of the project is described in the [Source](Source) dire
 - [Waves Nx Tracker IMU](https://www.waves.com/hardware/nx-head-tracker)
 - [M1 IMU](https://www.mach1.tech/products)
 - [WitMotion IMUs](https://www.wit-motion.com/) _[WIP]_
+- TODO: Webcam / Camera
+- TODO: [YostLabs IMUs](https://yostlabs.com/)
+- TODO: [OpenTrack](https://github.com/opentrack/opentrack)
 
 _Please feel free to open an issue requesting a new device with device details_
 

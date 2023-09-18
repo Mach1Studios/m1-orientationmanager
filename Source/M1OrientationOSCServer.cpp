@@ -310,7 +310,7 @@ void M1OrientationOSCServer::update() {
 
         // check if we disconnected
         if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-            M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRasUnsignedNormalled();
+            M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRasUnsignedNormalled(); // TODO: make a getDelta() function
             ypr.angleType = M1OrientationYPR::UNSIGNED_NORMALLED;
             ypr.yaw_min = 0.0f, ypr.pitch_min = 0.0f, ypr.roll_min = 0.0f;
             ypr.yaw_max = 1.0f, ypr.pitch_max = 1.0f, ypr.roll_max = 1.0f;
@@ -318,7 +318,6 @@ void M1OrientationOSCServer::update() {
             if (!getTrackingYawEnabled()) ypr.yaw = 0.0;
             if (!getTrackingPitchEnabled()) ypr.pitch = 0.0;
             if (!getTrackingRollEnabled()) ypr.roll = 0.0;
-            orientation.setYPR(ypr);
             
             // update clients
             juce::OSCMessage msg("/getOrientation");

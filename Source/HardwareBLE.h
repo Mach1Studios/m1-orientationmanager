@@ -102,15 +102,14 @@ public:
                 new_orientation_delta.yaw_max = 360.0f, new_orientation_delta.pitch_max = 180.0f, new_orientation_delta.roll_max = 180.0f;
 
                 // apply the delta as offset
-                M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_orientation_delta);
-                orientation.offsetYPR(new_orientation_delta_normalled);
-                
+                orientation.offsetYPR(new_orientation_delta);
+
                 // update the previous for next calculation
                 prev_ypr.yaw = a[0];
                 prev_ypr.pitch = -a[2];
                 prev_ypr.roll = -a[1];
                 prev_ypr.angleType = M1OrientationYPR::DEGREES;
-
+                
                 // Update battery percentage
                 int b = metawearInterface.getBatteryLevel();
                 getConnectedDevice().batteryPercentage = b;

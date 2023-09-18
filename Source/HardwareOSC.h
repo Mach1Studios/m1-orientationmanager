@@ -56,7 +56,7 @@ public:
                 new_ypr_delta.angleType = M1OrientationYPR::AngleType::DEGREES;
                 
                 // apply the delta as offset
-                M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_ypr_delta);
+                M1OrientationYPR new_orientation_delta_normalled = getUnsignedNormalled(new_ypr_delta);
                 orientation.offsetYPR(new_orientation_delta_normalled);
                 
             } else if (message.size() == 4) {
@@ -116,8 +116,7 @@ public:
             new_ypr_delta.yaw_max = 180.0f, new_ypr_delta.pitch_max = 180.0f, new_ypr_delta.roll_max = 180.0f;
             
             // apply the delta as offset
-            M1OrientationYPR new_orientation_delta_normalled = orientation.getUnsignedNormalled(new_ypr_delta);
-            orientation.offsetYPR(new_orientation_delta_normalled);
+            orientation.offsetYPR(new_ypr_delta);
 
         }
         /// GENERIC QUATERNION
