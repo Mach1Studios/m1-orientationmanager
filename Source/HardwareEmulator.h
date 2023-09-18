@@ -42,7 +42,7 @@ public:
             // increment values
             yaw = std::fmod((yaw + 0.1), 360); // fmod 360 range
             if (yaw > 180) {
-                yaw -= 180; // shift to -180
+                yaw -= 360; // shift to -180
             }
             pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
             
