@@ -22,25 +22,38 @@ public:
 	float pitch = 0;
 	float roll = 0; 
 	bool isConnected = false;
+    M1OrientationYPR current;
+    M1OrientationYPR previous;
 
     int setup() override {
         refreshDevices();
+        
+        // setup angle bounds for device
+        current.angleType = M1OrientationYPR::DEGREES;
+        current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+        current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+        current.roll_min = -180.0f; current.roll_max = 180.0f;
+        
         return 1;
     }
 
     int update() override {
         if (isConnected){
-			M1OrientationYPR newOrientation;
-			newOrientation.yaw = yaw; 
-			newOrientation.pitch = pitch; 
-			newOrientation.roll = roll; 
-			newOrientation.angleType = M1OrientationYPR::AngleType::DEGREES;
-            newOrientation.yaw_min = 0.;
-            newOrientation.yaw_max = 360.;
-			orientation.setYPR(newOrientation);
-
+            // increment values
             yaw = std::fmod((yaw + 0.1), 360); // fmod 360 range
+            if (yaw > 180) {
+                yaw -= 180; // shift to -180
+            }
             pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
+            
+            current.yaw = yaw;
+            current.pitch = pitch;
+            current.roll = roll;
+			orientation.offsetYPR(current - previous); // TODO: why does orientation == current?
+
+            // store previous value
+            previous = current;
+                        
             return 1;
         } else {
             // return for error handling

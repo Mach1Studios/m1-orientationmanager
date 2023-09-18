@@ -314,7 +314,6 @@ void M1OrientationOSCServer::update() {
             if (!getTrackingYawEnabled()) ypr.yaw = 0.0;
             if (!getTrackingPitchEnabled()) ypr.pitch = 0.0;
             if (!getTrackingRollEnabled()) ypr.roll = 0.0;
-            orientation.setYPR(ypr);
             
             // update clients
             juce::OSCMessage msg("/getOrientation");
