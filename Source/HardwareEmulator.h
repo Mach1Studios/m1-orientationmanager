@@ -49,7 +49,7 @@ public:
             current.yaw = yaw;
             current.pitch = pitch;
             current.roll = roll;
-			orientation.offsetYPR(current - previous); // TODO: why does orientation == current?
+			orientation.offsetYPR(current - previous);
 
             // store previous value
             previous = current;
