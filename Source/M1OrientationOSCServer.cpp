@@ -324,6 +324,8 @@ void M1OrientationOSCServer::update() {
             send(clients, msg);
         }
     }
+    
+    send_getDevices(clients);
 }
 
 Orientation M1OrientationOSCServer::getOrientation() {
