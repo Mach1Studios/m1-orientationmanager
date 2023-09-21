@@ -69,8 +69,10 @@ public:
             
             if (getConnectedDevice().getDeviceName().find("Nx Tracker") != std::string::npos) {
                 //std::cout << "[BLE] Nx Tracker device: " << getConnectedDevice().getDeviceName() << ", " << getConnectedDevice().getDeviceAddress() << ", " << std::endl;
+                
                 M1OrientationQuat newOrientation = nxtrackerInterface.getRotationQuat();
                 orientation.setQuat(newOrientation);
+                
                 int b = nxtrackerInterface.getBatteryLevel();
                 getConnectedDevice().batteryPercentage = b;
             }
@@ -79,12 +81,21 @@ public:
             if (getConnectedDevice().getDeviceName().find("MetaWear") != std::string::npos || getConnectedDevice().getDeviceName().find("Mach1-M") != std::string::npos) {
                 float* a = metawearInterface.getAngle(); // MMC = Y=0, P=2, R=1
                 //std::cout << "[BLE] MetaWear device: " << a[0] << ", " << a[2] << ", " << a[1] << std::endl;
-                M1OrientationYPR newOrientation;
-                newOrientation.yaw = a[0];
-                newOrientation.pitch = -a[2];
-                newOrientation.roll = -a[1];
-                newOrientation.angleType = M1OrientationYPR::DEGREES; // TODO: check this!
-                orientation.setYPR(newOrientation);
+                
+                // update current
+                current.yaw = a[0];
+                current.pitch = -a[2];
+                current.roll = -a[1];
+                
+                current.angleType = M1OrientationYPR::DEGREES;
+                current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+                current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+                current.roll_min = -180.0f; current.roll_max = 180.0f;
+                
+                orientation.offsetYPR(current - previous);
+
+                // store previous value
+                previous = current;
                 
                 // Update battery percentage
                 int b = metawearInterface.getBatteryLevel();
