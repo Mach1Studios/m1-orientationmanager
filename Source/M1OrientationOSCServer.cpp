@@ -325,6 +325,8 @@ void M1OrientationOSCServer::update() {
 			orientation.setYPR(ypr);
         }
     }
+    
+    send_getDevices(clients);
 }
 
 Orientation M1OrientationOSCServer::getOrientation() {
