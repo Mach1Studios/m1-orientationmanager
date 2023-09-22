@@ -41,11 +41,14 @@
 
 class HardwareBLE : public HardwareAbstract {
 public:
-    Orientation orientation;
     M1OrientationDeviceInfo connectedDevice;
     std::vector<M1OrientationDeviceInfo> devices;
     std::vector<SimpleBLE::Safe::Peripheral> discovered_ble_devices;
-    
+
+    Orientation orientation;
+    M1OrientationYPR current;
+    M1OrientationYPR previous;
+
     // Device Interfaces
     MetaWearInterface metawearInterface;
     NxTrackerInterface nxtrackerInterface;
