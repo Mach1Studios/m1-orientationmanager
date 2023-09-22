@@ -15,16 +15,17 @@
 
 class HardwareEmulator : public HardwareAbstract {
 public:
-    Orientation orientation;
     M1OrientationDeviceInfo connectedDevice;
     std::vector<M1OrientationDeviceInfo> devices;
-	float yaw = 0;
-	float pitch = 0;
-	float roll = 0; 
-	bool isConnected = false;
+    bool isConnected = false;
+
+    float yaw = 0;
+    float pitch = 0;
+    float roll = 0;
+    Orientation orientation;
     M1OrientationYPR current;
     M1OrientationYPR previous;
-
+    
     int setup() override {
         refreshDevices();
         
@@ -49,7 +50,7 @@ public:
             current.yaw = yaw;
             current.pitch = pitch;
             current.roll = roll;
-			orientation.offsetYPR(current - previous); // TODO: why does orientation == current?
+			orientation.offsetYPR(current - previous);
 
             // store previous value
             previous = current;

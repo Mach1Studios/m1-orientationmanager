@@ -322,7 +322,8 @@ void M1OrientationOSCServer::update() {
             msg.addFloat32(ypr.roll);
             send(clients, msg);
 
-			orientation.setYPR(ypr);
+            // commented out to avoid double applying offset angles from the get()
+			//orientation.setYPR(ypr);
         }
     }
     

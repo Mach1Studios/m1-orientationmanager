@@ -54,7 +54,7 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     auto& orientationControlButton = m.prepare<M1OrientationWindowToggleButton>({ m.getSize().width() - 40 - 5, 5, 40, 40 }).onClick([&](M1OrientationWindowToggleButton& b) {
         showOrientationControlMenu = !showOrientationControlMenu;
     })
-        .withInteractiveOrientationGimmick(m1OrientationOSCServer.getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone, m1OrientationOSCServer.getOrientation().getYPRinDegrees().yaw)
+        .withInteractiveOrientationGimmick(m1OrientationOSCServer.getConnectedDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone, m1OrientationOSCServer.getOrientation().getYPRasDegrees().yaw)
         .draw();
     
     // TODO: move this to be to the left of the orientation client window button
@@ -120,9 +120,9 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
                                      std::pair<int, int>(0, 180)
             )
             .withYPR(
-                     m1OrientationOSCServer.getOrientation().getYPRinDegrees().yaw,
-                     m1OrientationOSCServer.getOrientation().getYPRinDegrees().pitch,
-                     m1OrientationOSCServer.getOrientation().getYPRinDegrees().roll
+                     m1OrientationOSCServer.getOrientation().getYPRasDegrees().yaw,
+                     m1OrientationOSCServer.getOrientation().getYPRasDegrees().pitch,
+                     m1OrientationOSCServer.getOrientation().getYPRasDegrees().roll
             ));
             orientationControlWindow->draw();
     }
@@ -203,11 +203,11 @@ void MainComponent::draw()
     
     m.getCurrentFont()->drawString("ORIENTATION: ", offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRinDegrees().yaw), offsetX, offsetY);
+    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRasDegrees().yaw), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getYPRinDegrees().pitch), offsetX, offsetY);
+    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getYPRasDegrees().pitch), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getYPRinDegrees().roll), offsetX, offsetY);
+    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getYPRasDegrees().roll), offsetX, offsetY);
     
     offsetY += 30;
     

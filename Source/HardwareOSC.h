@@ -10,10 +10,13 @@
 
 class HardwareOSC : public HardwareAbstract, private juce::OSCReceiver, private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback> {
 public:
-    Orientation orientation;
     M1OrientationDeviceInfo connectedDevice;
     std::vector<M1OrientationDeviceInfo> devices;
     bool isConnected = false;
+
+    Orientation orientation;
+    M1OrientationYPR current;
+    M1OrientationYPR previous;
 
     bool connectOscReceiver(int new_port) {
         if (isConnected) {
@@ -30,24 +33,31 @@ public:
 
     void oscMessageReceived(const juce::OSCMessage& message) override {
         /// GENERIC YPR
-        M1OrientationYPR newOrientationYPR;
-        M1OrientationQuat newOrientationQuat;
         
         /// Custom address pattern
         if (connectedDevice.osc_msg_addr_pttrn != "" && connectedDevice.osc_msg_addr_pttrn != "/orientation") {
             if (message.size() <= 3) {
                 // we still allow just yaw or just yaw & pitch messages
                 if (message[0].isFloat32()) {
-                    newOrientationYPR.yaw = message[0].getFloat32();
+                    current.yaw = message[0].getFloat32();
                 }
                 if (message.size() <= 2 && message[1].isFloat32()) {
-                    newOrientationYPR.pitch = message[1].getFloat32();
+                    current.pitch = message[1].getFloat32();
                 }
                 if (message.size() <= 3 && message[2].isFloat32()) {
-                    newOrientationYPR.roll = message[2].getFloat32();
+                    current.roll = message[2].getFloat32();
                 }
-                newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
-                orientation.setYPR(newOrientationYPR);
+
+                current.angleType = M1OrientationYPR::DEGREES;
+                current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+                current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+                current.roll_min = -180.0f; current.roll_max = 180.0f;
+                
+                orientation.offsetYPR(current - previous);
+
+                // store previous value
+                previous = current;
+                
             } else if (message.size() == 4) {
                 // we dont check for partial messages as quaternion requires all 4 for calculation
                 if (message[0].isFloat32()) {
@@ -80,16 +90,24 @@ public:
              message.getAddressPattern().toString().toStdString().find("xyz") != std::string::npos ||
              message.getAddressPattern().toString().toStdString().find("ypr") != std::string::npos) && message.size() == 3) {
             if (message[0].isFloat32()) {
-                newOrientationYPR.yaw = message[0].getFloat32();
+                current.yaw = message[0].getFloat32();
             }
             if (message[1].isFloat32()) {
-                newOrientationYPR.pitch = message[1].getFloat32();
+                current.pitch = message[1].getFloat32();
             }
             if (message[2].isFloat32()) {
-                newOrientationYPR.roll = message[2].getFloat32();
+                current.roll = message[2].getFloat32();
             }
-            newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
-            orientation.setYPR(newOrientationYPR);
+            
+            current.angleType = M1OrientationYPR::DEGREES;
+            current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+            current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+            current.roll_min = -180.0f; current.roll_max = 180.0f;
+            
+            orientation.offsetYPR(current - previous);
+
+            // store previous value
+            previous = current;
         }
         /// GENERIC QUATERNION
         else if ((message.getAddressPattern().toString().toStdString().find("quat") != std::string::npos || message.getAddressPattern().toString().toStdString().find("/quaternion") != std::string::npos) && message.size() == 4) {
@@ -120,21 +138,38 @@ public:
             // [0] Pitch 0->270 up | 0->90 down
             // [1] Yaw 0->360
             // [2] Roll 0->270 left | 0->90 right
-            newOrientationYPR.yaw = message[1].getFloat32() / 360;
-            newOrientationYPR.pitch = (((((message[0].getFloat32() > 180.) ? abs(message[0].getFloat32() - 360.) : -message[0].getFloat32()))) * -1. + 90. ) / 180.;
-            newOrientationYPR.roll = (((((message[2].getFloat32() > 180.) ? abs(message[2].getFloat32() - 360.) : message[2].getFloat32()))) * -1. + 90. ) / 180.;
-            newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
-            orientation.setYPR(newOrientationYPR);
+            current.yaw = message[1].getFloat32() / 360;
+            current.pitch = (((((message[0].getFloat32() > 180.) ? abs(message[0].getFloat32() - 360.) : -message[0].getFloat32()))) * -1. + 90. ) / 180.;
+            current.roll = (((((message[2].getFloat32() > 180.) ? abs(message[2].getFloat32() - 360.) : message[2].getFloat32()))) * -1. + 90. ) / 180.;
+            
+            current.angleType = M1OrientationYPR::DEGREES;
+            current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+            current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+            current.roll_min = -180.0f; current.roll_max = 180.0f;
+            
+            orientation.offsetYPR(current - previous);
+
+            // store previous value
+            previous = current;
+            
         }
         /// TouchOSC
         else if ((message.getAddressPattern().toString() == "/accxyz") && message.size() == 3) {
             // TODO: parse accelerometer into primitive rotation data
             // Warning: this does not yet represent orientation
-            newOrientationYPR.yaw = (((-1. - 1.) / (0. - 1.)) * ((message[0].getFloat32() - 360.) + 360.));
-            newOrientationYPR.pitch = (((-1. - 1.) / (-180. - 1.)) * ((message[1].getFloat32() - 180.) + 180.));
-            newOrientationYPR.roll = (((-1. - 1.) / (-180. - 1.)) * ((message[2].getFloat32() - 180.) + 180.));
-            newOrientationYPR.angleType = M1OrientationYPR::AngleType::SIGNED_NORMALLED;
-            orientation.setYPR(newOrientationYPR);
+            current.yaw = (((-1. - 1.) / (0. - 1.)) * ((message[0].getFloat32() - 360.) + 360.));
+            current.pitch = (((-1. - 1.) / (-180. - 1.)) * ((message[1].getFloat32() - 180.) + 180.));
+            current.roll = (((-1. - 1.) / (-180. - 1.)) * ((message[2].getFloat32() - 180.) + 180.));
+            
+            current.angleType = M1OrientationYPR::DEGREES;
+            current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+            current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+            current.roll_min = -180.0f; current.roll_max = 180.0f;
+            
+            orientation.offsetYPR(current - previous);
+
+            // store previous value
+            previous = current;
         }
     }
 

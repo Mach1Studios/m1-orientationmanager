@@ -21,13 +21,16 @@
 
 class HardwareSerial : public HardwareAbstract/*, SupperwareInterface::Listener*/ {
 public:
-    Orientation orientation;
     M1OrientationDeviceInfo connectedDevice;
     std::vector<M1OrientationDeviceInfo> devices;
     int baudRate = 115200;
     int connectedSerialPortIndex;
     bool isConnected = false;
     juce::StringPairArray portlist;
+    
+    Orientation orientation;
+    M1OrientationYPR current;
+    M1OrientationYPR previous;
 
     // Device Interfaces
     M1Interface m1Interface;
@@ -58,12 +61,20 @@ public:
             if (getConnectedDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos) {
                 if (supperwareInterface.getTrackerDriver().isConnected()) {
                     if (supperwareInterface.currentOrientation.size() == 3) {
-                        M1OrientationYPR newOrientation;
-                        newOrientation.yaw = supperwareInterface.currentOrientation[0];
-                        newOrientation.pitch = supperwareInterface.currentOrientation[1];
-                        newOrientation.roll = supperwareInterface.currentOrientation[2];
-                        newOrientation.angleType = M1OrientationYPR::AngleType::DEGREES;
-                        orientation.setYPR(newOrientation);
+                        // update current
+                        current.yaw = supperwareInterface.currentOrientation[0];
+                        current.pitch = supperwareInterface.currentOrientation[1];
+                        current.roll = supperwareInterface.currentOrientation[2];
+                        
+                        current.angleType = M1OrientationYPR::DEGREES;
+                        current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+                        current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+                        current.roll_min = -180.0f; current.roll_max = 180.0f;
+                        
+                        orientation.offsetYPR(current - previous);
+                        
+                        // store previous value
+                        previous = current;
                         return 1;
                     } else if (supperwareInterface.currentOrientation.size() == 4) {
                         M1OrientationQuat newOrientation;
@@ -90,11 +101,22 @@ public:
 
                         m1Interface.updateOrientation(queueString, queueBuffer);
                         if (m1Interface.anythingNewDetected) {
-                            M1OrientationYPR newOrientation;
-                            newOrientation.yaw = m1Interface.decoded.y;
-                            newOrientation.pitch = m1Interface.decoded.p;
-                            newOrientation.roll = m1Interface.decoded.r;
-                            orientation.setYPR(newOrientation);
+
+                            // update current
+                            current.yaw = m1Interface.decoded.y;
+                            current.pitch = m1Interface.decoded.p;
+                            current.roll = m1Interface.decoded.r;
+                            
+                            current.angleType = M1OrientationYPR::DEGREES;
+                            current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+                            current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+                            current.roll_min = -180.0f; current.roll_max = 180.0f;
+                            
+                            orientation.offsetYPR(current - previous);
+                            
+                            // store previous value
+                            previous = current;
+                            
                             // cleanup
                             queueBuffer.clear();
                             queueString.clear();
@@ -103,11 +125,21 @@ public:
                     } else if (getConnectedDevice().getDeviceName().find("wit") != std::string::npos) {
                         /// UPDATES FOR WITMOTION DEVICES
                         float* witOrientationAngles = witmotionInterface.updateOrientation(readBuffer, 128);
-                        M1OrientationYPR newOrientation;
-                        newOrientation.yaw = witOrientationAngles[0];
-                        newOrientation.pitch = witOrientationAngles[1];
-                        newOrientation.roll = witOrientationAngles[2];
-                        orientation.setYPR(newOrientation);
+                        // update current
+                        current.yaw = witOrientationAngles[0];
+                        current.pitch = witOrientationAngles[1];
+                        current.roll = witOrientationAngles[2];
+                        
+                        current.angleType = M1OrientationYPR::DEGREES;
+                        current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+                        current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+                        current.roll_min = -180.0f; current.roll_max = 180.0f;
+                        
+                        orientation.offsetYPR(current - previous);
+                        
+                        // store previous value
+                        previous = current;
+                        
                         return 1;
                     } else {
                         /// UPDATES FOR GENERIC DEVICES
@@ -136,11 +168,21 @@ public:
                                 return 1;
                             } else if (receivedSerialData.size() == 3) {
                                 // TODO: for safety if previous string arrays were 4 float value captures maybe skip this? 
-                                M1OrientationYPR newOrientation;
-                                newOrientation.yaw = receivedSerialData[0].getFloatValue();
-                                newOrientation.pitch = receivedSerialData[1].getFloatValue();
-                                newOrientation.roll = receivedSerialData[2].getFloatValue();
-                                orientation.setYPR(newOrientation);
+                                // update current
+                                current.yaw = receivedSerialData[0].getFloatValue();
+                                current.pitch = receivedSerialData[1].getFloatValue();
+                                current.roll = receivedSerialData[2].getFloatValue();
+                                
+                                current.angleType = M1OrientationYPR::DEGREES;
+                                current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+                                current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+                                current.roll_min = -180.0f; current.roll_max = 180.0f;
+                                
+                                orientation.offsetYPR(current - previous);
+                                
+                                // store previous value
+                                previous = current;
+                                
                                 return 1;
                             } else {
                                 // ignore incomplete messages
