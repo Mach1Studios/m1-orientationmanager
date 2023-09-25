@@ -60,27 +60,28 @@ public:
                 
             } else if (message.size() == 4) {
                 // we dont check for partial messages as quaternion requires all 4 for calculation
+                M1OrientationQuat newQuat;
                 if (message[0].isFloat32()) {
-                    newOrientationQuat.wIn = message[0].getFloat32();
+                    newQuat.wIn = message[0].getFloat32();
                 } else {
                     // skip
                 }
                 if (message[1].isFloat32()) {
-                    newOrientationQuat.xIn = message[1].getFloat32();
+                    newQuat.xIn = message[1].getFloat32();
                 } else {
                     // skip
                 }
                 if (message[2].isFloat32()) {
-                    newOrientationQuat.yIn = message[2].getFloat32();
+                    newQuat.yIn = message[2].getFloat32();
                 } else {
                     // skip
                 }
                 if (message[3].isFloat32()) {
-                    newOrientationQuat.zIn = message[3].getFloat32();
+                    newQuat.zIn = message[3].getFloat32();
                 } else {
                     // skip
                 }
-                orientation.setQuat(newOrientationQuat);
+                orientation.setQuat(newQuat);
             } else {
                 // return warning or error that we do not know how to parse this message
             }
@@ -111,27 +112,28 @@ public:
         }
         /// GENERIC QUATERNION
         else if ((message.getAddressPattern().toString().toStdString().find("quat") != std::string::npos || message.getAddressPattern().toString().toStdString().find("/quaternion") != std::string::npos) && message.size() == 4) {
+            M1OrientationQuat newQuat;
             if (message[0].isFloat32()) {
-                newOrientationQuat.wIn = message[0].getFloat32();
+                newQuat.wIn = message[0].getFloat32();
             } else {
                 // skip
             }
             if (message[1].isFloat32()) {
-                newOrientationQuat.xIn = message[1].getFloat32();
+                newQuat.xIn = message[1].getFloat32();
             } else {
                 // skip
             }
             if (message[2].isFloat32()) {
-                newOrientationQuat.yIn = message[2].getFloat32();
+                newQuat.yIn = message[2].getFloat32();
             } else {
                 // skip
             }
             if (message[3].isFloat32()) {
-                newOrientationQuat.zIn = message[3].getFloat32();
+                newQuat.zIn = message[3].getFloat32();
             } else {
                 // skip
             }
-            orientation.setQuat(newOrientationQuat);
+            orientation.setQuat(newQuat);
         }
         /// BoseAR
         else if ((message.getAddressPattern().toString() == "/bosear/sensors/rotation_six_dof" || message.getAddressPattern().toString() == "/bosear/sensors/rotation_nine_dof") && message.size() == 3) {
