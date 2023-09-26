@@ -11,7 +11,6 @@ MainComponent::MainComponent()
     // Make sure you set the size of the component after
     // you add any child components.
     juce::OpenGLAppComponent::setSize(800, 600);
-
 }
 
 MainComponent::~MainComponent()
@@ -161,7 +160,7 @@ void MainComponent::initialise()
     }
     settingsFile = settingsFile.getChildFile("settings.json");
     DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
-    m1OrientationOSCServer.initFromSettings(settingsFile.getFullPathName().toStdString(), true);
+    m1OrientationOSCServer.initFromSettings(settingsFile.getFullPathName().toStdString());
     
     // For debug testing you can set this to false to list all connectable BLE devices
     hardwareBLE.displayOnlyKnownIMUs = true;

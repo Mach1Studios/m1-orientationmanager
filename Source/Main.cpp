@@ -52,7 +52,7 @@ public:
                     settingsFilePath = (m1SupportDirectory.getFullPathName()+"/Mach1/settings.json").toStdString();
                 }
 
-                if (m1OrientationOSCServer.initFromSettings(settingsFilePath, true)) {
+                if (m1OrientationOSCServer.initFromSettings(settingsFilePath)) {
 				   hardwareBLE.displayOnlyKnownIMUs = true;
 				   hardwareBLE.setup();
 				   hardwareSerial.setup();
