@@ -38,6 +38,7 @@ bld/
 
 ## Build generated
 build/
+build-dev/
 DerivedData/
 
 ## Various settings

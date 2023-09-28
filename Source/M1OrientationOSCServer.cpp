@@ -283,6 +283,7 @@ bool M1OrientationOSCServer::init(int serverPort) {
 
         this->serverPort = serverPort;
         this->isRunning = true;
+        return true;
     }
     else {
         return false;
