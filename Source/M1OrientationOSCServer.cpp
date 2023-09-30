@@ -28,6 +28,9 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         juce::OSCSender sender;
         if (sender.connect("127.0.0.1", port)) {
             juce::OSCMessage msg("/connectedToServer");
+            std::vector<float> empty = {0, 0, 0};
+            client_ypr.push_back(empty); // resizing the receiving values
+            msg.addInt32(clients.size()-1); // send ID for multiple clients to send commands
             sender.send(msg);
         }
 
@@ -76,14 +79,19 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             }
         }
     }
-    else if (message.getAddressPattern() == "/setMonitorYPR") {
-        // receiving updated monitor YPR and mode
-        // Note: It is expected that the orientation manager receives orientation and sends it to a client and for the client to offset this orientation before sending it back to registered plugins, the adding of all orientations should happen on client side only
+    else if (message.getAddressPattern() == "/setMonitorMode") {
+        // receiving updated monitor mode
         monitor_mode = message[0].getInt32();
-        monitor_yaw = message[1].getFloat32();
-        monitor_pitch = message[2].getFloat32();
-        monitor_roll = message[3].getFloat32();
-        DBG("[Monitor] Mode: "+std::to_string(monitor_mode)+", YPR="+std::to_string(monitor_yaw)+", "+std::to_string(monitor_pitch)+", "+std::to_string(monitor_roll));
+        DBG("[Monitor] Mode: "+std::to_string(monitor_mode));
+    }
+    else if (message.getAddressPattern() == "/setOffsetYPR") {
+        // receiving updated client YPR
+        // Note: It is expected that the orientation manager receives orientation and sends it to a client and for the client to offset this orientation before sending it back to registered plugins, the adding of all orientations should happen on client side only
+        int client_id = message[0].getInt32(); // which client
+        client_ypr[client_id][0] = message[1].getFloat32(); // yaw
+        client_ypr[client_id][1] = message[2].getFloat32(); // pitch
+        client_ypr[client_id][2] = message[3].getFloat32(); // roll
+        DBG("[Client] YPR="+std::to_string(client_ypr[client_id][0])+", "+std::to_string(client_ypr[client_id][1])+", "+std::to_string(client_ypr[client_id][2]));
         // this is used to update the orientation on the manager before passing back to any registered plugins via the "/monitor-settings" address
     }
     else if (message.getAddressPattern() == "/m1-register-plugin") {

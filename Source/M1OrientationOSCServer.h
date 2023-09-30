@@ -55,7 +55,7 @@ class M1OrientationOSCServer :
     int watcherPort = 0;
     bool isRunning = false;
     
-    float monitor_yaw, monitor_pitch, monitor_roll;
+    std::vector< std::vector<float> > client_ypr;
     int monitor_mode = 0;
 
     bool bTrackingYawEnabled = true;
@@ -114,9 +114,9 @@ public:
             for (auto &i: registeredPlugins) {
                 juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-settings"));
                 m.addInt32(monitor_mode);
-                m.addFloat32(monitor_yaw); // expected normalised
-                m.addFloat32(monitor_pitch); // expected normalised
-                m.addFloat32(monitor_roll); // expected normalised
+                m.addFloat32(orientation.getYPRasUnsignedNormalled().yaw); // expected normalised
+                m.addFloat32(orientation.getYPRasUnsignedNormalled().pitch); // expected normalised
+                m.addFloat32(orientation.getYPRasUnsignedNormalled().roll); // expected normalised
                 //m.addInt32(monitor_output_mode); // TODO: add the output configuration to sync plugins when requested
                 i.messageSender->send(m);
             }
