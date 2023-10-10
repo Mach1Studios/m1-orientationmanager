@@ -69,12 +69,12 @@ public:
     void initialise (const juce::String& commandLine) override
     {
         // This method is where you should put your application's initialisation code..
-		if (!JUCEApplicationBase::getCommandLineParameterArray().indexOf("--no-gui") >= 0) {
-			std::thread(M1OrientationService).detach();
-			juce::MessageManager::getInstance()->runDispatchLoop();
-		} else {
-            mainWindow.reset(new MainWindow(getApplicationName()));
-        }
+#if defined(GUI_APP)
+        mainWindow.reset(new MainWindow(getApplicationName()));
+#else
+        std::thread(M1OrientationService).detach();
+        juce::MessageManager::getInstance()->runDispatchLoop();
+#endif
     }
 
     void shutdown() override
@@ -151,7 +151,13 @@ private:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-#if defined(SERVICE) && defined(JUCE_WINDOWS)
+//==============================================================================
+
+#if defined(GUI_APP)
+    START_JUCE_APPLICATION (M1OrientationDeviceServerApplication)
+
+//==============================================================================
+#elif defined(JUCE_WINDOWS)
 
 #include <Windows.h>
 #include <iostream>
@@ -232,7 +238,8 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-#elif defined(SERVICE) && defined(JUCE_MAC)
+//==============================================================================
+#elif defined(JUCE_MAC)
 
 #include <iostream>
 #include <signal.h>
@@ -260,6 +267,7 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
+//==============================================================================
 #else
 	START_JUCE_APPLICATION (M1OrientationDeviceServerApplication)
 #endif
