@@ -31,7 +31,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
                 juce::OSCMessage msg("/connectedToServer");
                 if (client.type == "monitor") {
                     monitors.push_back(client);
-                    command_manageMonitorClients();
+                    command_activateClients();
                     DBG("Number of monitors registered: "+monitors.size());
                 } else {
                     // add new client
@@ -62,7 +62,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
                         // search monitors and remove the same matching port
                         if (monitors[m_index].port == message[0].getInt32()) {
                             monitors.erase(monitors.begin() + m_index);
-                            command_manageMonitorClients();
+                            command_activateClients();
                             DBG("Number of monitors registered: "+monitors.size());
                         }
                     }
