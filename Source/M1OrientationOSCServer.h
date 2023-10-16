@@ -41,6 +41,7 @@ struct find_plugin
 
 struct M1OrientationClientConnection {
     int port;
+    std::string type = "";
     juce::int64 time;
 };
 
@@ -55,8 +56,9 @@ class M1OrientationOSCServer :
     int watcherPort = 0;
     bool isRunning = false;
     
-    std::vector< std::vector<float> > client_ypr;
-    int monitor_mode = 0;
+    std::vector< std::vector<float> > client_offset_ypr;
+    float master_yaw = 0; float master_pitch = 0; float master_roll = 0;
+    int master_mode = 0;
 
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
@@ -68,6 +70,7 @@ class M1OrientationOSCServer :
 
     void send_getDevices(const std::vector<M1OrientationClientConnection>& clients);
     void send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients);
+    void send_getConnectedClients(const std::vector<M1OrientationClientConnection>& clients);
     void send_getTrackingYawEnabled(const std::vector<M1OrientationClientConnection>& clients);
     void send_getTrackingPitchEnabled(const std::vector<M1OrientationClientConnection>& clients);
     void send_getTrackingRollEnabled(const std::vector<M1OrientationClientConnection>& clients);
@@ -81,13 +84,11 @@ public:
     virtual ~M1OrientationOSCServer();
 
     bool init(int serverPort, int watcherPort, bool useWatcher);
+    void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
 
     void update();
 
     Orientation getOrientation();
-
-    void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
-
     std::vector<M1OrientationClientConnection> getClients();
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getConnectedDevice();
@@ -113,10 +114,10 @@ public:
         if (registeredPlugins.size() > 0) {
             for (auto &i: registeredPlugins) {
                 juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-settings"));
-                m.addInt32(monitor_mode);
-                m.addFloat32(orientation.getYPRasUnsignedNormalled().yaw); // expected normalised
-                m.addFloat32(orientation.getYPRasUnsignedNormalled().pitch); // expected normalised
-                m.addFloat32(orientation.getYPRasUnsignedNormalled().roll); // expected normalised
+                m.addInt32(master_mode);
+                m.addFloat32(master_yaw); // expected normalised
+                m.addFloat32(master_pitch); // expected normalised
+                m.addFloat32(master_roll); // expected normalised
                 //m.addInt32(monitor_output_mode); // TODO: add the output configuration to sync plugins when requested
                 i.messageSender->send(m);
             }

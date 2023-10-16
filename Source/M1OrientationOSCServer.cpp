@@ -9,6 +9,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     if (message.getAddressPattern() == "/addClient") {
         // add client to clients list
         int port = message[0].getInt32();
+        std::string type = message[1].getString().toStdString();
         bool found = false;
 
         for (auto& client : clients) {
@@ -21,22 +22,33 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         if (!found) {
             M1OrientationClientConnection client;
             client.port = port;
+            client.type = type;
             client.time = juce::Time::currentTimeMillis();
             clients.push_back(client);
+            
+            juce::OSCSender sender;
+            if (sender.connect("127.0.0.1", port)) {
+                juce::OSCMessage msg("/connectedToServer");
+                
+                if (client.type == "monitor") {
+                    // if monitor type -> checkMonitorClients()
+                    // send a deactivate message if 2nd or more of matching type is found
+                    // TODO: implement here
+                } else {
+                    // add new client
+                    std::vector<float> empty = {0, 0, 0};
+                    client_offset_ypr.push_back(empty); // resizing the receiving values
+                    msg.addInt32(clients.size()-1); // send ID for multiple clients to send commands
+                }
+                // use removeDevice or a timer to check if things changed for new 1st monitor
+                sender.send(msg);
+            }
         }
 
-        juce::OSCSender sender;
-        if (sender.connect("127.0.0.1", port)) {
-            juce::OSCMessage msg("/connectedToServer");
-            std::vector<float> empty = {0, 0, 0};
-            client_ypr.push_back(empty); // resizing the receiving values
-            msg.addInt32(clients.size()-1); // send ID for multiple clients to send commands
-            sender.send(msg);
-        }
-
-        std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, 0 } };
+        std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, "", 0 } };
         send_getDevices(clients);
         send_getCurrentDevice(clients);
+        send_getConnectedClients(clients);
         send_getTrackingYawEnabled(clients);
         send_getTrackingPitchEnabled(clients);
         send_getTrackingRollEnabled(clients);
@@ -78,21 +90,21 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
                 clients.erase(clients.begin() + index);
             }
         }
+        send_getConnectedClients(clients);
     }
-    else if (message.getAddressPattern() == "/setMonitorMode") {
-        // receiving updated monitor mode
-        monitor_mode = message[0].getInt32();
-        DBG("[Monitor] Mode: "+std::to_string(monitor_mode));
+    else if (message.getAddressPattern() == "/setMonitoringMode") {
+        // receiving updated monitoring mode or other misc settings for clients
+        master_mode = message[0].getInt32();
+        DBG("[Monitor] Mode: "+std::to_string(master_mode));
     }
     else if (message.getAddressPattern() == "/setOffsetYPR") {
         // receiving updated client YPR
         // Note: It is expected that the orientation manager receives orientation and sends it to a client and for the client to offset this orientation before sending it back to registered plugins, the adding of all orientations should happen on client side only
-        int client_id = message[0].getInt32(); // which client
-        client_ypr[client_id][0] = message[1].getFloat32(); // yaw
-        client_ypr[client_id][1] = message[2].getFloat32(); // pitch
-        client_ypr[client_id][2] = message[3].getFloat32(); // roll
-        DBG("[Client] YPR="+std::to_string(client_ypr[client_id][0])+", "+std::to_string(client_ypr[client_id][1])+", "+std::to_string(client_ypr[client_id][2]));
-        // this is used to update the orientation on the manager before passing back to any registered plugins via the "/monitor-settings" address
+        int client_id = message[0].getInt32(); // use the client port to id the client
+        client_offset_ypr[client_id][0] = message[1].getFloat32(); // yaw
+        client_offset_ypr[client_id][1] = message[2].getFloat32(); // pitch
+        client_offset_ypr[client_id][2] = message[3].getFloat32(); // roll
+        DBG("[Client] YPR="+std::to_string(client_offset_ypr[client_id][0])+", "+std::to_string(client_offset_ypr[client_id][1])+", "+std::to_string(client_offset_ypr[client_id][2]));
     }
     else if (message.getAddressPattern() == "/m1-register-plugin") {
         // registering new panner instance
@@ -144,6 +156,11 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         } else {
             // port not found, error here
         }
+    }
+    else if (message.getAddressPattern() == "/setMasterYPR") {
+        master_yaw = message[0].getFloat32();
+        master_pitch = message[1].getFloat32();
+        master_roll = message[2].getFloat32();
     }
     else {
         DBG("OSC Message not implemented: " + message.getAddressPattern().toString());
@@ -204,6 +221,17 @@ void M1OrientationOSCServer::send_getCurrentDevice(const std::vector<M1Orientati
     }
     else {
         msg.addInt32(0);
+    }
+    send(clients, msg);
+}
+
+void M1OrientationOSCServer::send_getConnectedClients(const std::vector<M1OrientationClientConnection>& clients) {
+    juce::OSCMessage msg("/getConnectedClients");
+    
+    for (int i = 0; i < clients.size(); i++) {
+        msg.addInt32(i); // client index
+        msg.addInt32(clients[i].port);
+        msg.addString(clients[i].type);
     }
     send(clients, msg);
 }
