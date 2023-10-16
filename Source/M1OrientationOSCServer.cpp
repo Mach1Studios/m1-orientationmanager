@@ -467,14 +467,14 @@ void M1OrientationOSCServer::command_updateOscDevice(int new_port, std::string n
     }
 }
 
-void M1OrientationOSCServer::command_manageMonitorClients() {
+void M1OrientationOSCServer::command_activateClients() {
     // TODO: add function for checking for stalled clients that did not properly remove themselves from list
     
     if (monitors.size() > 0) {
         // send activate message to 1st index
         juce::OSCSender sender;
         if (sender.connect("127.0.0.1", monitors[0].port)) {
-            juce::OSCMessage msg("/m1-active");
+            juce::OSCMessage msg("/client-active");
             msg.addInt32(1); // send true / activate message
             sender.send(msg);
         }
@@ -482,7 +482,7 @@ void M1OrientationOSCServer::command_manageMonitorClients() {
         if (monitors.size() > 1) {
             for (int i = 1; i < monitors.size(); i++) {
                 if (sender.connect("127.0.0.1", monitors[i].port)) {
-                    juce::OSCMessage msg("/m1-active");
+                    juce::OSCMessage msg("/client-active");
                     msg.addInt32(0); // send false / de-activate message
                     sender.send(msg);
                 }

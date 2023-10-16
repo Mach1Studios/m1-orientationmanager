@@ -107,7 +107,7 @@ public:
     void command_recenter();
     void command_disconnect();
     
-    void command_manageMonitorClients();
+    void command_activateClients();
     
     // Tracking for any plugin that does not need an m1_orientation_client but still needs feedback of orientation for UI purposes such as the M1-Panner plugin
     std::vector<M1RegisteredPlugin> registeredPlugins;
