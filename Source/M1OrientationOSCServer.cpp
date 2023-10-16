@@ -29,19 +29,18 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             juce::OSCSender sender;
             if (sender.connect("127.0.0.1", port)) {
                 juce::OSCMessage msg("/connectedToServer");
-                
                 if (client.type == "monitor") {
-                    // if monitor type -> checkMonitorClients()
-                    // send a deactivate message if 2nd or more of matching type is found
-                    // TODO: implement here
+                    monitors.push_back(client);
+                    command_manageMonitorClients();
+                    DBG("Number of monitors registered: "+monitors.size());
                 } else {
                     // add new client
                     std::vector<float> empty = {0, 0, 0};
                     client_offset_ypr.push_back(empty); // resizing the receiving values
-                    msg.addInt32(clients.size()-1); // send ID for multiple clients to send commands
                 }
-                // use removeDevice or a timer to check if things changed for new 1st monitor
+                msg.addInt32(clients.size()-1); // send ID for multiple clients to send commands
                 sender.send(msg);
+                DBG("Number of clients registered: "+clients.size());
             }
         }
 
@@ -52,6 +51,28 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         send_getTrackingYawEnabled(clients);
         send_getTrackingPitchEnabled(clients);
         send_getTrackingRollEnabled(clients);
+    }
+    else if (message.getAddressPattern() == "/removeClient") {
+        int search_port = message[0].getInt32();
+        for (int index = 0; index < clients.size(); index++) {
+            if (clients[index].port == message[0].getInt32()) {
+                if (clients[index].type == "monitor") {
+                    // if the removed type is monitor
+                    for (int m_index = 0; m_index < clients.size(); m_index++) {
+                        // search monitors and remove the same matching port
+                        if (monitors[m_index].port == message[0].getInt32()) {
+                            monitors.erase(monitors.begin() + m_index);
+                            command_manageMonitorClients();
+                            DBG("Number of monitors registered: "+monitors.size());
+                        }
+                    }
+                }
+                // remove the client from the list
+                clients.erase(clients.begin() + index);
+                DBG("Number of clients registered: "+clients.size());
+            }
+        }
+        send_getConnectedClients(clients);
     }
     else if (message.getAddressPattern() == "/refreshDevices") {
         command_refreshDevices();
@@ -82,15 +103,6 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     }
     else if (message.getAddressPattern() == "/disconnect") {
         command_disconnect();
-    }
-    else if (message.getAddressPattern() == "/removeClient") {
-        int search_port = message[0].getInt32();
-        for (int index = 0; index < clients.size(); index++) {
-            if (clients[index].port = message[0].getInt32()) {
-                clients.erase(clients.begin() + index);
-            }
-        }
-        send_getConnectedClients(clients);
     }
     else if (message.getAddressPattern() == "/setMonitoringMode") {
         // receiving updated monitoring mode or other misc settings for clients
@@ -158,6 +170,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         }
     }
     else if (message.getAddressPattern() == "/setMasterYPR") {
+        // Used for relaying a master calculated orientation to registered plugins that require this for GUI systems
         master_yaw = message[0].getFloat32();
         master_pitch = message[1].getFloat32();
         master_roll = message[2].getFloat32();
@@ -450,6 +463,30 @@ void M1OrientationOSCServer::command_updateOscDevice(int new_port, std::string n
         if (currentDevice.osc_msg_addr_pttrn != new_msg_address_pattern) {
             // update custom message pattern
             currentDevice.osc_msg_addr_pttrn = new_msg_address_pattern;
+        }
+    }
+}
+
+void M1OrientationOSCServer::command_manageMonitorClients() {
+    // TODO: add function for checking for stalled clients that did not properly remove themselves from list
+    
+    if (monitors.size() > 0) {
+        // send activate message to 1st index
+        juce::OSCSender sender;
+        if (sender.connect("127.0.0.1", monitors[0].port)) {
+            juce::OSCMessage msg("/m1-active");
+            msg.addInt32(1); // send true / activate message
+            sender.send(msg);
+        }
+        // from 2nd index onward send a de-activate message
+        if (monitors.size() > 1) {
+            for (int i = 1; i < monitors.size(); i++) {
+                if (sender.connect("127.0.0.1", monitors[i].port)) {
+                    juce::OSCMessage msg("/m1-active");
+                    msg.addInt32(0); // send false / de-activate message
+                    sender.send(msg);
+                }
+            }
         }
     }
 }
