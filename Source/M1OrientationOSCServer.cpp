@@ -29,6 +29,8 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
             juce::OSCSender sender;
             if (sender.connect("127.0.0.1", port)) {
                 juce::OSCMessage msg("/connectedToServer");
+                // TODO: check for priority player type
+                // TODO: if player && monitor exist then calculate on both but only send UI offset from player to monitor to avoid doubling the device offset
                 if (client.type == "monitor") {
                     monitors.push_back(client);
                     command_activateClients();
