@@ -15,10 +15,12 @@
       <FILE id="QGuvaD" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="OlQIDF" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
-      <FILE id="hoNR5Q" name="M1OrientationOSCServer.h" compile="0" resource="0"
-            file="Source/M1OrientationOSCServer.h"/>
-      <FILE id="cVA4Oq" name="M1OrientationOSCServer.cpp" compile="1" resource="0"
-            file="Source/M1OrientationOSCServer.cpp"/>
+      <FILE id="wovebf" name="M1OrientationManager.h" compile="0" resource="0"
+            file="Source/M1OrientationManager.h"/>
+      <FILE id="XfNaea" name="M1OrientationManager.cpp" compile="1" resource="0"
+            file="Source/M1OrientationManager.cpp"/>
+      <FILE id="fmDJLy" name="M1OrientationManagerService.h" compile="0"
+            resource="0" file="Source/M1OrientationManagerService.h"/>
       <FILE id="BHP8bV" name="HardwareAbstract.h" compile="0" resource="0"
             file="Source/HardwareAbstract.h"/>
       <FILE id="Ep6Kdf" name="HardwareSerial.h" compile="0" resource="0"

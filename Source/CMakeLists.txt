@@ -2,8 +2,9 @@ file(GLOB source_files  Config.h
                         Main.cpp
                         MainComponent.h
                         MainComponent.cpp
-                        M1OrientationOSCServer.h
-                        M1OrientationOSCServer.cpp
+                        M1OrientationManager.h
+                        M1OrientationManager.cpp
+                        M1OrientationManagerService.h
                         HardwareAbstract.h
                         HardwareSerial.h
                         HardwareBLE.h
