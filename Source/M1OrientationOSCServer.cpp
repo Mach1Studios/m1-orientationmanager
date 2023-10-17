@@ -32,7 +32,7 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
                 if (client.type == "monitor") {
                     monitors.push_back(client);
                     command_activateClients();
-                    DBG("Number of monitors registered: "+monitors.size());
+                    DBG("Number of monitors registered: "+std::to_string(monitors.size()));
                 } else {
                     // add new client
                     std::vector<float> empty = {0, 0, 0};
@@ -40,11 +40,11 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
                 }
                 msg.addInt32(clients.size()-1); // send ID for multiple clients to send commands
                 sender.send(msg);
-                DBG("Number of clients registered: "+clients.size());
+                DBG("Number of clients registered: "+std::to_string(clients.size()));
             }
         }
 
-        std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, "", 0 } };
+        //std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, "", 0 } };
         send_getDevices(clients);
         send_getCurrentDevice(clients);
         send_getConnectedClients(clients);
@@ -63,13 +63,13 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
                         if (monitors[m_index].port == message[0].getInt32()) {
                             monitors.erase(monitors.begin() + m_index);
                             command_activateClients();
-                            DBG("Number of monitors registered: "+monitors.size());
+                            DBG("Number of monitors registered: "+std::to_string(monitors.size()));
                         }
                     }
                 }
                 // remove the client from the list
                 clients.erase(clients.begin() + index);
-                DBG("Number of clients registered: "+clients.size());
+                DBG("Number of clients registered: "+std::to_string(clients.size()));
             }
         }
         send_getConnectedClients(clients);
