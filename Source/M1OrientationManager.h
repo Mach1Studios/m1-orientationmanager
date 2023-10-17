@@ -29,8 +29,7 @@ public:
 
 // search plugin by registered port number
 // TODO: potentially improve this with uuid concept
-struct find_plugin
-{
+struct find_plugin {
     int port;
     find_plugin(int port) : port(port) {}
     bool operator () ( const M1RegisteredPlugin& p ) const
@@ -41,7 +40,17 @@ struct find_plugin
 
 struct M1OrientationClientConnection {
     int port;
+    std::string type = "";
     juce::int64 time;
+};
+
+struct find_client_by_type {
+    std::string type;
+    find_client_by_type(std::string type) : type(type) {}
+    bool operator () ( const M1OrientationClientConnection& c ) const
+    {
+        return c.type == type;
+    }
 };
 
 class M1OrientationManager : 
@@ -55,8 +64,10 @@ class M1OrientationManager :
     int watcherPort = 0;
     bool isRunning = false;
     
-    float monitor_yaw, monitor_pitch, monitor_roll;
-    int monitor_mode = 0;
+    std::vector< std::vector<float> > client_offset_ypr;
+    std::vector<M1OrientationClientConnection> monitors; // track all the monitor instances
+    float master_yaw = 0; float master_pitch = 0; float master_roll = 0;
+    int master_mode = 0;
 
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
@@ -68,6 +79,7 @@ class M1OrientationManager :
 
     void send_getDevices(const std::vector<M1OrientationClientConnection>& clients);
     void send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients);
+    void send_getConnectedClients(const std::vector<M1OrientationClientConnection>& clients);
     void send_getTrackingYawEnabled(const std::vector<M1OrientationClientConnection>& clients);
     void send_getTrackingPitchEnabled(const std::vector<M1OrientationClientConnection>& clients);
     void send_getTrackingRollEnabled(const std::vector<M1OrientationClientConnection>& clients);
@@ -81,13 +93,11 @@ public:
     virtual ~M1OrientationManager();
 
     bool init(int serverPort, int watcherPort, bool useWatcher);
+    void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
 
     void update();
 
     Orientation getOrientation();
-
-    void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
-
     std::vector<M1OrientationClientConnection> getClients();
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getConnectedDevice();
@@ -105,6 +115,8 @@ public:
     void command_recenter();
     void command_disconnect();
     
+    void command_activateClients();
+    
     // Tracking for any plugin that does not need an m1_orientation_client but still needs feedback of orientation for UI purposes such as the M1-Panner plugin
     std::vector<M1RegisteredPlugin> registeredPlugins;
     bool bTimerActive = false;
@@ -113,10 +125,10 @@ public:
         if (registeredPlugins.size() > 0) {
             for (auto &i: registeredPlugins) {
                 juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-settings"));
-                m.addInt32(monitor_mode);
-                m.addFloat32(monitor_yaw); // expected normalised
-                m.addFloat32(monitor_pitch); // expected normalised
-                m.addFloat32(monitor_roll); // expected normalised
+                m.addInt32(master_mode);
+                m.addFloat32(master_yaw); // expected normalised
+                m.addFloat32(master_pitch); // expected normalised
+                m.addFloat32(master_roll); // expected normalised
                 //m.addInt32(monitor_output_mode); // TODO: add the output configuration to sync plugins when requested
                 i.messageSender->send(m);
             }
