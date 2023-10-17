@@ -152,7 +152,7 @@ VOID WINAPI ServiceControlHandler(DWORD dwControl) {
 
 // Service entry point
 VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv) {
-	g_StatusHandle = RegisterServiceCtrlHandler("HelloWorldService", ServiceControlHandler);
+	g_StatusHandle = RegisterServiceCtrlHandler("M1-OrientationManager", ServiceControlHandler);
 	if (!g_StatusHandle) {
 		std::cerr << "RegisterServiceCtrlHandler failed: " << GetLastError() << std::endl;
 		return;
@@ -189,7 +189,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv) {
 int main(int argc, char* argv[]) {
 	SERVICE_TABLE_ENTRY ServiceTable[] =
 	{
-		{ "HelloWorldService", (LPSERVICE_MAIN_FUNCTION)ServiceMain},
+		{ "M1-OrientationManager", (LPSERVICE_MAIN_FUNCTION)ServiceMain},
 		{ NULL, NULL }
 	};
 
