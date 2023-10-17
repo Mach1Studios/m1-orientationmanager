@@ -18,7 +18,7 @@ MainComponent::~MainComponent()
 {
 	murka::JuceMurkaBaseComponent::shutdownOpenGL();
 
-	Sleep(500); // waiting for service to close
+    std::this_thread::sleep_for(std::chrono::milliseconds(500)); // waiting for service to close
 }
 
 //==============================================================================

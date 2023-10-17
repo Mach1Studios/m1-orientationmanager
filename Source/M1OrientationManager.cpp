@@ -469,7 +469,7 @@ void M1OrientationManager::command_updateOscDevice(int new_port, std::string new
     }
 }
 
-void M1OrientationOSCServer::command_activateClients() {
+void M1OrientationManager::command_activateClients() {
     // TODO: add function for checking for stalled clients that did not properly remove themselves from list
     
     if (monitors.size() > 0) {
