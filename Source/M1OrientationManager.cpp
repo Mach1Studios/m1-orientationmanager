@@ -3,9 +3,9 @@
 //  Copyright © 2022 Mach1. All rights reserved.
 //
 
-#include "M1OrientationOSCServer.h"
+#include "M1OrientationManager.h"
 
-void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message) {
+void M1OrientationManager::oscMessageReceived(const juce::OSCMessage& message) {
     if (message.getAddressPattern() == "/addClient") {
         // add client to clients list
         int port = message[0].getInt32();
@@ -145,12 +145,12 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
     }
 }
 
-bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
+bool M1OrientationManager::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
     juce::OSCMessage msg(str.c_str());
     return send(clients, msg);
 }
 
-bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg) {
+bool M1OrientationManager::send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg) {
     for (auto& client : clients) {
         juce::OSCSender sender;
         if (sender.connect("127.0.0.1", client.port)) {
@@ -168,7 +168,7 @@ bool M1OrientationOSCServer::send(const std::vector<M1OrientationClientConnectio
     }
 }
 
-void M1OrientationOSCServer::send_getDevices(const std::vector<M1OrientationClientConnection>& clients) {
+void M1OrientationManager::send_getDevices(const std::vector<M1OrientationClientConnection>& clients) {
     std::vector<M1OrientationDeviceInfo> devices = getDevices();
 
     juce::OSCMessage msg("/getDevices");
@@ -184,7 +184,7 @@ void M1OrientationOSCServer::send_getDevices(const std::vector<M1OrientationClie
     send(clients, msg);
 }
 
-void M1OrientationOSCServer::send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients) {
+void M1OrientationManager::send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients) {
     M1OrientationDeviceInfo device = getConnectedDevice();
     juce::OSCMessage msg("/getCurrentDevice");
     msg.addString(device.getDeviceName());
@@ -203,36 +203,36 @@ void M1OrientationOSCServer::send_getCurrentDevice(const std::vector<M1Orientati
     send(clients, msg);
 }
 
-void M1OrientationOSCServer::send_getTrackingYawEnabled(const std::vector<M1OrientationClientConnection>& clients) {
+void M1OrientationManager::send_getTrackingYawEnabled(const std::vector<M1OrientationClientConnection>& clients) {
     bool enable = getTrackingYawEnabled();
     juce::OSCMessage msg("/getTrackingYawEnabled");
     msg.addInt32(enable);
     send(clients, msg);
 }
 
-void M1OrientationOSCServer::send_getTrackingPitchEnabled(const std::vector<M1OrientationClientConnection>& clients) {
+void M1OrientationManager::send_getTrackingPitchEnabled(const std::vector<M1OrientationClientConnection>& clients) {
     bool enable = getTrackingPitchEnabled();
     juce::OSCMessage msg("/getTrackingPitchEnabled");
     msg.addInt32(enable);
     send(clients, msg);
 }
 
-void M1OrientationOSCServer::send_getTrackingRollEnabled(const std::vector<M1OrientationClientConnection>& clients) {
+void M1OrientationManager::send_getTrackingRollEnabled(const std::vector<M1OrientationClientConnection>& clients) {
     bool enable = getTrackingRollEnabled();
     juce::OSCMessage msg("/getTrackingRollEnabled");
     msg.addInt32(enable);
     send(clients, msg);
 }
 
-M1OrientationOSCServer::~M1OrientationOSCServer() {
+M1OrientationManager::~M1OrientationManager() {
     close();
 }
  
-std::vector<M1OrientationClientConnection> M1OrientationOSCServer::getClients() {
+std::vector<M1OrientationClientConnection> M1OrientationManager::getClients() {
     return clients;
 }
 
-std::vector<M1OrientationDeviceInfo> M1OrientationOSCServer::getDevices() {
+std::vector<M1OrientationDeviceInfo> M1OrientationManager::getDevices() {
     std::vector<M1OrientationDeviceInfo> devices;
     for (const auto& hardware : hardwareImpl) {
         auto devicesToAdd = hardware.second->getDevices();
@@ -241,23 +241,23 @@ std::vector<M1OrientationDeviceInfo> M1OrientationOSCServer::getDevices() {
     return devices;
 }
 
-M1OrientationDeviceInfo M1OrientationOSCServer::getConnectedDevice() {
+M1OrientationDeviceInfo M1OrientationManager::getConnectedDevice() {
     return currentDevice;
 }
 
-bool M1OrientationOSCServer::getTrackingYawEnabled() {
+bool M1OrientationManager::getTrackingYawEnabled() {
     return bTrackingYawEnabled;
 }
 
-bool M1OrientationOSCServer::getTrackingPitchEnabled() {
+bool M1OrientationManager::getTrackingPitchEnabled() {
     return bTrackingPitchEnabled;
 }
 
-bool M1OrientationOSCServer::getTrackingRollEnabled() {
+bool M1OrientationManager::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
-bool M1OrientationOSCServer::init(int serverPort, int watcherPort, bool useWatcher = false) {
+bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher = false) {
     // check the port
     juce::DatagramSocket socket(false);
     socket.setEnablePortReuse(false);
@@ -297,7 +297,7 @@ bool M1OrientationOSCServer::init(int serverPort, int watcherPort, bool useWatch
     }
 }
 
-void M1OrientationOSCServer::update() {
+void M1OrientationManager::update() {
 
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
         if (!hardwareImpl[currentDevice.getDeviceType()]->update()) {
@@ -333,15 +333,15 @@ void M1OrientationOSCServer::update() {
     send_getDevices(clients);
 }
 
-Orientation M1OrientationOSCServer::getOrientation() {
+Orientation M1OrientationManager::getOrientation() {
     return orientation;
 }
 
-void M1OrientationOSCServer::addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl) {
+void M1OrientationManager::addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl) {
     hardwareImpl[type] = impl;
 }
 
-void M1OrientationOSCServer::close() {
+void M1OrientationManager::close() {
     isRunning = false;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -350,7 +350,7 @@ void M1OrientationOSCServer::close() {
     receiver.disconnect();
 }
 
-void M1OrientationOSCServer::command_refreshDevices() {
+void M1OrientationManager::command_refreshDevices() {
     // call the other thread?
     for (const auto& v : hardwareImpl) {
         v.second->refreshDevices();
@@ -358,7 +358,7 @@ void M1OrientationOSCServer::command_refreshDevices() {
     send_getDevices(clients);
 }
 
-void M1OrientationOSCServer::command_disconnect() {
+void M1OrientationManager::command_disconnect() {
     orientation.resetOrientation();
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
         hardwareImpl[currentDevice.getDeviceType()]->close();
@@ -367,7 +367,7 @@ void M1OrientationOSCServer::command_disconnect() {
     }
 }
 
-void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
+void M1OrientationManager::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
     orientation.resetOrientation();
     if (currentDevice != device){
         hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress) {
@@ -389,26 +389,26 @@ void M1OrientationOSCServer::command_startTrackingUsingDevice(M1OrientationDevic
     }
 }
 
-void M1OrientationOSCServer::command_setTrackingYawEnabled(bool enable) {
+void M1OrientationManager::command_setTrackingYawEnabled(bool enable) {
     bTrackingYawEnabled = enable;
     send_getTrackingYawEnabled(clients);
 }
 
-void M1OrientationOSCServer::command_setTrackingPitchEnabled(bool enable) {
+void M1OrientationManager::command_setTrackingPitchEnabled(bool enable) {
     bTrackingPitchEnabled = enable;
     send_getTrackingPitchEnabled(clients);
 }
 
-void M1OrientationOSCServer::command_setTrackingRollEnabled(bool enable) {
+void M1OrientationManager::command_setTrackingRollEnabled(bool enable) {
     bTrackingRollEnabled = enable;
     send_getTrackingRollEnabled(clients);
 }
 
-void M1OrientationOSCServer::command_recenter() {
+void M1OrientationManager::command_recenter() {
     orientation.resetOrientation();
 }
 
-void M1OrientationOSCServer::command_updateOscDevice(int new_port, std::string new_msg_address_pattern) {
+void M1OrientationManager::command_updateOscDevice(int new_port, std::string new_msg_address_pattern) {
     if (currentDevice.getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC) {
         if (currentDevice.osc_port != new_port) {
             // update port

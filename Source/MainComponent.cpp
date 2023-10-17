@@ -42,13 +42,13 @@ void MainComponent::initialise()
 //==============================================================================
 void MainComponent::draw()
 {
-	M1OrientationService::getInstance().lock();
+	M1OrientationManagerService::getInstance().lock();
 
-	M1OrientationOSCServer& m1OrientationOSCServer = M1OrientationService::getInstance().m1OrientationOSCServer;
+	M1OrientationManager& m1OrientationManager = M1OrientationManagerService::getInstance().m1OrientationManager;
 
-	Orientation orientation = m1OrientationOSCServer.getOrientation();
-    M1OrientationDeviceInfo device = m1OrientationOSCServer.getConnectedDevice();
-	auto clients = m1OrientationOSCServer.getClients();
+	Orientation orientation = m1OrientationManager.getOrientation();
+    M1OrientationDeviceInfo device = m1OrientationManager.getConnectedDevice();
+	auto clients = m1OrientationManager.getClients();
 
 //#ifdef BUILD_DEBUG_UI
     m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
@@ -62,7 +62,7 @@ void MainComponent::draw()
     offsetX = 10;
     offsetY = 5;
     
-    m.getCurrentFont()->drawString("DEVICE: " + m1OrientationOSCServer.getConnectedDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationOSCServer.getConnectedDevice().getDeviceType()], offsetX, offsetY);
+    m.getCurrentFont()->drawString("DEVICE: " + m1OrientationManager.getConnectedDevice().getDeviceName() + ":" + M1OrientationDeviceTypeName[m1OrientationManager.getConnectedDevice().getDeviceType()], offsetX, offsetY);
     
     offsetY += 30;
     
@@ -78,18 +78,18 @@ void MainComponent::draw()
     
     m.getCurrentFont()->drawString("TRACKING: ", offsetX, offsetY);
     offsetY += 15;
-    std::string yaw_enabled_msg = (m1OrientationOSCServer.getTrackingYawEnabled()) ? "ENABLED" : "DISABLED";
+    std::string yaw_enabled_msg = (m1OrientationManager.getTrackingYawEnabled()) ? "ENABLED" : "DISABLED";
     m.getCurrentFont()->drawString("Y:  " + yaw_enabled_msg, offsetX, offsetY);
     offsetY += 15;
-    std::string pitch_enabled_msg = (m1OrientationOSCServer.getTrackingPitchEnabled()) ? "ENABLED" : "DISABLED";
+    std::string pitch_enabled_msg = (m1OrientationManager.getTrackingPitchEnabled()) ? "ENABLED" : "DISABLED";
     m.getCurrentFont()->drawString("P: " + pitch_enabled_msg, offsetX, offsetY);
     offsetY += 15;
-    std::string roll_enabled_msg = (m1OrientationOSCServer.getTrackingRollEnabled()) ? "ENABLED" : "DISABLED";
+    std::string roll_enabled_msg = (m1OrientationManager.getTrackingRollEnabled()) ? "ENABLED" : "DISABLED";
     m.getCurrentFont()->drawString("R:   " + roll_enabled_msg, offsetX, offsetY);
     
     offsetY += 30;
     
-    std::vector<M1OrientationDeviceInfo> devices = m1OrientationOSCServer.getDevices();
+    std::vector<M1OrientationDeviceInfo> devices = m1OrientationManager.getDevices();
     for (auto& device : devices) {
         m.getCurrentFont()->drawString("> ["+M1OrientationDeviceTypeName[device.getDeviceType()]+"]: "+device.getDeviceName(), offsetX, offsetY);
         offsetY += 15;
@@ -99,7 +99,7 @@ void MainComponent::draw()
     //m.setColor(200, 255);
     //m.drawImage(m1logo, 15, m.getSize().height() - 20, 161 / 4, 39 / 4);
     
-	M1OrientationService::getInstance().unlock();
+	M1OrientationManagerService::getInstance().unlock();
 }
 
 void MainComponent::paint(juce::Graphics& g)

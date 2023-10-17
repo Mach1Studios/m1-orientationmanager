@@ -8,7 +8,7 @@
 #include "Config.h"
 #include <JuceHeader.h>
 #include "juce_murka/JuceMurkaBaseComponent.h"
-#include "M1OrientationService.h"
+#include "M1OrientationManagerService.h"
 
 using namespace murka;
 

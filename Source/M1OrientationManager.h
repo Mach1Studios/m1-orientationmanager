@@ -44,7 +44,7 @@ struct M1OrientationClientConnection {
     juce::int64 time;
 };
 
-class M1OrientationOSCServer : 
+class M1OrientationManager : 
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
     public M1OrientationManagerOSCSettings, juce::Timer
 {
@@ -78,7 +78,7 @@ class M1OrientationOSCServer :
 
 public:
     
-    virtual ~M1OrientationOSCServer();
+    virtual ~M1OrientationManager();
 
     bool init(int serverPort, int watcherPort, bool useWatcher);
 

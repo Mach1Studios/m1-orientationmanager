@@ -12,19 +12,19 @@
 #include "HardwareOSC.h"
 #include "HardwareEmulator.h"
 
-#include "M1OrientationOSCServer.h"
+#include "M1OrientationManager.h"
 
 //==============================================================================
-class M1OrientationService {
+class M1OrientationManagerService {
 	std::mutex mtx;
 
 public:
-	static M1OrientationService& getInstance() {
-		static M1OrientationService instance; // Singleton instance
+	static M1OrientationManagerService& getInstance() {
+		static M1OrientationManagerService instance; // Singleton instance
 		return instance;
 	}
 
-	M1OrientationOSCServer m1OrientationOSCServer;
+	M1OrientationManager m1OrientationManager;
 
 	void lock() {
 		mtx.lock();
@@ -60,7 +60,7 @@ public:
 		settingsFile = settingsFile.getChildFile("settings.json");
 		DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
 
-		if (m1OrientationOSCServer.initFromSettings(settingsFile.getFullPathName().toStdString(), true)) {
+		if (m1OrientationManager.initFromSettings(settingsFile.getFullPathName().toStdString(), true)) {
 			// For debug testing, you can set this to false to list all connectable BLE devices
 			hardwareBLE.displayOnlyKnownIMUs = true;
 			hardwareBLE.setup();
@@ -69,14 +69,14 @@ public:
 			// Internal device emulator for debugging
 			hardwareEmulator.setup();
 
-			m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
-			m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
-			m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
-			m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeEmulator, &hardwareEmulator);
+			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
+			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
+			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
+			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeEmulator, &hardwareEmulator);
 
 			while (!juce::MessageManager::getInstance()->hasStopMessageBeenSent()) {
 				lock();
-				m1OrientationOSCServer.update();
+				m1OrientationManager.update();
 				unlock();
 
 				juce::Thread::sleep(30);

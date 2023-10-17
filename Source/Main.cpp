@@ -14,7 +14,7 @@
 #include <JuceHeader.h>
 #include <thread>
 #include "MainComponent.h"
-#include "M1OrientationService.h"
+#include "M1OrientationManagerService.h"
 
 
 class M1OrientationDeviceServerApplication  : public juce::JUCEApplication
@@ -31,7 +31,7 @@ public:
     void initialise (const juce::String& commandLine) override
     {
         // This method is where you should put your application's initialisation code..
-		std::thread([]() { M1OrientationService::getInstance().start(); }).detach();
+		std::thread([]() { M1OrientationManagerService::getInstance().start(); }).detach();
 
 #if defined(GUI_APP)
 		mainWindow.reset(new MainWindow(getApplicationName()));
@@ -177,7 +177,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv) {
 
 	// Start a worker thread to perform the service's workand wait for the worker thread to complete.
 	std::thread([&] { juce::MessageManager::getInstance()->runDispatchLoop(); }).detach();
-	std::thread([]() { M1OrientationService::getInstance().start(); }).join();
+	std::thread([]() { M1OrientationManagerService::getInstance().start(); }).join();
 
 	// Cleanup and report the service status as STOPPED.
 	CloseHandle(g_ServiceStopEvent);
@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
 
 	// Start a worker thread to perform the service's workand wait for the worker thread to complete.
 	std::thread([&] { juce::MessageManager::getInstance()->runDispatchLoop(); }).detach();
-	std::thread([]() { M1OrientationService::getInstance().start(); }).join();
+	std::thread([]() { M1OrientationManagerService::getInstance().start(); }).join();
 
 	return 0;
 }
