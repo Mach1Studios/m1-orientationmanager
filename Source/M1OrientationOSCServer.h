@@ -45,6 +45,16 @@ struct M1OrientationClientConnection {
     juce::int64 time;
 };
 
+struct find_client_by_type
+{
+    std::string type;
+    find_client_by_type(std::string type) : type(type) {}
+    bool operator () ( const M1OrientationClientConnection& c ) const
+    {
+        return c.type == type;
+    }
+};
+
 class M1OrientationOSCServer : 
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
     public M1OrientationManagerOSCSettings, juce::Timer

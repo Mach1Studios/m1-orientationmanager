@@ -118,6 +118,12 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         client_offset_ypr[client_id][2] = message[3].getFloat32(); // roll
         DBG("[Client] YPR="+std::to_string(client_offset_ypr[client_id][0])+", "+std::to_string(client_offset_ypr[client_id][1])+", "+std::to_string(client_offset_ypr[client_id][2]));
     }
+    else if (message.getAddressPattern() == "/setMasterYPR") {
+        // Used for relaying a master calculated orientation to registered plugins that require this for GUI systems
+        master_yaw = message[0].getFloat32();
+        master_pitch = message[1].getFloat32();
+        master_roll = message[2].getFloat32();
+    }
     else if (message.getAddressPattern() == "/m1-register-plugin") {
         // registering new panner instance
         auto port = message[0].getInt32();
@@ -168,12 +174,6 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
         } else {
             // port not found, error here
         }
-    }
-    else if (message.getAddressPattern() == "/setMasterYPR") {
-        // Used for relaying a master calculated orientation to registered plugins that require this for GUI systems
-        master_yaw = message[0].getFloat32();
-        master_pitch = message[1].getFloat32();
-        master_roll = message[2].getFloat32();
     }
     else {
         DBG("OSC Message not implemented: " + message.getAddressPattern().toString());
