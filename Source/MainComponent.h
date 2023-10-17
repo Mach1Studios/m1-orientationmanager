@@ -8,13 +8,7 @@
 #include "Config.h"
 #include <JuceHeader.h>
 #include "juce_murka/JuceMurkaBaseComponent.h"
-
-#include "HardwareBLE.h"
-#include "HardwareSerial.h"
-#include "HardwareOSC.h"
-#include "HardwareEmulator.h"
-
-#include "M1OrientationOSCServer.h"
+#include "M1OrientationService.h"
 
 using namespace murka;
 
@@ -42,13 +36,5 @@ public:
     bool rollActive = true;
 
 private:
-    //==============================================================================
-    // TODO: move hardware classes and server to main thread
-    HardwareBLE hardwareBLE;
-    HardwareSerial hardwareSerial;
-	HardwareOSC hardwareOSC;
-	HardwareEmulator hardwareEmulator;
-    M1OrientationOSCServer m1OrientationOSCServer;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

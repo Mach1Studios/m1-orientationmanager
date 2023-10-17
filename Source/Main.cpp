@@ -14,47 +14,9 @@
 #include <JuceHeader.h>
 #include <thread>
 #include "MainComponent.h"
+#include "M1OrientationService.h"
 
-//==============================================================================
-void M1OrientationService() {
-	HardwareBLE hardwareBLE;
-	HardwareSerial hardwareSerial;
-	HardwareOSC hardwareOSC;
-	M1OrientationOSCServer m1OrientationOSCServer;
 
-	// We will assume the folders are properly created during the installation step
-	// TODO: make this file path search for `Mach1` dir
-	// Using common support files installation location
-	juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-	std::string settingsFilePath;
-	if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-		// test for any windows OS
-		settingsFilePath = (m1SupportDirectory.getFullPathName() + "/Mach1/settings.json").toStdString();
-	}
-	else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-		// test for any mac OS
-		settingsFilePath = (m1SupportDirectory.getFullPathName() + "/Application Support/Mach1/settings.json").toStdString();
-	}
-	else {
-		settingsFilePath = (m1SupportDirectory.getFullPathName() + "/Mach1/settings.json").toStdString();
-	}
-
-	if (m1OrientationOSCServer.initFromSettings(settingsFilePath, true)) {
-		hardwareBLE.displayOnlyKnownIMUs = true;
-		hardwareBLE.setup();
-		hardwareSerial.setup();
-		hardwareOSC.setup();
-		m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
-		m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
-		m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
-
-		while (!juce::MessageManager::getInstance()->hasStopMessageBeenSent()) {
-			m1OrientationOSCServer.update();
-			juce::Thread::sleep(30);
-		}
-	}
-}
- 
 class M1OrientationDeviceServerApplication  : public juce::JUCEApplication
 {
 public:
@@ -69,11 +31,12 @@ public:
     void initialise (const juce::String& commandLine) override
     {
         // This method is where you should put your application's initialisation code..
+		std::thread([]() { M1OrientationService::getInstance().start(); }).detach();
+
 #if defined(GUI_APP)
-        mainWindow.reset(new MainWindow(getApplicationName()));
+		mainWindow.reset(new MainWindow(getApplicationName()));
 #else
-        std::thread(M1OrientationService).detach();
-        juce::MessageManager::getInstance()->runDispatchLoop();
+		juce::MessageManager::getInstance()->runDispatchLoop();
 #endif
     }
 
@@ -214,7 +177,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv) {
 
 	// Start a worker thread to perform the service's workand wait for the worker thread to complete.
 	std::thread([&] { juce::MessageManager::getInstance()->runDispatchLoop(); }).detach();
-	std::thread(M1OrientationService).join();
+	std::thread([]() { M1OrientationService::getInstance().start(); }).join();
 
 	// Cleanup and report the service status as STOPPED.
 	CloseHandle(g_ServiceStopEvent);
@@ -262,7 +225,7 @@ int main(int argc, char* argv[]) {
 
 	// Start a worker thread to perform the service's workand wait for the worker thread to complete.
 	std::thread([&] { juce::MessageManager::getInstance()->runDispatchLoop(); }).detach();
-	std::thread(M1OrientationService).join();
+	std::thread([]() { M1OrientationService::getInstance().start(); }).join();
 
 	return 0;
 }

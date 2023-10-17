@@ -75,6 +75,9 @@ void M1OrientationOSCServer::oscMessageReceived(const juce::OSCMessage& message)
                 clients.erase(clients.begin() + index);
             }
         }
+		if (clients.size() == 0) {
+			command_disconnect();
+		}
     }
     else if (message.getAddressPattern() == "/setMonitorYPR") {
         // receiving updated monitor YPR and mode
@@ -321,7 +324,7 @@ void M1OrientationOSCServer::update() {
             msg.addFloat32(ypr.pitch);
             msg.addFloat32(ypr.roll);
             send(clients, msg);
-
+			
             // commented out to avoid double applying offset angles from the get()
 			//orientation.setYPR(ypr);
         }

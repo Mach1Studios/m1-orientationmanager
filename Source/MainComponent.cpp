@@ -17,6 +17,8 @@ MainComponent::MainComponent()
 MainComponent::~MainComponent()
 {
 	murka::JuceMurkaBaseComponent::shutdownOpenGL();
+
+	Sleep(500); // waiting for service to close
 }
 
 //==============================================================================
@@ -25,7 +27,7 @@ void MainComponent::initialise()
 {
     murka::JuceMurkaBaseComponent::initialise();
 
-    // Setup for shared resources
+	// Setup for shared resources
 	std::string resourcesPath;
 	if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
 		resourcesPath = juce::File::getSpecialLocation(juce::File::SpecialLocationType::userApplicationDataDirectory).getChildFile("Application Support").getChildFile("/Mach1 Spatial System/resources").getFullPathName().toStdString();
@@ -35,43 +37,15 @@ void MainComponent::initialise()
 	}
 	printf("Resources Loaded From: %s \n", resourcesPath.c_str());
 	m.setResourcesPath(resourcesPath);
-    
-    // We will assume the folders are properly created during the installation step
-    juce::File settingsFile;
-    // Using common support files installation location
-    juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-
-    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-        // test for any mac OS
-        settingsFile = m1SupportDirectory.getChildFile("Application Support").getChildFile("Mach1");
-    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-        // test for any windows OS
-        settingsFile = m1SupportDirectory.getChildFile("Mach1");
-    } else {
-        settingsFile = m1SupportDirectory.getChildFile("Mach1");
-    }
-    settingsFile = settingsFile.getChildFile("settings.json");
-    DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
-    m1OrientationOSCServer.initFromSettings(settingsFile.getFullPathName().toStdString(), true);
-    
-    // For debug testing you can set this to false to list all connectable BLE devices
-    hardwareBLE.displayOnlyKnownIMUs = true;
-    hardwareBLE.setup();
-    hardwareSerial.setup();
-    hardwareOSC.setup();
-    // Internal device emulator for debugging
-    hardwareEmulator.setup();
-    
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
-	m1OrientationOSCServer.addHardwareImplementation(M1OrientationManagerDeviceTypeEmulator, &hardwareEmulator);
 }
 
 //==============================================================================
 void MainComponent::draw()
 {
-	m1OrientationOSCServer.update();
+	M1OrientationService::getInstance().lock();
+
+	M1OrientationOSCServer& m1OrientationOSCServer = M1OrientationService::getInstance().m1OrientationOSCServer;
+
 	Orientation orientation = m1OrientationOSCServer.getOrientation();
     M1OrientationDeviceInfo device = m1OrientationOSCServer.getConnectedDevice();
 	auto clients = m1OrientationOSCServer.getClients();
@@ -121,10 +95,11 @@ void MainComponent::draw()
         offsetY += 15;
     }
 
+
     //m.setColor(200, 255);
     //m.drawImage(m1logo, 15, m.getSize().height() - 20, 161 / 4, 39 / 4);
     
-//#endif // end of debug UI macro
+	M1OrientationService::getInstance().unlock();
 }
 
 void MainComponent::paint(juce::Graphics& g)
