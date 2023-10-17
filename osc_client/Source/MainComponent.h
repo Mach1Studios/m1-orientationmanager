@@ -46,10 +46,6 @@ public:
     std::string current_osc_msg_address = "";
     bool output_send_as_ypr = true;
     
-    bool yawActive = true;
-    bool pitchActive = true;
-    bool rollActive = true;
-
 private:
     //==============================================================================
     MurImage m1logo;
@@ -59,7 +55,7 @@ private:
     
     // Orientation Manager/Client
     void setStatus(bool success, std::string message);
-    M1OrientationOSCClient m1OrientationOSCClient;
+    M1OrientationClient m1OrientationClient;
     M1OrientationYPR currentOrientation;
     
     M1OrientationClientWindow* orientationControlWindow;
@@ -67,7 +63,7 @@ private:
     bool showedOrientationControlBefore = false;
     bool showMonitorModeDropdown = false;
     
-    void update_orientation_client_window(murka::Murka &m, M1OrientationOSCClient &m1OrientationOSCClient, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore);
+    void update_orientation_client_window(murka::Murka &m, M1OrientationClient &m1OrientationOSCClient, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };
