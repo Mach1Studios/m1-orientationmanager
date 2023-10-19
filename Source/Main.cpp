@@ -25,7 +25,7 @@ public:
 
     const juce::String getApplicationName() override       { return ProjectInfo::projectName; }
     const juce::String getApplicationVersion() override    { return ProjectInfo::versionString; }
-    bool moreThanOneInstanceAllowed() override             { return true; }
+    bool moreThanOneInstanceAllowed() override             { return false; }
 
     //==============================================================================
     void initialise (const juce::String& commandLine) override
@@ -44,7 +44,9 @@ public:
     {
         // Add your application's shutdown code here..
 
+#if defined(GUI_APP)
         mainWindow = nullptr; // (deletes our window)
+#endif
     }
 
     //==============================================================================
@@ -110,7 +112,10 @@ public:
     };
 
 private:
+#if defined(GUI_APP)
     std::unique_ptr<MainWindow> mainWindow;
+#endif
+
 };
 
 //==============================================================================
