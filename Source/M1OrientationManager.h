@@ -95,6 +95,8 @@ public:
     bool init(int serverPort, int watcherPort, bool useWatcher);
     void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
 
+	void startSearchingForDevices();
+
     void update();
 
     Orientation getOrientation();
@@ -106,7 +108,6 @@ public:
     bool getTrackingPitchEnabled();
     bool getTrackingRollEnabled();
 
-    void command_refreshDevices();
     void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);

@@ -74,6 +74,8 @@ public:
 			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
 			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeEmulator, &hardwareEmulator);
 
+			m1OrientationManager.startSearchingForDevices();
+
 			while (!juce::MessageManager::getInstance()->hasStopMessageBeenSent()) {
 				lock();
 				m1OrientationManager.update();

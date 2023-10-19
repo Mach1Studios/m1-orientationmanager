@@ -76,9 +76,6 @@ void M1OrientationManager::oscMessageReceived(const juce::OSCMessage& message) {
         }
         send_getConnectedClients(clients);
     }
-    else if (message.getAddressPattern() == "/refreshDevices") {
-        command_refreshDevices();
-    }
     else if (message.getAddressPattern() == "/startTrackingUsingDevice") {
         M1OrientationDeviceInfo device = { message[0].getString().toStdString(), (M1OrientationDeviceType)message[1].getInt32(), message[2].getString().toStdString() };
         command_startTrackingUsingDevice(device);
@@ -347,6 +344,18 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
     }
 }
 
+void M1OrientationManager::startSearchingForDevices() {
+	std::thread([&] {
+		while (isRunning) {
+			for (const auto& v : hardwareImpl) {
+				v.second->refreshDevices();
+			}
+			send_getDevices(clients);
+			std::this_thread::sleep_for(std::chrono::seconds(10));
+		}
+	}).detach();
+}
+
 void M1OrientationManager::update() {
 
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
@@ -400,15 +409,6 @@ void M1OrientationManager::close() {
 
     receiver.removeListener(this);
     receiver.disconnect();
-}
-
-void M1OrientationManager::command_refreshDevices() {
-	std::thread([&] { 
-		for (const auto& v : hardwareImpl) {
-			v.second->refreshDevices();
-		}
-		send_getDevices(clients);
-	}).detach();
 }
 
 void M1OrientationManager::command_disconnect() {
