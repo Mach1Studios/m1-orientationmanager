@@ -208,15 +208,18 @@ public:
     }
 
     void refreshDevices() override {
-        // clear device list
-        devices.clear();
-        
-        // TODO: create OSC object and pushback
-        devices.push_back({
+		std::vector<M1OrientationDeviceInfo> devices;
+
+		// TODO: create OSC object and pushback
+		devices.push_back({
             "OSC Input", // name
             M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, // type
             "127.0.0.1" // address
         });
+
+		lock();
+		this->devices = devices;
+		unlock();
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {

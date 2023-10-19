@@ -138,10 +138,9 @@ public:
     }
 
     void refreshDevices() override {
-        // clear device list
-        devices.clear();
-        discovered_ble_devices.clear();
-        
+		std::vector<M1OrientationDeviceInfo> devices;
+		std::vector<SimpleBLE::Safe::Peripheral> discovered_ble_devices;
+
         auto ble_list = SimpleBLE::Safe::Adapter::get_adapters();
         
         if (!ble_list.has_value() || ble_list->empty()) {
@@ -185,6 +184,11 @@ public:
                 }
             }
         }
+
+		lock();
+		this->devices = devices;
+		this->discovered_ble_devices = discovered_ble_devices;
+		unlock();
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {

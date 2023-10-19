@@ -212,8 +212,7 @@ public:
     }
 
     void refreshDevices() override {
-        // clear device list
-        devices.clear();
+		std::vector<M1OrientationDeviceInfo> devices;
         
         int port_number = comEnumerate();
         for(int port_index=0; port_index < port_number; port_index++) {
@@ -225,14 +224,17 @@ public:
         /// SUPPERWARE MIDI SERIAL TESTING
         // Added to the end of the serial port search to not break the serial port enumeration from just above which is critical for connection
         juce::WaitableEvent completionEvent;
-        juce::MessageManager::callAsync([this, &completionEvent]() {
+        juce::MessageManager::callAsync([&]() {
             if (supperwareInterface.getTrackerDriver().canConnect()) {
-                devices.push_back({"Supperware HT IMU", M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, ""});
+				devices.push_back({"Supperware HT IMU", M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial, ""});
             }
             completionEvent.signal();
         });
         completionEvent.wait();
-        
+     
+		lock();
+		this->devices = devices;
+		unlock();
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {

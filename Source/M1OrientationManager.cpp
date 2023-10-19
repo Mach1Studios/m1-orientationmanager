@@ -283,8 +283,10 @@ std::vector<M1OrientationClientConnection> M1OrientationManager::getClients() {
 std::vector<M1OrientationDeviceInfo> M1OrientationManager::getDevices() {
     std::vector<M1OrientationDeviceInfo> devices;
     for (const auto& hardware : hardwareImpl) {
+		hardware.second->lock();
         auto devicesToAdd = hardware.second->getDevices();
-        devices.insert(devices.end(), devicesToAdd.begin(), devicesToAdd.end());
+		hardware.second->unlock();
+		devices.insert(devices.end(), devicesToAdd.begin(), devicesToAdd.end());
     }
     return devices;
 }
@@ -348,6 +350,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 void M1OrientationManager::update() {
 
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
+		hardwareImpl[currentDevice.getDeviceType()]->lock();
         if (!hardwareImpl[currentDevice.getDeviceType()]->update()) {
             /// ERROR STATE
             // TODO: Check for connection to client, if not then reconnect
@@ -376,7 +379,8 @@ void M1OrientationManager::update() {
             // commented out to avoid double applying offset angles from the get()
 			//orientation.setYPR(ypr);
         }
-    }
+		hardwareImpl[currentDevice.getDeviceType()]->unlock();
+	}
     
     send_getDevices(clients);
 }
@@ -399,18 +403,21 @@ void M1OrientationManager::close() {
 }
 
 void M1OrientationManager::command_refreshDevices() {
-    // call the other thread?
-    for (const auto& v : hardwareImpl) {
-        v.second->refreshDevices();
-    }
-    send_getDevices(clients);
+	std::thread([&] { 
+		for (const auto& v : hardwareImpl) {
+			v.second->refreshDevices();
+		}
+		send_getDevices(clients);
+	}).detach();
 }
 
 void M1OrientationManager::command_disconnect() {
     orientation.resetOrientation();
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-        hardwareImpl[currentDevice.getDeviceType()]->close();
-        currentDevice = M1OrientationDeviceInfo();
+		hardwareImpl[currentDevice.getDeviceType()]->lock();
+		hardwareImpl[currentDevice.getDeviceType()]->close();
+		hardwareImpl[currentDevice.getDeviceType()]->unlock();
+		currentDevice = M1OrientationDeviceInfo();
         send_getCurrentDevice(clients);
     }
 }
@@ -418,6 +425,7 @@ void M1OrientationManager::command_disconnect() {
 void M1OrientationManager::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
     orientation.resetOrientation();
     if (currentDevice != device){
+		hardwareImpl[device.getDeviceType()]->lock();
         hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress) {
             if (success) {
                 send_getCurrentDevice(clients);
@@ -432,7 +440,8 @@ void M1OrientationManager::command_startTrackingUsingDevice(M1OrientationDeviceI
             msg.addString(connectedDeviceAddress);
             send(clients, msg);
         });
-    } else {
+		hardwareImpl[device.getDeviceType()]->unlock();
+	} else {
         // already connected to this device
     }
 }

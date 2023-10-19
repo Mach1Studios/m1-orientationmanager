@@ -10,12 +10,22 @@
 #include "m1_orientation_client/M1OrientationSettings.h"
 
 class HardwareAbstract {
+	std::mutex mtx;
+
 public:
     virtual int setup() = 0;
     virtual int update() = 0;
     virtual int close() = 0;
     
     std::function<void()> orientationDeviceLostCallback = [](){};
+
+	void lock() {
+		mtx.lock();
+	}
+
+	void unlock() {
+		mtx.unlock();
+	}
 
     virtual M1OrientationTrackingResult getOrientation() = 0;
     

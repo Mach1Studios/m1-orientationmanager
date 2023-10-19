@@ -75,9 +75,12 @@ public:
     }
 
     void refreshDevices() override {
-        // clear device list
-        devices.clear();
+		std::vector<M1OrientationDeviceInfo> devices;
 		devices.push_back({ "Emulator", M1OrientationDeviceType::M1OrientationManagerDeviceTypeEmulator, "" });
+
+		lock();
+		this->devices = devices;
+		unlock();
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {
