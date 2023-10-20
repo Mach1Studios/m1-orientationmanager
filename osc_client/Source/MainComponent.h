@@ -54,6 +54,7 @@ private:
     void update_osc_destination(std::string ip_address, int port);
     
     // Orientation Manager/Client
+    bool useStandalone = false;
     void setStatus(bool success, std::string message);
     M1OrientationClient m1OrientationClient;
     M1OrientationYPR currentOrientation;
