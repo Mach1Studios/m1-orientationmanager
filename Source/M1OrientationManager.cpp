@@ -372,7 +372,7 @@ void M1OrientationManager::command_setTrackingRollEnabled(bool enable) {
 }
 
 void M1OrientationManager::command_recenter() {
-    orientation.resetOrientation();
+    orientation.recenter();
 }
 
 void M1OrientationManager::command_updateOscDevice(int new_port, std::string new_msg_address_pattern) {
