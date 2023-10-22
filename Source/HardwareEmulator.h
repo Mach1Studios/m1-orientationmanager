@@ -35,6 +35,8 @@ public:
         current.pitch_min = -180.0f; current.pitch_max = 180.0f;
         current.roll_min = -180.0f; current.roll_max = 180.0f;
         
+		orientation.setYPR_type(M1OrientationYPR::SIGNED_NORMALLED);
+
         return 1;
     }
 

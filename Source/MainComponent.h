@@ -22,7 +22,7 @@ class MainComponent : public JuceMurkaBaseComponent
 public:
     //==============================================================================
     MainComponent();
-    ~MainComponent() override;
+    ~MainComponent();
 
     //==============================================================================
     void paint (juce::Graphics&) override;

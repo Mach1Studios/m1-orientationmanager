@@ -16,9 +16,9 @@ MainComponent::MainComponent()
 
 MainComponent::~MainComponent()
 {
-	murka::JuceMurkaBaseComponent::shutdownOpenGL();
+	murka::JuceMurkaBaseComponent::shutdownOpenGL(); // proper closing
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500)); // waiting for service to close
+	M1OrientationManagerService::getInstance().m1OrientationManager.close();
 }
 
 //==============================================================================
@@ -42,13 +42,11 @@ void MainComponent::initialise()
 //==============================================================================
 void MainComponent::draw()
 {
-	M1OrientationManagerService::getInstance().lock();
-
 	M1OrientationManager& m1OrientationManager = M1OrientationManagerService::getInstance().m1OrientationManager;
+	std::vector<M1OrientationDeviceInfo> devices = m1OrientationManager.getDevices();
 
 	Orientation orientation = m1OrientationManager.getOrientation();
     M1OrientationDeviceInfo device = m1OrientationManager.getConnectedDevice();
-	auto clients = m1OrientationManager.getClients();
 
 //#ifdef BUILD_DEBUG_UI
     m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
@@ -89,7 +87,6 @@ void MainComponent::draw()
     
     offsetY += 30;
     
-    std::vector<M1OrientationDeviceInfo> devices = m1OrientationManager.getDevices();
     for (auto& device : devices) {
         m.getCurrentFont()->drawString("> ["+M1OrientationDeviceTypeName[device.getDeviceType()]+"]: "+device.getDeviceName(), offsetX, offsetY);
         offsetY += 15;
@@ -98,8 +95,6 @@ void MainComponent::draw()
 
     //m.setColor(200, 255);
     //m.drawImage(m1logo, 15, m.getSize().height() - 20, 161 / 4, 39 / 4);
-    
-	M1OrientationManagerService::getInstance().unlock();
 }
 
 void MainComponent::paint(juce::Graphics& g)

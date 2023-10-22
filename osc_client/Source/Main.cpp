@@ -6,6 +6,11 @@
   ==============================================================================
 */
 
+
+#if defined(WIN32) && !defined(WIN32_LEAN_AND_MEAN) 
+#error need to define WIN32_LEAN_AND_MEAN in project settings
+#endif
+
 #include <JuceHeader.h>
 #include "MainComponent.h"
 

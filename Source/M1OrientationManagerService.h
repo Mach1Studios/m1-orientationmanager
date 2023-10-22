@@ -77,9 +77,7 @@ public:
 			m1OrientationManager.startSearchingForDevices();
 
 			while (!juce::MessageManager::getInstance()->hasStopMessageBeenSent()) {
-				lock();
 				m1OrientationManager.update();
-				unlock();
 
 				juce::Thread::sleep(30);
 			}

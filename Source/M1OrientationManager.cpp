@@ -4,278 +4,17 @@
 //
 
 #include "M1OrientationManager.h"
+#include "nlohmann/json.hpp"
+#include "httplib.h"
 
 void M1OrientationManager::oscMessageReceived(const juce::OSCMessage& message) {
-    if (message.getAddressPattern() == "/addClient") {
-        // add client to clients list
-        int port = message[0].getInt32();
-        std::string type = message[1].getString().toStdString();
-        bool found = false;
-
-        for (auto& client : clients) {
-            if (client.port == port) {
-                client.time = juce::Time::currentTimeMillis();
-                found = true;
-            }
-        }
-
-        if (!found) {
-            M1OrientationClientConnection client;
-            client.port = port;
-            client.type = type;
-            client.time = juce::Time::currentTimeMillis();
-            clients.push_back(client);
-            
-            juce::OSCSender sender;
-            if (sender.connect("127.0.0.1", port)) {
-                juce::OSCMessage msg("/connectedToServer");
-                // TODO: check for priority player type
-                // TODO: if player && monitor exist then calculate on both but only send UI offset from player to monitor to avoid doubling the device offset
-                if (client.type == "monitor") {
-                    monitors.push_back(client);
-                    command_activateClients();
-                    DBG("Number of monitors registered: "+std::to_string(monitors.size()));
-                } else {
-                    // add new client
-                    std::vector<float> empty = {0, 0, 0};
-                    client_offset_ypr.push_back(empty); // resizing the receiving values
-                }
-                msg.addInt32(clients.size()-1); // send ID for multiple clients to send commands
-                sender.send(msg);
-                DBG("Number of clients registered: "+std::to_string(clients.size()));
-            }
-        }
-
-        //std::vector<M1OrientationClientConnection> clients = { M1OrientationClientConnection { port, "", 0 } };
-        send_getDevices(clients);
-        send_getCurrentDevice(clients);
-        send_getConnectedClients(clients);
-        send_getTrackingYawEnabled(clients);
-        send_getTrackingPitchEnabled(clients);
-        send_getTrackingRollEnabled(clients);
-    }
-    else if (message.getAddressPattern() == "/removeClient") {
-        int search_port = message[0].getInt32();
-        for (int index = 0; index < clients.size(); index++) {
-            if (clients[index].port == message[0].getInt32()) {
-                if (clients[index].type == "monitor") {
-                    // if the removed type is monitor
-                    for (int m_index = 0; m_index < clients.size(); m_index++) {
-                        // search monitors and remove the same matching port
-                        if (monitors[m_index].port == message[0].getInt32()) {
-                            monitors.erase(monitors.begin() + m_index);
-                            command_activateClients();
-                            DBG("Number of monitors registered: "+std::to_string(monitors.size()));
-                        }
-                    }
-                }
-                // remove the client from the list
-                clients.erase(clients.begin() + index);
-                DBG("Number of clients registered: "+std::to_string(clients.size()));
-            }
-        }
-        send_getConnectedClients(clients);
-    }
-    else if (message.getAddressPattern() == "/startTrackingUsingDevice") {
-        M1OrientationDeviceInfo device = { message[0].getString().toStdString(), (M1OrientationDeviceType)message[1].getInt32(), message[2].getString().toStdString() };
-        command_startTrackingUsingDevice(device);
-    }
-    else if (message.getAddressPattern() == "/setTrackingYawEnabled") {
-        bool enable = message[0].getInt32();
-        command_setTrackingYawEnabled(enable);
-    }
-    else if (message.getAddressPattern() == "/setTrackingPitchEnabled") {
-        bool enable = message[0].getInt32();
-        command_setTrackingPitchEnabled(enable);
-    }
-    else if (message.getAddressPattern() == "/setTrackingRollEnabled") {
-        bool enable = message[0].getInt32();
-        command_setTrackingRollEnabled(enable);
-    }
-    else if (message.getAddressPattern() == "/setOscDeviceSettings") {
-        int new_port = message[0].getInt32();
-        std::string new_pttrn = message[1].getString().toStdString();
-        command_updateOscDevice(new_port, new_pttrn);
-    }
-    else if (message.getAddressPattern() == "/recenter") {
-        command_recenter();
-    }
-    else if (message.getAddressPattern() == "/disconnect") {
-        command_disconnect();
-    }
-    else if (message.getAddressPattern() == "/setMonitoringMode") {
-        // receiving updated monitoring mode or other misc settings for clients
-        master_mode = message[0].getInt32();
-        DBG("[Monitor] Mode: "+std::to_string(master_mode));
-    }
-    else if (message.getAddressPattern() == "/setOffsetYPR") {
-        // receiving updated client YPR
-        // Note: It is expected that the orientation manager receives orientation and sends it to a client and for the client to offset this orientation before sending it back to registered plugins, the adding of all orientations should happen on client side only
-        int client_id = message[0].getInt32(); // use the client port to id the client
-        client_offset_ypr[client_id][0] = message[1].getFloat32(); // yaw
-        client_offset_ypr[client_id][1] = message[2].getFloat32(); // pitch
-        client_offset_ypr[client_id][2] = message[3].getFloat32(); // roll
-        DBG("[Client] YPR="+std::to_string(client_offset_ypr[client_id][0])+", "+std::to_string(client_offset_ypr[client_id][1])+", "+std::to_string(client_offset_ypr[client_id][2]));
-    }
-    else if (message.getAddressPattern() == "/setMasterYPR") {
-        // Used for relaying a master calculated orientation to registered plugins that require this for GUI systems
-        master_yaw = message[0].getFloat32();
-        master_pitch = message[1].getFloat32();
-        master_roll = message[2].getFloat32();
-    }
-    else if (message.getAddressPattern() == "/m1-register-plugin") {
-        // registering new panner instance
-        auto port = message[0].getInt32();
-        // protect port creation to only messages from registered plugin (example: an m1-panner)
-        if (std::find_if(registeredPlugins.begin(), registeredPlugins.end(), find_plugin(port)) == registeredPlugins.end()) {
-            M1RegisteredPlugin foundPlugin;
-            foundPlugin.port = port;
-            foundPlugin.messageSender = new juce::OSCSender();
-            foundPlugin.messageSender->connect("127.0.0.1", port); // connect to that newly discovered panner locally
-            registeredPlugins.push_back(foundPlugin);
-            DBG("Plugin registered: " + std::to_string(port));
-        } else {
-            DBG("Plugin port already registered: " + std::to_string(port));
-        }
-        if (!bTimerActive && registeredPlugins.size() > 0) {
-            startTimer(60);
-            bTimerActive = true;
-        } else {
-            if (registeredPlugins.size() == 0) {
-                // TODO: setup logic for deleting from `registeredPlugins`
-                stopTimer();
-                bTimerActive = false;
-            }
-        }
-    }
-    else if (message.getAddressPattern() == "/panner-settings") {
-        if (message.size() > 0) { // check message size
-            auto plugin_port = message[0].getInt32();
-            if (message.size() == 6) {
-                auto input_mode = message[1].getInt32();
-                auto azi = message[2].getFloat32();
-                auto ele = message[3].getFloat32();
-                auto div = message[4].getFloat32();
-                auto gain = message[5].getFloat32();
-                DBG("[OSC] Panner: port="+std::to_string(plugin_port)+", in="+std::to_string(input_mode)+", az="+std::to_string(azi)+", el="+std::to_string(ele)+", di="+std::to_string(div)+", gain="+std::to_string(gain));
-                // Check if port matches expected registered-plugin port
-                if (registeredPlugins.size() > 0) {
-                    auto it = std::find_if(registeredPlugins.begin(), registeredPlugins.end(), find_plugin(plugin_port));
-                    auto index = it - registeredPlugins.begin(); // find the index from the found plugin
-                    registeredPlugins[index].isPannerPlugin = true;
-                    registeredPlugins[index].input_mode = input_mode;
-                    registeredPlugins[index].azimuth = azi;
-                    registeredPlugins[index].elevation = ele;
-                    registeredPlugins[index].diverge = div;
-                    registeredPlugins[index].gain = gain;
-                }
-            }
-        } else {
-            // port not found, error here
-        }
-    }
-    else {
-        DBG("OSC Message not implemented: " + message.getAddressPattern().toString());
-    }
+     
 }
-
-bool M1OrientationManager::send(const std::vector<M1OrientationClientConnection>& clients, std::string str) {
-    juce::OSCMessage msg(str.c_str());
-    return send(clients, msg);
-}
-
-bool M1OrientationManager::send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg) {
-    for (auto& client : clients) {
-        juce::OSCSender sender;
-        if (sender.connect("127.0.0.1", client.port)) {
-            if (sender.send(msg)) {
-                return true;
-                // TODO: we need some feedback because we can send messages without error even when there is no client receiving
-            } else {
-                // TODO: ERROR: Issue with sending OSC message on server side
-                return false;
-            }
-        } else {
-            // TODO: ERROR: Issue with sending OSC message on server side
-            return false;
-        }
-    }
-}
-
-void M1OrientationManager::send_getDevices(const std::vector<M1OrientationClientConnection>& clients) {
-    std::vector<M1OrientationDeviceInfo> devices = getDevices();
-
-    juce::OSCMessage msg("/getDevices");
-    for (auto& device : devices) {
-        msg.addString(device.getDeviceName());
-        msg.addInt32(device.getDeviceType());
-        msg.addString(device.getDeviceAddress());
-        bool hasStrength = std::holds_alternative<int>(device.getDeviceSignalStrength());
-        msg.addInt32(hasStrength ? 1 : 0);
-        if (hasStrength) msg.addInt32(std::get<int>(device.getDeviceSignalStrength()));
-            else msg.addInt32(0);
-    }
-    send(clients, msg);
-}
-
-void M1OrientationManager::send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients) {
-    M1OrientationDeviceInfo device = getConnectedDevice();
-    juce::OSCMessage msg("/getCurrentDevice");
-    msg.addString(device.getDeviceName());
-    msg.addInt32(device.getDeviceType());
-    msg.addString(device.getDeviceAddress());
-    
-    auto signalStrength = device.getDeviceSignalStrength();
-    bool hasStrength = std::holds_alternative<int>(signalStrength);
-    msg.addInt32(hasStrength ? 1 : 0);
-    if (hasStrength) {
-        msg.addInt32(std::get<int>(signalStrength));
-    }
-    else {
-        msg.addInt32(0);
-    }
-    send(clients, msg);
-}
-
-void M1OrientationManager::send_getConnectedClients(const std::vector<M1OrientationClientConnection>& clients) {
-    juce::OSCMessage msg("/getConnectedClients");
-    
-    for (int i = 0; i < clients.size(); i++) {
-        msg.addInt32(i); // client index
-        msg.addInt32(clients[i].port);
-        msg.addString(clients[i].type);
-    }
-    send(clients, msg);
-}
-
-void M1OrientationManager::send_getTrackingYawEnabled(const std::vector<M1OrientationClientConnection>& clients) {
-    bool enable = getTrackingYawEnabled();
-    juce::OSCMessage msg("/getTrackingYawEnabled");
-    msg.addInt32(enable);
-    send(clients, msg);
-}
-
-void M1OrientationManager::send_getTrackingPitchEnabled(const std::vector<M1OrientationClientConnection>& clients) {
-    bool enable = getTrackingPitchEnabled();
-    juce::OSCMessage msg("/getTrackingPitchEnabled");
-    msg.addInt32(enable);
-    send(clients, msg);
-}
-
-void M1OrientationManager::send_getTrackingRollEnabled(const std::vector<M1OrientationClientConnection>& clients) {
-    bool enable = getTrackingRollEnabled();
-    juce::OSCMessage msg("/getTrackingRollEnabled");
-    msg.addInt32(enable);
-    send(clients, msg);
-}
-
+ 
 M1OrientationManager::~M1OrientationManager() {
     close();
 }
- 
-std::vector<M1OrientationClientConnection> M1OrientationManager::getClients() {
-    return clients;
-}
+  
 
 std::vector<M1OrientationDeviceInfo> M1OrientationManager::getDevices() {
     std::vector<M1OrientationDeviceInfo> devices;
@@ -305,43 +44,200 @@ bool M1OrientationManager::getTrackingRollEnabled() {
 }
 
 bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher = false) {
-    // check the port
-    juce::DatagramSocket socket(false);
-    socket.setEnablePortReuse(false);
-    if (socket.bindToPort(serverPort)) {
-        socket.shutdown();
+	// check the port
 
-        receiver.connect(serverPort);
-        receiver.addListener(this);
+	//http://localhost:8088/ping
+	std::thread([&]() {
+	
+		server.Get("/ping", [&](const httplib::Request &req, httplib::Response &res) {
+			mutex.lock();
+			res.set_content(stringForClient, "text/plain");
+			mutex.unlock();
+			}
+		);
 
-        this->serverPort = serverPort;
-        this->watcherPort = watcherPort;
-        this->isRunning = true;
+		server.Post("/startTrackingUsingDevice", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				M1OrientationDeviceInfo device = { (std::string)j.at(0), (M1OrientationDeviceType)j.at(1), (std::string)j.at(2) };
+				command_startTrackingUsingDevice(device);
+				return true;
+				}
+			);
+			}
+		);
 
-        if (useWatcher) {
-            std::thread([&]() {
-                while (this->isRunning) {
-                    juce::OSCSender sender;
-                    if (sender.connect("127.0.0.1", this->watcherPort)) {
-                        DBG("[Watcher] Pinging port "+std::to_string(this->watcherPort));
-                        juce::OSCMessage msg("/Mach1/ActiveClients");
-                        if (getClients().size() > 0) {
-                            msg.addInt32(getClients().size()); // report number of active clients, if number drops to 0 then watcher will shutdown
-                        } else {
-                            msg.addInt32(0);
-                        }
-                        sender.send(msg);
-                        sender.disconnect();
-                    }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                }
-            }).detach();
-        }
-        return true;
-    }
-    else {
-        return false;
-    }
+		server.Post("/setTrackingYawEnabled", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				bool enable = j.at(0);
+				command_setTrackingYawEnabled(enable);
+				return true;
+				}
+			);
+			}
+		);
+
+		server.Post("/setTrackingPitchEnabled", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				bool enable = j.at(0);
+				command_setTrackingPitchEnabled(enable);
+				return true;
+				}
+			);
+			}
+		);
+
+		server.Post("/setTrackingRollEnabled", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				bool enable = j.at(0);
+				command_setTrackingRollEnabled(enable);
+				return true;
+				}
+			);
+			}
+		);
+
+		server.Post("/setOscDeviceSettings", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				int new_port = j.at(0);
+				std::string new_pttrn = j.at(1);
+				command_updateOscDevice(new_port, new_pttrn);
+				return true;
+				}
+			);
+			}
+		);
+
+		server.Post("/recenter", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			command_recenter();
+			}
+		);
+
+		server.Post("/disconnect", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			command_disconnect();
+			}
+		);
+
+		server.Post("/setMonitoringMode", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			// receiving updated monitoring mode or other misc settings for clients
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				master_mode = j.at(0);
+				DBG("[Monitor] Mode: " + std::to_string(master_mode));
+				return true;
+				}
+			);
+			}
+		);
+
+		server.Post("/setOffsetYPR", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			// receiving updated client YPR
+			// Note: It is expected that the orientation manager receives orientation and sends it to a client and for the client to offset this orientation before sending it back to registered plugins, the adding of all orientations should happen on client side only
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				int client_id = j.at(0); // use the client port to id the client
+				client_offset_ypr[client_id][0] = j.at(1); // yaw
+				client_offset_ypr[client_id][1] = j.at(2); // pitch
+				client_offset_ypr[client_id][2] = j.at(3); // roll
+				DBG("[Client] YPR=" + std::to_string(client_offset_ypr[client_id][0]) + ", " + std::to_string(client_offset_ypr[client_id][1]) + ", " + std::to_string(client_offset_ypr[client_id][2]));
+				return true;
+				}
+			);
+			}
+		);
+
+		server.Post("/setMasterYPR", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			// Used for relaying a master calculated orientation to registered plugins that require this for GUI systems
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				master_yaw = j.at(0);
+				master_pitch = j.at(1);
+				master_roll = j.at(2);
+				return true;
+				}
+			);
+			}
+		);
+
+		server.Post("/m1-register-plugin", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			// registering new panner instance
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				auto port = (int)j.at(0);
+				// protect port creation to only messages from registered plugin (example: an m1-panner)
+				if (std::find_if(registeredPlugins.begin(), registeredPlugins.end(), find_plugin(port)) == registeredPlugins.end()) {
+					M1RegisteredPlugin foundPlugin;
+					foundPlugin.port = port;
+					foundPlugin.messageSender = new juce::OSCSender();
+					foundPlugin.messageSender->connect("127.0.0.1", port); // connect to that newly discovered panner locally
+					registeredPlugins.push_back(foundPlugin);
+					DBG("Plugin registered: " + std::to_string(port));
+				}
+				else {
+					DBG("Plugin port already registered: " + std::to_string(port));
+				}
+				if (!bTimerActive && registeredPlugins.size() > 0) {
+					startTimer(60);
+					bTimerActive = true;
+				}
+				else {
+					if (registeredPlugins.size() == 0) {
+						// TODO: setup logic for deleting from `registeredPlugins`
+						stopTimer();
+						bTimerActive = false;
+					}
+				}
+				return true;
+				}
+			);
+			}
+		);
+
+		server.Post("/panner-settings", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(data);
+				if (j.size() > 0) { // check message size
+					auto plugin_port = (int)j.at(0);
+					if (j.size() == 6) {
+						auto input_mode = (int)j.at(1);
+						auto azi = (float)j.at(2);
+						auto ele = (float)j.at(3);
+						auto div = (float)j.at(4);
+						auto gain = (float)j.at(5);
+						DBG("[OSC] Panner: port=" + std::to_string(plugin_port) + ", in=" + std::to_string(input_mode) + ", az=" + std::to_string(azi) + ", el=" + std::to_string(ele) + ", di=" + std::to_string(div) + ", gain=" + std::to_string(gain));
+						// Check if port matches expected registered-plugin port
+						if (registeredPlugins.size() > 0) {
+							auto it = std::find_if(registeredPlugins.begin(), registeredPlugins.end(), find_plugin(plugin_port));
+							auto index = it - registeredPlugins.begin(); // find the index from the found plugin
+							registeredPlugins[index].isPannerPlugin = true;
+							registeredPlugins[index].input_mode = input_mode;
+							registeredPlugins[index].azimuth = azi;
+							registeredPlugins[index].elevation = ele;
+							registeredPlugins[index].diverge = div;
+							registeredPlugins[index].gain = gain;
+						}
+					}
+				}
+				else {
+					// port not found, error here
+				}
+
+				return true;
+				}
+			);
+			}
+		);
+
+
+		server.listen("localhost", 8088);
+	}).detach();
+
+	return true;
+    
 }
 
 void M1OrientationManager::startSearchingForDevices() {
@@ -350,16 +246,16 @@ void M1OrientationManager::startSearchingForDevices() {
 			for (const auto& v : hardwareImpl) {
 				v.second->refreshDevices();
 			}
-			send_getDevices(clients);
 			std::this_thread::sleep_for(std::chrono::seconds(10));
 		}
 	}).detach();
 }
 
 void M1OrientationManager::update() {
+	std::vector<M1OrientationDeviceInfo> devices = getDevices();
+	M1OrientationYPR ypr;
 
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-		hardwareImpl[currentDevice.getDeviceType()]->lock();
         if (!hardwareImpl[currentDevice.getDeviceType()]->update()) {
             /// ERROR STATE
             // TODO: Check for connection to client, if not then reconnect
@@ -372,26 +268,51 @@ void M1OrientationManager::update() {
 
         // update orientation
         if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-            M1OrientationYPR ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRasSignedNormalled();
+            ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRasSignedNormalled();
             ypr.angleType = M1OrientationYPR::SIGNED_NORMALLED;
             if (!getTrackingYawEnabled()) ypr.yaw = 0.0;
             if (!getTrackingPitchEnabled()) ypr.pitch = 0.0;
             if (!getTrackingRollEnabled()) ypr.roll = 0.0;
             
-            // update clients
-            juce::OSCMessage msg("/getOrientation");
-            msg.addFloat32(ypr.yaw);
-            msg.addFloat32(ypr.pitch);
-            msg.addFloat32(ypr.roll);
-            send(clients, msg);
-			
+
             // commented out to avoid double applying offset angles from the get()
 			//orientation.setYPR(ypr);
         }
-		hardwareImpl[currentDevice.getDeviceType()]->unlock();
 	}
-    
-    send_getDevices(clients);
+
+
+
+	nlohmann::json j;
+	j["devices"] = nlohmann::json::array();
+
+	for (auto& device : devices) {
+		bool hasStrength = std::holds_alternative<int>(device.getDeviceSignalStrength());
+
+		j["devices"].push_back({
+			device.getDeviceName(),
+			device.getDeviceType(),
+			device.getDeviceAddress(),
+			hasStrength,
+			hasStrength ? std::get<int>(device.getDeviceSignalStrength()) : 0,
+			});
+	}
+
+	auto it = std::find(devices.begin(), devices.end(), currentDevice);
+	if (it != devices.end()) {
+		j["currentDeviceIdx"] = std::distance(devices.begin(), it);
+	}
+	else {
+		j["currentDeviceIdx"] = -1;
+	}
+
+	j["trackingEnabled"] = { bTrackingYawEnabled, bTrackingPitchEnabled, bTrackingRollEnabled };
+	j["orientation"] = { ypr.yaw, ypr.pitch, ypr.roll };
+
+	mutex.lock();
+	stringForClient = j.dump();
+	mutex.unlock();
+
+
 }
 
 Orientation M1OrientationManager::getOrientation() {
@@ -404,6 +325,8 @@ void M1OrientationManager::addHardwareImplementation(M1OrientationDeviceType typ
 
 void M1OrientationManager::close() {
     isRunning = false;
+
+	server.stop();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
@@ -418,7 +341,6 @@ void M1OrientationManager::command_disconnect() {
 		hardwareImpl[currentDevice.getDeviceType()]->close();
 		hardwareImpl[currentDevice.getDeviceType()]->unlock();
 		currentDevice = M1OrientationDeviceInfo();
-        send_getCurrentDevice(clients);
     }
 }
 
@@ -428,17 +350,8 @@ void M1OrientationManager::command_startTrackingUsingDevice(M1OrientationDeviceI
 		hardwareImpl[device.getDeviceType()]->lock();
         hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress) {
             if (success) {
-                send_getCurrentDevice(clients);
                 currentDevice = device;
             }
-            
-            juce::OSCMessage msg("/getStatus");
-            msg.addInt32(success);
-            msg.addString(message);
-            msg.addString(connectedDeviceName);
-            msg.addInt32(connectedDeviceType);
-            msg.addString(connectedDeviceAddress);
-            send(clients, msg);
         });
 		hardwareImpl[device.getDeviceType()]->unlock();
 	} else {
@@ -448,17 +361,14 @@ void M1OrientationManager::command_startTrackingUsingDevice(M1OrientationDeviceI
 
 void M1OrientationManager::command_setTrackingYawEnabled(bool enable) {
     bTrackingYawEnabled = enable;
-    send_getTrackingYawEnabled(clients);
 }
 
 void M1OrientationManager::command_setTrackingPitchEnabled(bool enable) {
     bTrackingPitchEnabled = enable;
-    send_getTrackingPitchEnabled(clients);
 }
 
 void M1OrientationManager::command_setTrackingRollEnabled(bool enable) {
     bTrackingRollEnabled = enable;
-    send_getTrackingRollEnabled(clients);
 }
 
 void M1OrientationManager::command_recenter() {
@@ -474,30 +384,6 @@ void M1OrientationManager::command_updateOscDevice(int new_port, std::string new
         if (currentDevice.osc_msg_addr_pttrn != new_msg_address_pattern) {
             // update custom message pattern
             currentDevice.osc_msg_addr_pttrn = new_msg_address_pattern;
-        }
-    }
-}
-
-void M1OrientationManager::command_activateClients() {
-    // TODO: add function for checking for stalled clients that did not properly remove themselves from list
-    
-    if (monitors.size() > 0) {
-        // send activate message to 1st index
-        juce::OSCSender sender;
-        if (sender.connect("127.0.0.1", monitors[0].port)) {
-            juce::OSCMessage msg("/client-active");
-            msg.addInt32(1); // send true / activate message
-            sender.send(msg);
-        }
-        // from 2nd index onward send a de-activate message
-        if (monitors.size() > 1) {
-            for (int i = 1; i < monitors.size(); i++) {
-                if (sender.connect("127.0.0.1", monitors[i].port)) {
-                    juce::OSCMessage msg("/client-active");
-                    msg.addInt32(0); // send false / de-activate message
-                    sender.send(msg);
-                }
-            }
         }
     }
 }

@@ -2,7 +2,6 @@
 //  m1-orientationmanager
 //  Copyright © 2022 Mach1. All rights reserved.
 //
-
 #pragma once
 
 #include <JuceHeader.h>
@@ -57,7 +56,11 @@ class M1OrientationManager :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
     public M1OrientationManagerOSCSettings, juce::Timer
 {
-    juce::OSCReceiver receiver; 
+	httplib::Server server;
+	std::mutex mutex;
+	std::string stringForClient;
+
+	juce::OSCReceiver receiver;
 
     std::vector<M1OrientationClientConnection> clients;
     int serverPort = 0;
@@ -74,15 +77,6 @@ class M1OrientationManager :
     bool bTrackingRollEnabled = true;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
-    bool send(const std::vector<M1OrientationClientConnection>& clients, std::string str);
-    bool send(const std::vector<M1OrientationClientConnection>& clients, juce::OSCMessage& msg);
-
-    void send_getDevices(const std::vector<M1OrientationClientConnection>& clients);
-    void send_getCurrentDevice(const std::vector<M1OrientationClientConnection>& clients);
-    void send_getConnectedClients(const std::vector<M1OrientationClientConnection>& clients);
-    void send_getTrackingYawEnabled(const std::vector<M1OrientationClientConnection>& clients);
-    void send_getTrackingPitchEnabled(const std::vector<M1OrientationClientConnection>& clients);
-    void send_getTrackingRollEnabled(const std::vector<M1OrientationClientConnection>& clients);
 
     std::map<M1OrientationDeviceType, HardwareAbstract*> hardwareImpl;
     M1OrientationDeviceInfo currentDevice;
@@ -100,7 +94,6 @@ public:
     void update();
 
     Orientation getOrientation();
-    std::vector<M1OrientationClientConnection> getClients();
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getConnectedDevice();
 
@@ -115,9 +108,7 @@ public:
     void command_updateOscDevice(int new_port, std::string new_msg_address_pattern);
     void command_recenter();
     void command_disconnect();
-    
-    void command_activateClients();
-    
+   
     // Tracking for any plugin that does not need an m1_orientation_client but still needs feedback of orientation for UI purposes such as the M1-Panner plugin
     std::vector<M1RegisteredPlugin> registeredPlugins;
     bool bTimerActive = false;

@@ -167,7 +167,7 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
                 m1OrientationClient.command_disconnect();
             })
             .onRefreshClicked([&]() {
-                m1OrientationClient.command_refreshDevices();
+                //m1OrientationClient.command_refreshDevices();
             })
             .onYPRSwitchesClicked([&](int whichone) {
                 if (whichone == 0)
