@@ -45,7 +45,7 @@ bool M1OrientationManager::getTrackingRollEnabled() {
 
 bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher = false) {
 	// check the port
-
+    this->serverPort = serverPort;
 	std::thread([&]() {
 	
 		server.Get("/ping", [&](const httplib::Request &req, httplib::Response &res) {
@@ -230,7 +230,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 		);
 
 
-		server.listen("localhost", serverPort);
+		server.listen("localhost", this->serverPort);
 	}).detach();
 
 	return true;
