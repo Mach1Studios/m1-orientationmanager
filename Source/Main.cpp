@@ -220,8 +220,14 @@ void signalHandler(int signum) {
 	}
 }
 
+// #define JUCE_CATCH_UNHANDLED_EXCEPTIONS
+
+namespace juce { extern void initialiseNSApplication(); }
+
 int main(int argc, char* argv[]) {
-	// Set up signal handlers to gracefully handle service termination
+    initialiseJuce_GUI();
+    
+    // Set up signal handlers to gracefully handle service termination
 	signal(SIGTERM, signalHandler);
 	signal(SIGINT, signalHandler);
 
@@ -229,9 +235,15 @@ int main(int argc, char* argv[]) {
 	std::cout << "Service is starting..." << std::endl;
 
 	// Start a worker thread to perform the service's workand wait for the worker thread to complete.
-	std::thread([&] { juce::MessageManager::getInstance()->runDispatchLoop(); }).detach();
-	std::thread([]() { M1OrientationManagerService::getInstance().start(); }).join();
-
+    ScopedJuceInitialiser_GUI initialiser;
+    std::thread([]() {
+        juce::Thread::sleep(1000);        M1OrientationManagerService::getInstance().start();
+    }).detach();
+    
+    juce::initialiseNSApplication();
+    juce::MessageManager::getInstance()->setCurrentThreadAsMessageThread();
+    juce::MessageManager::getInstance()->runDispatchLoop();
+   
 	return 0;
 }
 
