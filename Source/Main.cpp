@@ -203,4 +203,4 @@ private:
 // This macro generates the main() routine that launches the app.
 //==============================================================================
 
-    START_JUCE_APPLICATION (M1OrientationDeviceServerApplication)
+START_JUCE_APPLICATION (M1OrientationDeviceServerApplication)
