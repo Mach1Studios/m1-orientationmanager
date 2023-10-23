@@ -9,6 +9,7 @@
 #include "m1_orientation_client/M1OrientationSettings.h"
 #include "HardwareAbstract.h"
 #include <thread>
+#include <map>
 
 // TODO: refactor this class and the find_plugin struct
 class M1RegisteredPlugin {
@@ -67,7 +68,7 @@ class M1OrientationManager :
     int watcherPort = 0;
     bool isRunning = false;
     
-    std::vector< std::vector<float> > client_offset_ypr;
+    std::map<int, std::vector<float> > client_offset_ypr;
     std::vector<M1OrientationClientConnection> monitors; // track all the monitor instances
     float master_yaw = 0; float master_pitch = 0; float master_roll = 0;
     int master_mode = 0;

@@ -139,9 +139,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 			content_reader([&](const char *data, size_t data_length) {
 				auto j = nlohmann::json::parse(data);
 				int client_id = j.at(0); // use the client port to id the client
-				client_offset_ypr[client_id][0] = j.at(1); // yaw
-				client_offset_ypr[client_id][1] = j.at(2); // pitch
-				client_offset_ypr[client_id][2] = j.at(3); // roll
+				client_offset_ypr[client_id] = { j.at(1), j.at(2), j.at(3) }; // yaw, pitch, roll
 				DBG("[Client] YPR=" + std::to_string(client_offset_ypr[client_id][0]) + ", " + std::to_string(client_offset_ypr[client_id][1]) + ", " + std::to_string(client_offset_ypr[client_id][2]));
 				return true;
 				}
