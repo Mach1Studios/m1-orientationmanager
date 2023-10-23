@@ -12,15 +12,10 @@
 */
 #define GUI_APP
 
-#if defined(WIN32) && !defined(WIN32_LEAN_AND_MEAN) 
-#error need to define WIN32_LEAN_AND_MEAN in project settings
-#endif
-
 #include <JuceHeader.h>
 #include <thread>
 #include "MainComponent.h"
 #include "M1OrientationManagerService.h"
-
 
 class M1OrientationDeviceServerApplication  : public juce::JUCEApplication
 {
