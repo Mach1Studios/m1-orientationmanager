@@ -144,6 +144,7 @@ public:
         quit();
     }
 
+#if defined(GUI_APP)
     //==============================================================================
     /*
         This class implements the desktop window that contains an instance of
@@ -187,10 +188,9 @@ public:
         */
 
     private:
-#if defined(GUI_APP)
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
-#endif
     };
+#endif
 
 private:
 #if defined(GUI_APP)
