@@ -59,6 +59,7 @@ This can be found in the [osc_client](osc_client) directory.
 - Copy the [settings.json](Resources/settings.json) and built m1-orientationmanager executable to be alongside (as siblings) the M1-OrientationOSC app/exe within the same directory
 
 ## TODO
+- Make the M1-OrientationClient and M1-OrientationClientWindow classes work together via the UI window class managing the client instead of being handled by the hosting application code
 - Finish camera implementation
 - Allow camera to be added to any paired IMU for fusion calculations (fixing drift when face orientation is detected periodically)
 - Add CI/CD for the OSC tool for users who need a more portable osc output tool
