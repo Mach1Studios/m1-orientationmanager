@@ -151,13 +151,11 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     }
     
     if (showOrientationControlMenu) {
-        
-        // We should also refresh
-        
+        // We should refresh if the menu is open
+        // TODO: fix issue where we lose connected device due to refreshing
         m1OrientationClient.command_refresh();
         
         // Let's draw the stuff
-        
         bool showOrientationSettingsPanelInsideWindow = (m1OrientationClient.getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone);
         orientationControlWindow = &(m.prepare<M1OrientationClientWindow>({ m.getSize().width() - 218 - 5 , 5, 218, 240 + 100 * showOrientationSettingsPanelInsideWindow })
             .withDeviceList(slots)
@@ -166,9 +164,6 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
             .onClickOutside([&]() {
                 if (!orientationControlButton.hovered) { // Only switch showing the orientation control if we didn't click on the button
                     showOrientationControlMenu = !showOrientationControlMenu;
-//                    if (showOrientationControlMenu && !showedOrientationControlBefore) {
-//                        orientationControlWindow->startRefreshing();
-//                    }
                 }
             })
             .onOscSettingsChanged([&](int requested_osc_port, std::string requested_osc_msg_address) {

@@ -67,7 +67,6 @@ class M1OrientationManager :
     int serverPort = 0;
     int watcherPort = 0;
 
-
 	float playerPositionInSeconds = 0;
 	float playerFrameRate = 0;
 	bool playerIsPlaying = false;
