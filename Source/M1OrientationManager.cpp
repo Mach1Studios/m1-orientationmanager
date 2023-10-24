@@ -405,6 +405,9 @@ void M1OrientationManager::command_updateOscDevice(int new_port, std::string new
         if (currentDevice.osc_port != new_port) {
             // update port
             currentDevice.osc_port = new_port;
+            // reconnect
+            command_disconnect();
+            command_startTrackingUsingDevice(currentDevice);
         }
         if (currentDevice.osc_msg_addr_pttrn != new_msg_address_pattern) {
             // update custom message pattern
