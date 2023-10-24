@@ -14,7 +14,6 @@ void M1OrientationManager::oscMessageReceived(const juce::OSCMessage& message) {
 M1OrientationManager::~M1OrientationManager() {
     close();
 }
-  
 
 std::vector<M1OrientationDeviceInfo> M1OrientationManager::getDevices() {
     std::vector<M1OrientationDeviceInfo> devices;
@@ -255,7 +254,6 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 			);
 			}
 		);
-
 		server.listen("localhost", this->serverPort);
 	}).detach();
 
@@ -265,12 +263,11 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 
 void M1OrientationManager::startSearchingForDevices() {
 	std::thread([&] {
-		while (isRunning) {
+		while (true) {
             if (isDevicesRefreshRequested) {
                 for (const auto& v : hardwareImpl) {
                     v.second->refreshDevices();
                 }
-                
                 isDevicesRefreshRequested = false;
             }
             std::this_thread::sleep_for(std::chrono::seconds(10));
@@ -301,13 +298,10 @@ void M1OrientationManager::update() {
             if (!getTrackingPitchEnabled()) ypr.pitch = 0.0;
             if (!getTrackingRollEnabled()) ypr.roll = 0.0;
             
-
             // commented out to avoid double applying offset angles from the get()
 			//orientation.setYPR(ypr);
         }
 	}
-
-
 
 	nlohmann::json j;
 	j["devices"] = nlohmann::json::array();
@@ -335,12 +329,10 @@ void M1OrientationManager::update() {
 	j["trackingEnabled"] = { bTrackingYawEnabled, bTrackingPitchEnabled, bTrackingRollEnabled };
 	j["orientation"] = { ypr.yaw, ypr.pitch, ypr.roll };
 
-
 	j["player"]["frameRate"] = playerFrameRate;
 	j["player"]["positionInSeconds"] = playerPositionInSeconds;
 	j["player"]["isPlaying"] = playerIsPlaying;
 	j["player"]["lastUpdate"] = playerLastUpdate;
-
 
 	mutex.lock();
 	stringForClient = j.dump();
@@ -357,11 +349,8 @@ void M1OrientationManager::addHardwareImplementation(M1OrientationDeviceType typ
 
 void M1OrientationManager::close() {
     isRunning = false;
-
 	server.stop();
-
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
     receiver.removeListener(this);
     receiver.disconnect();
 }
