@@ -75,6 +75,8 @@ class M1OrientationManager :
 
     bool isRunning = false;
     
+    bool isDevicesRefreshRequested = false;
+    
     std::map<int, std::vector<float> > client_offset_ypr;
     std::vector<M1OrientationClientConnection> monitors; // track all the monitor instances
     float master_yaw = 0; float master_pitch = 0; float master_roll = 0;
@@ -116,6 +118,7 @@ public:
     void command_updateOscDevice(int new_port, std::string new_msg_address_pattern);
     void command_recenter();
     void command_disconnect();
+    void command_refresh();
    
     // Tracking for any plugin that does not need an m1_orientation_client but still needs feedback of orientation for UI purposes such as the M1-Panner plugin
     std::vector<M1RegisteredPlugin> registeredPlugins;

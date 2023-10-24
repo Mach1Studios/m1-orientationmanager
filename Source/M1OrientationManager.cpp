@@ -116,6 +116,11 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 			}
 		);
 
+        server.Post("/devicesrefresh", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+            command_refresh();
+            }
+        );
+        
 		server.Post("/disconnect", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			command_disconnect();
 			}
@@ -261,10 +266,14 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 void M1OrientationManager::startSearchingForDevices() {
 	std::thread([&] {
 		while (isRunning) {
-			for (const auto& v : hardwareImpl) {
-				v.second->refreshDevices();
-			}
-			std::this_thread::sleep_for(std::chrono::seconds(10));
+            if (isDevicesRefreshRequested) {
+                for (const auto& v : hardwareImpl) {
+                    v.second->refreshDevices();
+                }
+                
+                isDevicesRefreshRequested = false;
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(10));
 		}
 	}).detach();
 }
@@ -396,6 +405,10 @@ void M1OrientationManager::command_setTrackingRollEnabled(bool enable) {
 
 void M1OrientationManager::command_recenter() {
     orientation.recenter();
+}
+
+void M1OrientationManager::command_refresh() {
+    isDevicesRefreshRequested = true;
 }
 
 void M1OrientationManager::command_updateOscDevice(int new_port, std::string new_msg_address_pattern) {
