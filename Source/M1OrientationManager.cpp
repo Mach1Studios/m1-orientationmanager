@@ -57,7 +57,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 
 		server.Post("/startTrackingUsingDevice", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				M1OrientationDeviceInfo device = { (std::string)j.at(0), (M1OrientationDeviceType)j.at(1), (std::string)j.at(2) };
 				command_startTrackingUsingDevice(device);
 				return true;
@@ -68,7 +68,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 
 		server.Post("/setTrackingYawEnabled", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				bool enable = j.at(0);
 				command_setTrackingYawEnabled(enable);
 				return true;
@@ -79,7 +79,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 
 		server.Post("/setTrackingPitchEnabled", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				bool enable = j.at(0);
 				command_setTrackingPitchEnabled(enable);
 				return true;
@@ -90,7 +90,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 
 		server.Post("/setTrackingRollEnabled", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				bool enable = j.at(0);
 				command_setTrackingRollEnabled(enable);
 				return true;
@@ -101,7 +101,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 
 		server.Post("/setOscDeviceSettings", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				int new_port = j.at(0);
 				std::string new_pttrn = j.at(1);
 				command_updateOscDevice(new_port, new_pttrn);
@@ -124,7 +124,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 		server.Post("/setMonitoringMode", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			// receiving updated monitoring mode or other misc settings for clients
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				master_mode = j.at(0);
 				DBG("[Monitor] Mode: " + std::to_string(master_mode));
 				return true;
@@ -137,7 +137,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 			// receiving updated client YPR
 			// Note: It is expected that the orientation manager receives orientation and sends it to a client and for the client to offset this orientation before sending it back to registered plugins, the adding of all orientations should happen on client side only
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				int client_id = j.at(0); // use the client port to id the client
 				client_offset_ypr[client_id] = { j.at(1), j.at(2), j.at(3) }; // yaw, pitch, roll
 				DBG("[Client] YPR=" + std::to_string(client_offset_ypr[client_id][0]) + ", " + std::to_string(client_offset_ypr[client_id][1]) + ", " + std::to_string(client_offset_ypr[client_id][2]));
@@ -150,7 +150,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 		server.Post("/setMasterYPR", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			// Used for relaying a master calculated orientation to registered plugins that require this for GUI systems
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				master_yaw = j.at(0);
 				master_pitch = j.at(1);
 				master_roll = j.at(2);
@@ -163,7 +163,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 		server.Post("/m1-register-plugin", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			// registering new panner instance
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				auto port = (int)j.at(0);
 				// protect port creation to only messages from registered plugin (example: an m1-panner)
 				if (std::find_if(registeredPlugins.begin(), registeredPlugins.end(), find_plugin(port)) == registeredPlugins.end()) {
@@ -196,7 +196,7 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 
 		server.Post("/panner-settings", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(data);
+				auto j = nlohmann::json::parse(std::string(data, data_length));
 				if (j.size() > 0) { // check message size
 					auto plugin_port = (int)j.at(0);
 					if (j.size() == 6) {
@@ -229,6 +229,27 @@ bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher
 			}
 		);
 
+		server.Post("/setPlayerPosition", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(std::string(data, data_length));
+				playerPositionInSeconds = j.at(0);
+				playerLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				return true;
+				}
+			);
+			}
+		);
+
+		server.Post("/setPlayerIsPlaying", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+			content_reader([&](const char *data, size_t data_length) {
+				auto j = nlohmann::json::parse(std::string(data, data_length));
+				playerIsPlaying = j.at(0);
+				playerLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				return true;
+				}
+			);
+			}
+		);
 
 		server.listen("localhost", serverPort);
 	}).detach();
@@ -305,11 +326,16 @@ void M1OrientationManager::update() {
 	j["trackingEnabled"] = { bTrackingYawEnabled, bTrackingPitchEnabled, bTrackingRollEnabled };
 	j["orientation"] = { ypr.yaw, ypr.pitch, ypr.roll };
 
+
+	j["player"]["frameRate"] = playerFrameRate;
+	j["player"]["positionInSeconds"] = playerPositionInSeconds;
+	j["player"]["isPlaying"] = playerIsPlaying;
+	j["player"]["lastUpdate"] = playerLastUpdate;
+
+
 	mutex.lock();
 	stringForClient = j.dump();
 	mutex.unlock();
-
-
 }
 
 Orientation M1OrientationManager::getOrientation() {

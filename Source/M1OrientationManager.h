@@ -66,6 +66,13 @@ class M1OrientationManager :
     std::vector<M1OrientationClientConnection> clients;
     int serverPort = 0;
     int watcherPort = 0;
+
+
+	float playerPositionInSeconds = 0;
+	float playerFrameRate = 0;
+	bool playerIsPlaying = false;
+	int playerLastUpdate = 0;
+
     bool isRunning = false;
     
     std::map<int, std::vector<float> > client_offset_ypr;
