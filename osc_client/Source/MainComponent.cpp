@@ -151,6 +151,13 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     }
     
     if (showOrientationControlMenu) {
+        
+        // We should also refresh
+        
+        m1OrientationClient.command_refresh();
+        
+        // Let's draw the stuff
+        
         bool showOrientationSettingsPanelInsideWindow = (m1OrientationClient.getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone);
         orientationControlWindow = &(m.prepare<M1OrientationClientWindow>({ m.getSize().width() - 218 - 5 , 5, 218, 240 + 100 * showOrientationSettingsPanelInsideWindow })
             .withDeviceList(slots)
@@ -158,9 +165,9 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
             .onClickOutside([&]() {
                 if (!orientationControlButton.hovered) { // Only switch showing the orientation control if we didn't click on the button
                     showOrientationControlMenu = !showOrientationControlMenu;
-                    if (showOrientationControlMenu && !showedOrientationControlBefore) {
-                        orientationControlWindow->startRefreshing();
-                    }
+//                    if (showOrientationControlMenu && !showedOrientationControlBefore) {
+//                        orientationControlWindow->startRefreshing();
+//                    }
                 }
             })
             .onDisconnectClicked([&]() {
