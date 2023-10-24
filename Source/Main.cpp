@@ -10,14 +10,12 @@
 
   ==============================================================================
 */
-
 #include <JuceHeader.h>
 #include <thread>
 #include "MainComponent.h"
 #include "M1OrientationManagerService.h"
 
-#if defined(JUCE_WINDOWS)
-
+#if !defined(GUI_APP) && defined(JUCE_WINDOWS)
 #include <Windows.h>
 #include <iostream>
 #include <thread>
@@ -28,78 +26,82 @@ HANDLE                  g_ServiceStopEvent = INVALID_HANDLE_VALUE;
 
 // Service control handler function
 VOID WINAPI ServiceControlHandler(DWORD dwControl) {
-    switch (dwControl) {
-    case SERVICE_CONTROL_STOP:
-    case SERVICE_CONTROL_SHUTDOWN:
-        // Report the service status as STOP_PENDING.
-        g_ServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-        SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
+	switch (dwControl) {
+	case SERVICE_CONTROL_STOP:
+	case SERVICE_CONTROL_SHUTDOWN:
+		// Report the service status as STOP_PENDING.
+		g_ServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+		SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
 
-        juce::MessageManager::getInstance()->stopDispatchLoop();
+		juce::MessageManager::getInstance()->stopDispatchLoop();
 
-        // Signal the service to stop.
-        SetEvent(g_ServiceStopEvent);
-        return;
+		// Signal the service to stop.
+		SetEvent(g_ServiceStopEvent);
+		return;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 // Service entry point
 VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv) {
-    g_StatusHandle = RegisterServiceCtrlHandler("M1-OrientationManager", ServiceControlHandler);
-    if (!g_StatusHandle) {
-        std::cerr << "RegisterServiceCtrlHandler failed: " << GetLastError() << std::endl;
-        return;
-    }
+	g_StatusHandle = RegisterServiceCtrlHandler("M1-OrientationManager", ServiceControlHandler);
+	if (!g_StatusHandle) {
+		std::cerr << "RegisterServiceCtrlHandler failed: " << GetLastError() << std::endl;
+		return;
+	}
 
-    // Report the service status as RUNNING.
-    g_ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
-    g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
-    g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
-    g_ServiceStatus.dwWin32ExitCode = NO_ERROR;
-    g_ServiceStatus.dwServiceSpecificExitCode = 0;
-    g_ServiceStatus.dwCheckPoint = 0;
-    g_ServiceStatus.dwWaitHint = 0;
-    SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
+	// Report the service status as RUNNING.
+	g_ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+	g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
+	g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
+	g_ServiceStatus.dwWin32ExitCode = NO_ERROR;
+	g_ServiceStatus.dwServiceSpecificExitCode = 0;
+	g_ServiceStatus.dwCheckPoint = 0;
+	g_ServiceStatus.dwWaitHint = 0;
+	SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
 
-    // Create an event to signal the service to stop.
-    g_ServiceStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-    if (g_ServiceStopEvent == NULL) {
-        // Handle error.
-        return;
-    }
+	// Create an event to signal the service to stop.
+	g_ServiceStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (g_ServiceStopEvent == NULL) {
+		// Handle error.
+		return;
+	}
 
-    // Start a worker thread to perform the service's workand wait for the worker thread to complete.
-    std::thread([&] { juce::MessageManager::getInstance()->runDispatchLoop(); }).detach();
-    std::thread([]() { M1OrientationManagerService::getInstance().start(); }).join();
+	// Start a worker thread to perform the service's workand wait for the worker thread to complete.
+	std::thread([&] { juce::MessageManager::getInstance()->runDispatchLoop(); }).detach();
+	std::thread([]() { M1OrientationManagerService::getInstance().start(); }).join();
 
-    // Cleanup and report the service status as STOPPED.
-    CloseHandle(g_ServiceStopEvent);
-    g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
-    g_ServiceStatus.dwControlsAccepted = 0;
-    SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
+	// Cleanup and report the service status as STOPPED.
+	CloseHandle(g_ServiceStopEvent);
+	g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+	g_ServiceStatus.dwControlsAccepted = 0;
+	SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
 }
-#endif // end of windows
+ 
+int main(int argc, char* argv[]) {
+	SERVICE_TABLE_ENTRY ServiceTable[] =
+	{
+		{ "M1-OrientationManager", (LPSERVICE_MAIN_FUNCTION)ServiceMain},
+		{ NULL, NULL }
+	};
+
+	// This is where the service starts.
+	if (StartServiceCtrlDispatcher(ServiceTable) == FALSE) {
+		std::cerr << "StartServiceCtrlDispatcher failed: " << GetLastError() << std::endl;
+	}
+
+	return 0;
+}
+
+#else 
 
 class M1OrientationDeviceServerApplication  : public juce::JUCEApplication
 {
 public:
     //==============================================================================
     M1OrientationDeviceServerApplication() {
-#if defined(JUCE_WINDOWS)
-        SERVICE_TABLE_ENTRY ServiceTable[] =
-        {
-            { "M1-OrientationManager", (LPSERVICE_MAIN_FUNCTION)ServiceMain},
-            { NULL, NULL }
-        };
-
-        // This is where the service starts.
-        if (StartServiceCtrlDispatcher(ServiceTable) == FALSE) {
-            std::cerr << "StartServiceCtrlDispatcher failed: " << GetLastError() << std::endl;
-        }
-#endif
     }
 
     const juce::String getApplicationName() override       { return ProjectInfo::projectName; }
@@ -204,3 +206,5 @@ private:
 //==============================================================================
 
 START_JUCE_APPLICATION (M1OrientationDeviceServerApplication)
+
+#endif 
