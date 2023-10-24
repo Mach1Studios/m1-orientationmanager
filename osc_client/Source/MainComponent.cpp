@@ -151,7 +151,8 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     }
     
     if (showOrientationControlMenu) {
-        // We should also refresh
+        // We should refresh if the menu is open
+        // TODO: fix issue where we lose connected device due to refreshing
         m1OrientationClient.command_refresh();
         
         // Let's draw the stuff
