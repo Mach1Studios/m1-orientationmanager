@@ -19,3 +19,9 @@
 [submodule "JUCE"]
 	path = JUCE
 	url = git@github.com:juce-framework/JUCE.git
+[submodule "Source/json"]
+	path = Source/json
+	url = git@github.com:nlohmann/json.git
+[submodule "Source/httplib"]
+	path = Source/httplib
+	url = git@github.com:yhirose/cpp-httplib.git

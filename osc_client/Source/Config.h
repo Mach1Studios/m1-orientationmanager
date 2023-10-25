@@ -31,9 +31,9 @@
     #pragma message XSTR(LOCAL_FONT) "." XSTR(LOCAL_FONT_TYPE)
 #else
     // default CC0 font
-    #define PLUGIN_FONT "AileronSemiBold.ttf"
-    #define BINARYDATA_FONT BinaryData::AileronSemiBold_ttf
-    #define BINARYDATA_FONT_SIZE BinaryData::AileronSemiBold_ttfSize
+    #define PLUGIN_FONT "InterRegular.ttf"
+    #define BINARYDATA_FONT BinaryData::InterRegular_ttf
+    #define BINARYDATA_FONT_SIZE BinaryData::InterRegular_ttfSize
     #define DEFAULT_FONT_SIZE 11
 #endif
 #pragma message XSTR(PLUGIN_FONT)

@@ -6,8 +6,8 @@
               companyWebsite="https://www.mach1.tech" companyCopyright="Mach1, Corp."
               bundleIdentifier="com.mach1.spatial.orientationmanager" cppLanguageStandard="17">
   <MAINGROUP id="Z4KsZJ" name="m1-orientationmanager">
-    <FILE id="lbMTh3" name="AileronSemiBold.ttf" compile="0" resource="1"
-          file="Resources/AileronSemiBold.ttf"/>
+    <FILE id="IV6Y5g" name="InterRegular.ttf" compile="0" resource="1"
+          file="Resources/InterRegular.ttf"/>
     <FILE id="E85Cjm" name="mach1logo.png" compile="0" resource="1" file="Resources/mach1logo.png"/>
     <GROUP id="{10C53C35-6078-FD9E-4A16-6DCD8AE44EEF}" name="Source">
       <FILE id="jm5zag" name="Config.h" compile="0" resource="0" file="Source/Config.h"/>
@@ -31,6 +31,8 @@
       <FILE id="m6K7PI" name="HardwareOSC.h" compile="0" resource="0" file="Source/HardwareOSC.h"/>
       <FILE id="yP8Wjp" name="HardwareEmulator.h" compile="0" resource="0"
             file="Source/HardwareEmulator.h"/>
+      <FILE id="a9SjGr" name="httplib.h" compile="0" resource="0" file="Source/httplib/httplib.h"/>
+      <FILE id="s87G2B" name="json.hpp" compile="0" resource="0" file="Source/json/single_include/nlohmann/json.hpp"/>
       <GROUP id="{3408C695-D15B-0835-76B6-90EEC61F719D}" name="rs232">
         <FILE id="oLwVMk" name="rs232-linux.c" compile="1" resource="0" file="Source/rs232/rs232-linux.c"/>
         <FILE id="gddPgR" name="rs232-win.c" compile="1" resource="0" file="Source/rs232/rs232-win.c"/>

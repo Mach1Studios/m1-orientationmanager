@@ -1,6 +1,6 @@
 file(GLOB source_files  Config.h
-                        httplib.h # TODO: refactor as submodule
-                        nlohmann/json.hpp # TODO: refactor as submodule
+                        httplib/httplib.h
+                        json/single_include/nlohmann/json.hpp
                         Main.cpp
                         MainComponent.h
                         MainComponent.cpp

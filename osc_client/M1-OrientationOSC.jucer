@@ -6,6 +6,8 @@
               companyEmail="whatsup@mach1.tech" companyCopyright="Mach1, Corp."
               companyName="Mach1">
   <MAINGROUP id="ChS6iJ" name="M1-OrientationOSC">
+    <FILE id="Gv2YQj" name="InterRegular.ttf" compile="0" resource="1"
+          file="Resources/InterRegular.ttf"/>
     <FILE id="e9rLim" name="mach1logo.png" compile="0" resource="1" file="../Resources/mach1logo.png"/>
     <FILE id="VqUErL" name="bluetooth_icon.png" compile="0" resource="1"
           file="../Modules/m1_orientation_client/Resources/bluetooth_icon.png"/>
@@ -14,8 +16,6 @@
           file="../Modules/m1_orientation_client/Resources/tech_support_icon.png"/>
     <FILE id="ApIMKv" name="usb_icon.png" compile="0" resource="1" file="../Modules/m1_orientation_client/Resources/usb_icon.png"/>
     <FILE id="MZ6L8y" name="wi-fi_icon.png" compile="0" resource="1" file="../Modules/m1_orientation_client/Resources/wi-fi_icon.png"/>
-    <FILE id="EHLyok" name="AileronSemiBold.ttf" compile="0" resource="1"
-          file="../Resources/AileronSemiBold.ttf"/>
     <GROUP id="{BC60B410-BD00-7BDD-673D-241847D2BE6B}" name="Source">
       <FILE id="XHgfpM" name="Config.h" compile="0" resource="0" file="Source/Config.h"/>
       <FILE id="pr4zBT" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>

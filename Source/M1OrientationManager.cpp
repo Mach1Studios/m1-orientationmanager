@@ -4,8 +4,8 @@
 //
 
 #include "M1OrientationManager.h"
-#include "nlohmann/json.hpp"
-#include "httplib.h"
+#include "json/single_include/nlohmann/json.hpp"
+#include "httplib/httplib.h"
 
 void M1OrientationManager::oscMessageReceived(const juce::OSCMessage& message) {
      
