@@ -60,7 +60,7 @@ public:
 		settingsFile = settingsFile.getChildFile("settings.json");
 		DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
 
-		if (m1OrientationManager.initFromSettings(settingsFile.getFullPathName().toStdString(), true)) {
+		if (m1OrientationManager.initFromSettings(settingsFile.getFullPathName().toStdString())) {
 			// For debug testing, you can set this to false to list all connectable BLE devices
 			hardwareBLE.displayOnlyKnownIMUs = true;
 			hardwareBLE.setup();

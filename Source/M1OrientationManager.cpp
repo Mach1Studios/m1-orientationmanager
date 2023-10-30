@@ -42,7 +42,7 @@ bool M1OrientationManager::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
-bool M1OrientationManager::init(int serverPort, int watcherPort, bool useWatcher = false) {
+bool M1OrientationManager::init(int serverPort, int watcherPort) {
 	// check the port
     this->serverPort = serverPort;
 	std::thread([&]() {

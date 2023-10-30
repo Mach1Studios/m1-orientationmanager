@@ -65,7 +65,6 @@ class M1OrientationManager :
 
     std::vector<M1OrientationClientConnection> clients;
     int serverPort = 0;
-    int watcherPort = 0;
 
 	float playerPositionInSeconds = 0;
 	float playerFrameRate = 0;
@@ -95,7 +94,7 @@ public:
     
     virtual ~M1OrientationManager();
 
-    bool init(int serverPort, int watcherPort, bool useWatcher);
+    bool init(int serverPort, int watcherPort);
     void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
 
 	void startSearchingForDevices();
