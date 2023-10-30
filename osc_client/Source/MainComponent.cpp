@@ -238,9 +238,9 @@ void MainComponent::draw()
     offsetY += 15;
     m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRasDegrees().yaw), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getYPRasDegrees().pitch), offsetX, offsetY);
+    m.getCurrentFont()->drawString("P:  " + std::to_string(orientation.getYPRasDegrees().pitch), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getYPRasDegrees().roll), offsetX, offsetY);
+    m.getCurrentFont()->drawString("R:  " + std::to_string(orientation.getYPRasDegrees().roll), offsetX, offsetY);
     
     offsetY += 30;
     
@@ -250,10 +250,10 @@ void MainComponent::draw()
     m.getCurrentFont()->drawString("Y:  " + yaw_enabled_msg, offsetX, offsetY);
     offsetY += 15;
     std::string pitch_enabled_msg = (m1OrientationClient.getTrackingPitchEnabled()) ? "ENABLED" : "DISABLED";
-    m.getCurrentFont()->drawString("P: " + pitch_enabled_msg, offsetX, offsetY);
+    m.getCurrentFont()->drawString("P:  " + pitch_enabled_msg, offsetX, offsetY);
     offsetY += 15;
     std::string roll_enabled_msg = (m1OrientationClient.getTrackingRollEnabled()) ? "ENABLED" : "DISABLED";
-    m.getCurrentFont()->drawString("R:   " + roll_enabled_msg, offsetX, offsetY);
+    m.getCurrentFont()->drawString("R:  " + roll_enabled_msg, offsetX, offsetY);
     
     offsetY += 30;
 

@@ -56,7 +56,10 @@ This can be found in the [osc_client](osc_client) directory.
 
 ### Setup
 - Build via CMake or JUCE to compile the contents of [osc_client](osc_client) via the same methods described above
-- Copy the [settings.json](Resources/settings.json) and built m1-orientationmanager executable to be alongside (as siblings) the M1-OrientationOSC app/exe within the same directory
+- Copy the [settings.json](Resources/settings.json) to either:
+	- MacOS `/Library/Application Support/Mach1/settings.json` or on windows `\Documents and Settings\All Users\Application Data\Mach1\settings.json` and ensure that `useStandalone = false`
+	- Set `useStandalone = true` and install the `settings.json` next to the executable
+- Run the built m1-orientationmanager executable via the instructions above, the client will look for the server locally via http
 
 ## TODO
 - Design modular install flow for `settings.json` and the service to be run by devs without installers
@@ -67,6 +70,7 @@ This can be found in the [osc_client](osc_client) directory.
 - Separate the proprietary M1 related code into a separate service
 - Add service handling for windows
 - Add service handling for linux
+- Add [Sony Mocapi](https://electronics.sony.com/more/mocopi/all-mocopi/p/qmss1-uscx)
 
 ## Credits
 This project references and implements some design, UI and UX concepts from [nvsonic-head-tracker](https://github.com/trsonic/nvsonic-head-tracker) utility and expands upon it by handling and aggregating more connection types as well as creating a server/client design to handle dual direction communication between a network of clients.
