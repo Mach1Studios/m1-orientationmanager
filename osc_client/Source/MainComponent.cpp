@@ -31,7 +31,7 @@ void MainComponent::initialise()
         settingsFile = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile("settings.json");
         DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
 
-        m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString(), false); // the bool determines if we want to also launch the watcher helper executable to relaunch the server after any unexepected crashes
+        m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString()); // the bool determines if we want to also launch the watcher helper executable to relaunch the server after any unexepected crashes
     } else {
         // use the typical installation and service locations of m1-orientationmanager
         
@@ -51,7 +51,7 @@ void MainComponent::initialise()
         }
         settingsFile = settingsFile.getChildFile("settings.json");
         DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
-        m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString(), true);
+        m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString());
     }
     
 	m1OrientationClient.setStatusCallback(std::bind(&MainComponent::setStatus, this, std::placeholders::_1, std::placeholders::_2));
