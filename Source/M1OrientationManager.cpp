@@ -418,8 +418,14 @@ void M1OrientationManager::command_updateDeviceSettings(std::string additional_s
 
             // requires a starting '/' char within the received address pattern string
             if (currentDevice.osc_msg_addr_pttrn != new_msg_address_pattern) {
-                // update custom message pattern
-                currentDevice.osc_msg_addr_pttrn = new_msg_address_pattern;
+                auto devices = getDevices();
+                for (int i = 0; i < devices.size(); i++) {
+                    if (currentDevice == devices[i]) {
+                        // update custom message pattern
+                        devices[i].osc_msg_addr_pttrn = new_msg_address_pattern;
+                        
+                    }
+                }
             }
 
         } else
@@ -431,16 +437,17 @@ void M1OrientationManager::command_updateDeviceSettings(std::string additional_s
             if (is_number(new_port)) {
                 int new_parsed_port = stoi(new_port);
                 if (currentDevice.osc_port != new_parsed_port) {
-                    // update port
-                    
-                    hardwareImpl[currentDevice.getDeviceType()]
-                    
-                    currentDevice.osc_port = new_parsed_port;
-                    // store current device
-                    M1OrientationDeviceInfo saved_device = currentDevice;
-                    // reconnect
-                    command_disconnect();
-                    command_startTrackingUsingDevice(saved_device);
+                    auto devices = getDevices();
+                    for (int i = 0; i < devices.size(); i++) {
+                        if (currentDevice == devices[i]) {
+                            // update port
+                            devices[i].osc_port = new_parsed_port;
+                            
+                            // reconnect
+                            command_disconnect();
+                            command_startTrackingUsingDevice(devices[i]);
+                        }
+                    }
                 }
             }
         }

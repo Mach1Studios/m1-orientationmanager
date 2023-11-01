@@ -230,8 +230,11 @@ public:
     void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback) override {
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
+            // TODO: save the input device instead of copying over the last settings
+            matchedDevice->osc_port = device.osc_port;
+            matchedDevice->osc_msg_addr_pttrn = device.osc_msg_addr_pttrn;
             connectedDevice = *matchedDevice;
-            isConnected = connectOscReceiver(matchedDevice->osc_port); // initial connection with default port
+            isConnected = connectOscReceiver(connectedDevice.osc_port); // initial connection with default port
             if (isConnected) {
                 statusCallback(true, "OSC: Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
                 return;
