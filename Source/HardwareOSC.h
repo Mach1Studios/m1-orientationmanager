@@ -22,7 +22,7 @@ public:
         if (isConnected) {
             juce::OSCReceiver::disconnect();
         }
-        bool isConnected = connect(connectedDevice.osc_port);
+        isConnected = connect(new_port);
         addListener(this);
         return isConnected;
     }
@@ -181,7 +181,12 @@ public:
     }
     
     int setup() override {
-        refreshDevices();
+        // pushback initial device
+        devices.push_back({
+            "OSC Input", // name
+            M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, // type
+            "127.0.0.1" // address
+        });
         return 1;
     }
 
@@ -211,20 +216,11 @@ public:
         result.success = true;
         return result;
     }
-
+    
     void refreshDevices() override {
-		std::vector<M1OrientationDeviceInfo> devices;
-
-		// TODO: create OSC object and pushback
-		devices.push_back({
-            "OSC Input", // name
-            M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC, // type
-            "127.0.0.1" // address
-        });
-
-		lock();
-		this->devices = devices;
-		unlock();
+        lock();
+        this->devices = getDevices();
+        unlock();
     }
 
     std::vector<M1OrientationDeviceInfo> getDevices() override {
@@ -235,7 +231,7 @@ public:
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
             connectedDevice = *matchedDevice;
-            isConnected = connectOscReceiver(9901); // initial connection with default port
+            isConnected = connectOscReceiver(matchedDevice->osc_port); // initial connection with default port
             if (isConnected) {
                 statusCallback(true, "OSC: Connected", matchedDevice->getDeviceName(), (int)matchedDevice->getDeviceType(), matchedDevice->getDeviceAddress());
                 return;
