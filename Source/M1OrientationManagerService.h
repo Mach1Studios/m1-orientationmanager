@@ -79,7 +79,7 @@ public:
 			while (!juce::MessageManager::getInstance()->hasStopMessageBeenSent()) {
 				m1OrientationManager.update();
 
-				juce::Thread::sleep(30);
+				juce::Thread::sleep(10);
 			}
 
 		}

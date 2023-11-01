@@ -167,7 +167,8 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
                 }
             })
             .onOscSettingsChanged([&](int requested_osc_port, std::string requested_osc_msg_address) {
-                m1OrientationClient.command_setOscDeviceSettings(requested_osc_port, requested_osc_msg_address);
+                m1OrientationClient.command_setAdditionalDeviceSettings("osc_add="+requested_osc_msg_address);
+                m1OrientationClient.command_setAdditionalDeviceSettings("osc_p="+std::to_string(requested_osc_port));
             })
             .onDisconnectClicked([&]() {
                 m1OrientationClient.command_disconnect();

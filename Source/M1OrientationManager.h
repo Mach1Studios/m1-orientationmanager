@@ -113,7 +113,7 @@ public:
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
-    void command_updateOscDevice(int new_port, std::string new_msg_address_pattern);
+    void command_updateDeviceSettings(std::string additional_settings);
     void command_recenter();
     void command_disconnect();
     void command_refresh();

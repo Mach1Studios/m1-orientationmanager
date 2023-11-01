@@ -97,18 +97,17 @@ bool M1OrientationManager::init(int serverPort, int watcherPort) {
 			);
 			}
 		);
-
-		server.Post("/setOscDeviceSettings", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(std::string(data, data_length));
-				int new_port = j.at(0);
-				std::string new_pttrn = j.at(1);
-				command_updateOscDevice(new_port, new_pttrn);
-				return true;
-				}
-			);
-			}
-		);
+        
+        server.Post("/setDeviceSettings", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+            content_reader([&](const char *data, size_t data_length) {
+                auto j = nlohmann::json::parse(std::string(data, data_length));
+                std::string new_settings = j.at(0);
+                command_updateDeviceSettings(new_settings);
+                return true;
+                }
+            );
+            }
+        );
 
 		server.Post("/recenter", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			command_recenter();
@@ -400,18 +399,68 @@ void M1OrientationManager::command_refresh() {
     isDevicesRefreshRequested = true;
 }
 
-void M1OrientationManager::command_updateOscDevice(int new_port, std::string new_msg_address_pattern) {
+bool is_number(const std::string& s) {
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
+}
+
+void M1OrientationManager::command_updateDeviceSettings(std::string additional_settings) {
+    // This function interprets device specific settings from a string blob
+    
+    // OSC Device Settings
     if (currentDevice.getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeOSC) {
-        if (currentDevice.osc_port != new_port) {
-            // update port
-            currentDevice.osc_port = new_port;
-            // reconnect
-            command_disconnect();
-            command_startTrackingUsingDevice(currentDevice);
+        // search the start of the string for a known setting key
+        if (additional_settings.rfind("osc_add=", 0) == 0) {
+            std::string new_msg_address_pattern;
+            new_msg_address_pattern = additional_settings.substr(additional_settings.find("osc_add=") + std::string("osc_add=").size());
+            DBG("Setting Update: " + new_msg_address_pattern);
+
+            // requires a starting '/' char within the received address pattern string
+            if (currentDevice.osc_msg_addr_pttrn != new_msg_address_pattern) {
+                // update custom message pattern
+                currentDevice.osc_msg_addr_pttrn = new_msg_address_pattern;
+            }
+
+        } else
+        if (additional_settings.rfind("osc_p=", 0) == 0) {
+            std::string new_port;
+            new_port = additional_settings.substr(additional_settings.find("osc_p=") + std::string("osc_p=").size());
+            DBG("Setting Update: " + new_port);
+
+            if (is_number(new_port)) {
+                int new_parsed_port = stoi(new_port);
+                if (currentDevice.osc_port != new_parsed_port) {
+                    // update port
+                    
+                    hardwareImpl[currentDevice.getDeviceType()]
+                    
+                    currentDevice.osc_port = new_parsed_port;
+                    // store current device
+                    M1OrientationDeviceInfo saved_device = currentDevice;
+                    // reconnect
+                    command_disconnect();
+                    command_startTrackingUsingDevice(saved_device);
+                }
+            }
         }
-        if (currentDevice.osc_msg_addr_pttrn != new_msg_address_pattern) {
-            // update custom message pattern
-            currentDevice.osc_msg_addr_pttrn = new_msg_address_pattern;
+    }
+
+    // Supperware Device Settings
+    if (currentDevice.getDeviceName().find("Supperware HT IMU") != std::string::npos) {
+        if (additional_settings.rfind("sw_chir=", 0) == 0) {
+            std::string new_sw_chirality;
+            new_sw_chirality = additional_settings.substr(additional_settings.find("sw_chir=") + 1);
+            DBG("Setting Update: " + new_sw_chirality);
+            
+            // Expects the bool values sent via the command_updateDeviceSettings to be '0' or '1'
+            if ((bool)stoi(new_sw_chirality) == 0) {
+                
+            } else if ((bool)stoi(new_sw_chirality) == 1) {
+                
+            }
+            
+            // TODO: parse calibrate
         }
     }
 }
