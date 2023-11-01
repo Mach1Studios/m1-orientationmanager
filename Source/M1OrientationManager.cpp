@@ -457,8 +457,8 @@ void M1OrientationManager::command_updateDeviceSettings(std::string additional_s
     if (currentDevice.getDeviceName().find("Supperware HT IMU") != std::string::npos) {
         if (additional_settings.rfind("sw_chir=", 0) == 0) {
             std::string new_sw_chirality;
-            new_sw_chirality = additional_settings.substr(additional_settings.find("sw_chir=") + 1);
-            DBG("Setting Update: " + new_sw_chirality);
+            new_sw_chirality = additional_settings.substr(additional_settings.find("sw_chir=") + std::string("sw_chir=").size());
+            DBG("Setting Update: Supperware Right Side Chirality = " + new_sw_chirality);
             
             // Expects the bool values sent via the command_updateDeviceSettings to be '0' or '1'
             if ((bool)stoi(new_sw_chirality) == 0) {

@@ -152,7 +152,6 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     
     if (showOrientationControlMenu) {
         // We should refresh if the menu is open
-        // TODO: fix issue where we lose connected device due to refreshing
         m1OrientationClient.command_refresh();
         
         // Let's draw the stuff
@@ -161,6 +160,7 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
             .withDeviceList(slots)
             .withSettingsPanelEnabled(showOrientationSettingsPanelInsideWindow)
             .withOscSettingsEnabled((m1OrientationClient.getCurrentDevice().getDeviceType() == M1OrientationManagerDeviceTypeOSC))
+            .withSupperwareSettingsEnabled(m1OrientationClient.getCurrentDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos)
             .onClickOutside([&]() {
                 if (!orientationControlButton.hovered) { // Only switch showing the orientation control if we didn't click on the button
                     showOrientationControlMenu = !showOrientationControlMenu;
@@ -169,6 +169,15 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
             .onOscSettingsChanged([&](int requested_osc_port, std::string requested_osc_msg_address) {
                 m1OrientationClient.command_setAdditionalDeviceSettings("osc_add="+requested_osc_msg_address);
                 m1OrientationClient.command_setAdditionalDeviceSettings("osc_p="+std::to_string(requested_osc_port));
+            })
+            .onSupperwareSettingsChanged([&](bool isRightEarChirality) {
+                std::string chir_cmd;
+                if (isRightEarChirality) {
+                    chir_cmd = "1";
+                } else {
+                    chir_cmd = "0";
+                }
+                m1OrientationClient.command_setAdditionalDeviceSettings("sw_chir="+chir_cmd);
             })
             .onDisconnectClicked([&]() {
                 m1OrientationClient.command_disconnect();
