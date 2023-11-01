@@ -92,7 +92,6 @@ void MainComponent::draw()
         offsetY += 15;
     }
 
-
     //m.setColor(200, 255);
     //m.drawImage(m1logo, 15, m.getSize().height() - 20, 161 / 4, 39 / 4);
 }
