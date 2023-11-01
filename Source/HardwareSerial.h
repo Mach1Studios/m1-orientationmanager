@@ -198,6 +198,11 @@ public:
         }
     }
     
+    void calibrateDevice() override {
+        if (getConnectedDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos && supperwareInterface.getTrackerDriver().isConnected()) {
+            supperwareInterface.calibrateCompass();
+    }
+    
     int close() override {
         comClose(connectedSerialPortIndex);
         isConnected = false;

@@ -81,6 +81,20 @@ void SupperwareInterface::trackerOrientationQ(float qw, float qx, float qy, floa
     currentOrientation.push_back(qz);
 }
 
+void SupperwareInterface::setChirality(bool isRightEarChirality)
+{
+    // Used to indicate how the IMU is mounted on the head
+    // chirality = true  | USB connector is on the right side
+    // chirality = false | USB connector is on the left side
+    trackerDriver.setChirality(isRightEarChirality);
+}
+
+void SupperwareInterface::calibrateCompass()
+{
+    // Used to calibrate the compass, ideally called while still and facing "forward"
+    trackerDriver.calibrateCompass();
+}
+
 void SupperwareInterface::trackerZero()
 {
     trackerDriver.zero();

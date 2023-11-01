@@ -35,6 +35,8 @@ public:
     void trackerOrientation(float yawRadian, float pitchRadian, float rollRadian) override;
     void trackerOrientationQ(float qw, float qx, float qy, float qz) override;
     void trackerMidiConnectionChanged(Midi::State newState) override;
+    void setChirality(bool isRightEarChirality);
+    void calibrateCompass();
     void trackerZero();
     void connectSupperware();
     void setListener(Listener* l);

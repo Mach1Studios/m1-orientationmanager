@@ -194,6 +194,11 @@ public:
         }
     }
     
+    void calibrateDevice() override {
+        // get current ypr and use that to offset the ypr
+        
+    }
+    
     int close() override {
         disconnectOscReceiver();
         isConnected = false;

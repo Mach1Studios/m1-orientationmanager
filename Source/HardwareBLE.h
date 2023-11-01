@@ -110,6 +110,10 @@ public:
             return -1;
         }
     }
+    
+    void calibrateDevice() override {
+        
+    }
 
     int close() override {
         for (int i = 0; i < discovered_ble_devices.size(); ++i) {

@@ -64,6 +64,12 @@ public:
         }
     }
     
+    void calibrateDevice() override {
+        yaw = 0;
+        pitch = 0;
+        roll = 0;
+    }
+    
     int close() override {
         isConnected = false;
         return 1;
