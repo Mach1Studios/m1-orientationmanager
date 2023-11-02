@@ -11,33 +11,6 @@
 #include <thread>
 #include <map>
 
-// TODO: refactor this class and the find_plugin struct
-class M1RegisteredPlugin {
-public:
-    // At a minimum we should expect port and if applicable name
-    // messages to ensure we do not delete this instance of a registered plugin
-    int port;
-    std::string name;
-    bool isPannerPlugin = false;
-    int input_mode;
-    float azimuth, elevation, diverge; // values expected unnormalized
-    float gain; // values expected unnormalized
-    
-    // pointer to store osc sender to communicate to registered plugin
-    juce::OSCSender* messageSender;
-};
-
-// search plugin by registered port number
-// TODO: potentially improve this with uuid concept
-struct find_plugin {
-    int port;
-    find_plugin(int port) : port(port) {}
-    bool operator () ( const M1RegisteredPlugin& p ) const
-    {
-        return p.port == port;
-    }
-};
-
 struct M1OrientationClientConnection {
     int port;
     std::string type = "";
@@ -75,11 +48,6 @@ class M1OrientationManager :
     
     bool isDevicesRefreshRequested = false;
     
-    std::map<int, std::vector<float> > client_offset_ypr;
-    std::vector<M1OrientationClientConnection> monitors; // track all the monitor instances
-    float master_yaw = 0; float master_pitch = 0; float master_roll = 0;
-    int master_mode = 0;
-
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
@@ -91,14 +59,11 @@ class M1OrientationManager :
     Orientation orientation;
 
 public:
-    
     virtual ~M1OrientationManager();
 
-    bool init(int serverPort, int watcherPort);
+    bool init(int serverPort);
     void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
-
 	void startSearchingForDevices();
-
     void update();
 
     Orientation getOrientation();
@@ -117,28 +82,6 @@ public:
     void command_recenter();
     void command_disconnect();
     void command_refresh();
-   
-    // Tracking for any plugin that does not need an m1_orientation_client but still needs feedback of orientation for UI purposes such as the M1-Panner plugin
-    std::vector<M1RegisteredPlugin> registeredPlugins;
-    bool bTimerActive = false;
-    
-    void timerCallback() override {
-        if (registeredPlugins.size() > 0) {
-            for (auto &i: registeredPlugins) {
-                juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitor-settings"));
-                m.addInt32(master_mode);
-                m.addFloat32(master_yaw); // expected normalised
-                m.addFloat32(master_pitch); // expected normalised
-                m.addFloat32(master_roll); // expected normalised
-                //m.addInt32(monitor_output_mode); // TODO: add the output configuration to sync plugins when requested
-                i.messageSender->send(m);
-            }
-        }
-        
-        // TODO: check if any registered plugins closed
-        //for (auto &i: registeredPlugins) {
-        //}
-    }
     
     void close();
 };
