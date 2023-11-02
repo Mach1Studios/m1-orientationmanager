@@ -462,9 +462,9 @@ void M1OrientationManager::command_updateDeviceSettings(std::string additional_s
             
             // Expects the bool values sent via the command_updateDeviceSettings to be '0' or '1'
             if ((bool)stoi(new_sw_chirality) == 0) {
-                
+                // TODO: call supperwareInterface.setChirality(false)
             } else if ((bool)stoi(new_sw_chirality) == 1) {
-                
+                // TODO: call supperwareInterface.setChirality(true)
             }
             
             // TODO: parse calibrate
