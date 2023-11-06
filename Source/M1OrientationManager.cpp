@@ -42,7 +42,7 @@ bool M1OrientationManager::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
-bool M1OrientationManager::init(int serverPort) {
+bool M1OrientationManager::init(int serverPort, int helperPort) {
 	// check the port
     this->serverPort = serverPort;
 	std::thread([&]() {
@@ -121,20 +121,6 @@ bool M1OrientationManager::init(int serverPort) {
         
 		server.Post("/disconnect", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			command_disconnect();
-			}
-		);
-
-		server.Post("/setOffsetYPR", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-			// receiving updated client YPR
-			// Note: It is expected that the orientation manager receives orientation and sends it to a client and for the client to offset this orientation before sending it back to registered plugins, the adding of all orientations should happen on client side only
-			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(std::string(data, data_length));
-				int client_id = j.at(0); // use the client port to id the client
-				client_offset_ypr[client_id] = { j.at(1), j.at(2), j.at(3) }; // yaw, pitch, roll
-				DBG("[Client] YPR=" + std::to_string(client_offset_ypr[client_id][0]) + ", " + std::to_string(client_offset_ypr[client_id][1]) + ", " + std::to_string(client_offset_ypr[client_id][2]));
-				return true;
-				}
-			);
 			}
 		);
 

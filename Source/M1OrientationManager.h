@@ -28,7 +28,7 @@ struct find_client_by_type {
 
 class M1OrientationManager : 
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
-    public M1OrientationManagerOSCSettings, juce::Timer
+    public M1OrientationManagerOSCSettings
 {
 	httplib::Server server;
 	std::mutex mutex;
@@ -61,7 +61,7 @@ class M1OrientationManager :
 public:
     virtual ~M1OrientationManager();
 
-    bool init(int serverPort);
+    bool init(int serverPort, int helperPort);
     void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
 	void startSearchingForDevices();
     void update();
