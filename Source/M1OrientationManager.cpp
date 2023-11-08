@@ -42,7 +42,7 @@ bool M1OrientationManager::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
-bool M1OrientationManager::init(int serverPort, int watcherPort) {
+bool M1OrientationManager::init(int serverPort, int helperPort) {
 	// check the port
     this->serverPort = serverPort;
 	std::thread([&]() {
@@ -121,114 +121,6 @@ bool M1OrientationManager::init(int serverPort, int watcherPort) {
         
 		server.Post("/disconnect", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
 			command_disconnect();
-			}
-		);
-
-		server.Post("/setMonitoringMode", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-			// receiving updated monitoring mode or other misc settings for clients
-			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(std::string(data, data_length));
-				master_mode = j.at(0);
-				DBG("[Monitor] Mode: " + std::to_string(master_mode));
-				return true;
-				}
-			);
-			}
-		);
-
-		server.Post("/setOffsetYPR", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-			// receiving updated client YPR
-			// Note: It is expected that the orientation manager receives orientation and sends it to a client and for the client to offset this orientation before sending it back to registered plugins, the adding of all orientations should happen on client side only
-			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(std::string(data, data_length));
-				int client_id = j.at(0); // use the client port to id the client
-				client_offset_ypr[client_id] = { j.at(1), j.at(2), j.at(3) }; // yaw, pitch, roll
-				DBG("[Client] YPR=" + std::to_string(client_offset_ypr[client_id][0]) + ", " + std::to_string(client_offset_ypr[client_id][1]) + ", " + std::to_string(client_offset_ypr[client_id][2]));
-				return true;
-				}
-			);
-			}
-		);
-
-		server.Post("/setMasterYPR", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-			// Used for relaying a master calculated orientation to registered plugins that require this for GUI systems
-			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(std::string(data, data_length));
-				master_yaw = j.at(0);
-				master_pitch = j.at(1);
-				master_roll = j.at(2);
-				return true;
-				}
-			);
-			}
-		);
-
-		server.Post("/m1-register-plugin", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-			// registering new panner instance
-			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(std::string(data, data_length));
-				auto port = (int)j.at(0);
-				// protect port creation to only messages from registered plugin (example: an m1-panner)
-				if (std::find_if(registeredPlugins.begin(), registeredPlugins.end(), find_plugin(port)) == registeredPlugins.end()) {
-					M1RegisteredPlugin foundPlugin;
-					foundPlugin.port = port;
-					foundPlugin.messageSender = new juce::OSCSender();
-					foundPlugin.messageSender->connect("127.0.0.1", port); // connect to that newly discovered panner locally
-					registeredPlugins.push_back(foundPlugin);
-					DBG("Plugin registered: " + std::to_string(port));
-				}
-				else {
-					DBG("Plugin port already registered: " + std::to_string(port));
-				}
-				if (!bTimerActive && registeredPlugins.size() > 0) {
-					startTimer(60);
-					bTimerActive = true;
-				}
-				else {
-					if (registeredPlugins.size() == 0) {
-						// TODO: setup logic for deleting from `registeredPlugins`
-						stopTimer();
-						bTimerActive = false;
-					}
-				}
-				return true;
-				}
-			);
-			}
-		);
-
-		server.Post("/panner-settings", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(std::string(data, data_length));
-				if (j.size() > 0) { // check message size
-					auto plugin_port = (int)j.at(0);
-					if (j.size() == 6) {
-						auto input_mode = (int)j.at(1);
-						auto azi = (float)j.at(2);
-						auto ele = (float)j.at(3);
-						auto div = (float)j.at(4);
-						auto gain = (float)j.at(5);
-						DBG("[OSC] Panner: port=" + std::to_string(plugin_port) + ", in=" + std::to_string(input_mode) + ", az=" + std::to_string(azi) + ", el=" + std::to_string(ele) + ", di=" + std::to_string(div) + ", gain=" + std::to_string(gain));
-						// Check if port matches expected registered-plugin port
-						if (registeredPlugins.size() > 0) {
-							auto it = std::find_if(registeredPlugins.begin(), registeredPlugins.end(), find_plugin(plugin_port));
-							auto index = it - registeredPlugins.begin(); // find the index from the found plugin
-							registeredPlugins[index].isPannerPlugin = true;
-							registeredPlugins[index].input_mode = input_mode;
-							registeredPlugins[index].azimuth = azi;
-							registeredPlugins[index].elevation = ele;
-							registeredPlugins[index].diverge = div;
-							registeredPlugins[index].gain = gain;
-						}
-					}
-				}
-				else {
-					// port not found, error here
-				}
-
-				return true;
-				}
-			);
 			}
 		);
 

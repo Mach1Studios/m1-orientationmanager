@@ -1,4 +1,4 @@
 {
 	"serverPort" : 6345,
-	"watcherPort" : 6346,
+	"helperPort" : 6346,
 }
