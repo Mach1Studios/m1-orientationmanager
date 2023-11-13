@@ -99,6 +99,14 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         m1_orientation_client
         )
 
+option(M1_ORIENTATION_MANAGER_EMBEDDED "Build with m1-orientationmanager expected alongside this client" OFF)
+
+if (M1_ORIENTATION_MANAGER_EMBEDDED)
+    add_compile_definitions(M1_ORIENTATION_MANAGER_EMBEDDED=ON)
+    message(STATUS "Please embed or install the m1-orientationmanager: MacOS=`Contents/MacOS/m1-orientationmanager` Win= sibling to M1-OrientationOSC.exe")
+    message(STATUS "Please embed or install the settings.json: MacOS=`Contents/Resources/settings.json` Win= sibling to M1-OrientationOSC.exe")
+endif()
+
 ### IDE Generator post-config ###
 # IDEs:  Move the "shared code" source group (main target) out of the "Targets" folder
 #        to the top level.
