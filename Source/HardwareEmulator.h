@@ -52,7 +52,10 @@ public:
             current.yaw = yaw;
             current.pitch = pitch;
             current.roll = roll;
-			orientation.offsetYPR(current - previous);
+            
+            if (current.angleType == previous.angleType) {
+                orientation.offsetYPR(current - previous);
+            }
 
             // store previous value
             previous = current;
