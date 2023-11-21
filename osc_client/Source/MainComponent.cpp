@@ -176,7 +176,7 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     }
     
     if (showOrientationControlMenu) {
-        // We should refresh if the menu is open
+        // trigger a server side refresh for listed devices while menu is open
         m1OrientationClient.command_refresh();
         
         // Let's draw the stuff
@@ -190,10 +190,6 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
                 if (!orientationControlButton.hovered) { // Only switch showing the orientation control if we didn't click on the button
                     showOrientationControlMenu = !showOrientationControlMenu;
                 }
-            })
-            .onOscSettingsChanged([&](int requested_osc_port, std::string requested_osc_msg_address) {
-                m1OrientationClient.command_setAdditionalDeviceSettings("osc_add="+requested_osc_msg_address);
-                m1OrientationClient.command_setAdditionalDeviceSettings("osc_p="+std::to_string(requested_osc_port));
             })
             .onSupperwareSettingsChanged([&](bool isRightEarChirality) {
                 std::string chir_cmd;
@@ -209,6 +205,10 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
             })
             .onRecenterClicked([&]() {
                 m1OrientationClient.command_recenter();
+            })
+            .onOscSettingsChanged([&](int requested_osc_port, std::string requested_osc_msg_address) {
+                m1OrientationClient.command_setAdditionalDeviceSettings("osc_add="+requested_osc_msg_address);
+                m1OrientationClient.command_setAdditionalDeviceSettings("osc_p="+std::to_string(requested_osc_port));
             })
             .onYPRSwitchesClicked([&](int whichone) {
                 if (whichone == 0)

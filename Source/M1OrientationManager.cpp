@@ -285,10 +285,12 @@ void M1OrientationManager::command_setTrackingRollEnabled(bool enable) {
 
 void M1OrientationManager::command_recenter() {
     orientation.recenter();
+    DBG("[REQ] Recenter requested from a client...");
 }
 
 void M1OrientationManager::command_refresh() {
     isDevicesRefreshRequested = true;
+    DBG("[REQ] Refresh requested from a client...");
 }
 
 bool is_number(const std::string& s) {
