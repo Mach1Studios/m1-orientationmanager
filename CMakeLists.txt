@@ -128,6 +128,9 @@ if(APPLE)
         XCODE_ATTRIBUTE_INFOPLIST_KEY_LSApplicationCategoryType "public.app-category.utilities"
     )
     target_link_options(${CMAKE_PROJECT_NAME} PRIVATE LINKER:-sectcreate,__TEXT,__info_plist,${CMAKE_CURRENT_SOURCE_DIR}/Resources/Info.plist)
+elseif(MSVC OR WIN32 OR MINGW)
+    message(STATUS "Adding windows OS flag for httplib")
+    add_compile_definitions(WIN32_LEAN_AND_MEAN)    
 endif()
 
 ### IDE Generator post-config ###
