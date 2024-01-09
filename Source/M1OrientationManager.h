@@ -10,6 +10,7 @@
 #include "HardwareAbstract.h"
 #include <thread>
 #include <map>
+#include "httplib/httplib.h"
 
 struct M1OrientationClientConnection {
     int port;
@@ -27,7 +28,6 @@ struct find_client_by_type {
 };
 
 class M1OrientationManager : 
-    private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
     public M1OrientationManagerOSCSettings
 {
 	httplib::Server server;
@@ -52,21 +52,21 @@ class M1OrientationManager :
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
 
-    void oscMessageReceived(const juce::OSCMessage& message) override;
-
     std::map<M1OrientationDeviceType, HardwareAbstract*> hardwareImpl;
     M1OrientationDeviceInfo currentDevice;
-    Orientation orientation;
+    
+    M1Orientation orientation;
+    M1Orientation offset;
 
 public:
     virtual ~M1OrientationManager();
 
-    bool init(int serverPort, int helperPort);
+    bool init(int serverPort, int helperPort) override;
     void addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl);
 	void startSearchingForDevices();
     void update();
 
-    Orientation getOrientation();
+    M1Orientation getOrientation();
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getConnectedDevice();
 

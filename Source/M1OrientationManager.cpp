@@ -7,10 +7,6 @@
 #include "json/single_include/nlohmann/json.hpp"
 #include "httplib/httplib.h"
 
-void M1OrientationManager::oscMessageReceived(const juce::OSCMessage& message) {
-     
-}
- 
 M1OrientationManager::~M1OrientationManager() {
     close();
 }
@@ -43,6 +39,82 @@ bool M1OrientationManager::getTrackingRollEnabled() {
 }
 
 bool M1OrientationManager::init(int serverPort, int helperPort) {
+    
+    
+    M1Orientation orientation;
+    EulerAngleSet originalAngles, retrievedAngles;
+    M1Quaternion quat;
+
+    // Test 1: Set and get orientation
+    originalAngles = EulerAngleSet(0, 0.5, 0); // Equivalent to (30, -20, 0) in degrees
+    std::cout << "Original Angles (rad): " << originalAngles.yaw << ", " << originalAngles.pitch << ", " << originalAngles.roll << std::endl;
+
+    orientation.setFromEulerYXZRadians(originalAngles.yaw, originalAngles.pitch, originalAngles.roll);
+    quat = orientation.getAsQuaternion();
+    std::cout << "Quaternion: " << quat.w << ", " << quat.x << ", " << quat.y << ", " << quat.z << std::endl;
+
+    orientation.setFromQuaternion(quat);
+    // Returning angles as signed and non normalized
+    retrievedAngles = orientation.getAsEulerYXZRadians(true);
+    std::cout << "Retrieved Angles (rad): " << retrievedAngles.yaw << ", " << retrievedAngles.pitch << ", " << retrievedAngles.roll << std::endl;
+
+    if (std::abs(originalAngles.yaw - retrievedAngles.yaw) < 1e-4 &&
+        std::abs(originalAngles.pitch - retrievedAngles.pitch) < 1e-4 &&
+        std::abs(originalAngles.roll - retrievedAngles.roll) < 1e-4) {
+        std::cout << "Test 1 success\n";
+    } else {
+        std::cout << "Test 1 fail\n";
+    }
+
+    // Test 2: Concatenate two orientations
+    M1Orientation orientation1, orientation2, resultOrientation;
+//    EulerAngleSet angles1(5, -20, 0), angles2(5, 45, 15), resultAngles;
+    EulerAngleSet angles1(0.5, -0.5, 0), angles2(0, 0.7, 0), resultAngles;
+    orientation1.setFromEulerYXZRadians(angles1.yaw, angles1.pitch, angles1.roll);
+//
+//    orientation1.setFromEulerYXZDegrees(angles1.yaw, angles1.pitch, angles1.roll);
+    auto ori1_rad = orientation1.getAsEulerYXZRadians(true);
+    std::cout << "Orientation 1 (rad): " << ori1_rad.yaw << ", " << ori1_rad.pitch << ", " << ori1_rad.roll << std::endl;
+
+//    orientation2.setFromEulerYXZDegrees(angles2.yaw, angles2.pitch, angles2.roll);
+
+    orientation2.setFromEulerYXZRadians(angles2.yaw, angles2.pitch, angles2.roll);
+    auto ori2_rad = orientation2.getAsEulerYXZRadians(true);
+    std::cout << "Orientation 1 (rad): " << ori2_rad.yaw << ", " << ori2_rad.pitch << ", " << ori2_rad.roll << std::endl;
+
+    resultOrientation = orientation1 + orientation2;
+    auto ori_r_rad = resultOrientation.getAsEulerYXZRadians(true);
+    std::cout << "Orientation combined (rad): " << ori_r_rad.yaw << ", " << ori_r_rad.pitch << ", " << ori_r_rad.roll << std::endl;
+    
+    resultAngles = resultOrientation.getAsEulerYXZRadians(true);
+
+    std::cout << "Angles 1 (rad): " << angles1.yaw << ", " << angles1.pitch << ", " << angles1.roll << std::endl;
+    std::cout << "Angles 2 (rad): " << angles2.yaw << ", " << angles2.pitch << ", " << angles2.roll << std::endl;
+    std::cout << "Result Angles (rad): " << resultAngles.yaw << ", " << resultAngles.pitch << ", " << resultAngles.roll << std::endl;
+
+    if (std::abs(resultAngles.yaw - (angles1.yaw + angles2.yaw)) < 1e-4 &&
+        std::abs(resultAngles.pitch - (angles1.pitch + angles2.pitch)) < 1e-4 &&
+        std::abs(resultAngles.roll - (angles1.roll + angles2.roll)) < 1e-4) {
+        std::cout << "Test 2 success\n";
+    } else {
+        std::cout << "Test 2 fail\n";
+    }
+    
+    
+    // Test 3: converting radians to euler back and forth
+    
+    auto angles1_deg = orientation1.getAsEulerYXZDegrees();
+    orientation1.setFromEulerYXZDegrees(angles1_deg.yaw, angles1_deg.pitch, angles1_deg.roll);
+    auto angles1_2_rad = orientation1.getAsEulerYXZRadians();
+    if (std::abs(angles1_2_rad.yaw - angles1.yaw) < 1e-4 &&
+        std::abs(angles1_2_rad.pitch - angles1.pitch) < 1e-4 &&
+        std::abs(angles1_2_rad.roll - angles1.roll) < 1e-4) {
+        std::cout << "Test 3 success\n";
+    } else {
+        std::cout << "Test 3 fail\n";
+    }
+
+
 	// check the port
     this->serverPort = serverPort;
 	std::thread([&]() {
@@ -168,7 +240,7 @@ void M1OrientationManager::startSearchingForDevices() {
 
 void M1OrientationManager::update() {
 	std::vector<M1OrientationDeviceInfo> devices = getDevices();
-	M1OrientationYPR ypr;
+    EulerAngleSet ypr;
 
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
         if (!hardwareImpl[currentDevice.getDeviceType()]->update()) {
@@ -183,14 +255,14 @@ void M1OrientationManager::update() {
 
         // update orientation
         if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-            ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRasSignedNormalled();
-            ypr.angleType = M1OrientationYPR::SIGNED_NORMALLED;
+            ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getAsEulerYXZNormalized(true);
+//            ypr.angleType = M1OrientationYPR::SIGNED_NORMALLED;
             if (!getTrackingYawEnabled()) ypr.yaw = 0.0;
             if (!getTrackingPitchEnabled()) ypr.pitch = 0.0;
             if (!getTrackingRollEnabled()) ypr.roll = 0.0;
             
             // commented out to avoid double applying offset angles from the get()
-			//orientation.setYPR(ypr);
+            orientation.setFromEulerYXZRadians(ypr.yaw, ypr.pitch, ypr.roll);
         }
 	}
 
@@ -216,9 +288,14 @@ void M1OrientationManager::update() {
 	else {
 		j["currentDeviceIdx"] = -1;
 	}
+    
+    M1Orientation finalOrientation = orientation + offset;
+    EulerAngleSet finalOrientationEuler = finalOrientation.getAsEulerYXZRadians();
 
 	j["trackingEnabled"] = { bTrackingYawEnabled, bTrackingPitchEnabled, bTrackingRollEnabled };
-	j["orientation"] = { ypr.yaw, ypr.pitch, ypr.roll };
+	j["orientation"] = { finalOrientationEuler.yaw,
+                         finalOrientationEuler.pitch,
+                         finalOrientationEuler.roll };
 
 	j["player"]["frameRate"] = playerFrameRate;
 	j["player"]["positionInSeconds"] = playerPositionInSeconds;
@@ -230,7 +307,7 @@ void M1OrientationManager::update() {
 	mutex.unlock();
 }
 
-Orientation M1OrientationManager::getOrientation() {
+M1Orientation M1OrientationManager::getOrientation() {
     return orientation;
 }
 
@@ -242,8 +319,6 @@ void M1OrientationManager::close() {
     isRunning = false;
 	server.stop();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    receiver.removeListener(this);
-    receiver.disconnect();
 }
 
 void M1OrientationManager::command_disconnect() {
@@ -284,7 +359,9 @@ void M1OrientationManager::command_setTrackingRollEnabled(bool enable) {
 }
 
 void M1OrientationManager::command_recenter() {
-    orientation.recenter();
+    offset = orientation;
+    orientation.resetOrientation();
+    
     DBG("[REQ] Recenter requested from a client...");
 }
 

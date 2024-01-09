@@ -28,9 +28,9 @@ public:
     bool isConnected = false;
     juce::StringPairArray portlist;
     
-    Orientation orientation;
-    M1OrientationYPR current;
-    M1OrientationYPR previous;
+    M1Orientation orientation;
+//    M1Orientation current; // NOTICE: I removed this
+//    M1Orientation previous;
 
     // Device Interfaces
     M1Interface m1Interface;
@@ -61,20 +61,18 @@ public:
             if (getConnectedDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos) {
                 if (supperwareInterface.getTrackerDriver().isConnected()) {
                     if (supperwareInterface.currentOrientation.size() == 3) {
-                        M1OrientationYPR newOrientation;
-                        newOrientation.yaw = supperwareInterface.currentOrientation[0];
-                        newOrientation.pitch = supperwareInterface.currentOrientation[1];
-                        newOrientation.roll = supperwareInterface.currentOrientation[2];
-                        newOrientation.angleType = M1OrientationYPR::AngleType::DEGREES;
-                        orientation.setYPR(newOrientation);
+                        
+                        double yaw = supperwareInterface.currentOrientation[0];
+                        double pitch = supperwareInterface.currentOrientation[1];
+                        double roll = supperwareInterface.currentOrientation[2];
+                        orientation.setFromEulerYXZDegrees(yaw, pitch, roll);
                         return 1;
                     } else if (supperwareInterface.currentOrientation.size() == 4) {
-                        M1OrientationQuat newOrientation;
-                        newOrientation.wIn = supperwareInterface.currentOrientation[0];
-                        newOrientation.xIn = supperwareInterface.currentOrientation[1];
-                        newOrientation.yIn = supperwareInterface.currentOrientation[2];
-                        newOrientation.zIn = supperwareInterface.currentOrientation[3];
-                        orientation.setQuat(newOrientation);
+                        double wIn = supperwareInterface.currentOrientation[0];
+                        double xIn = supperwareInterface.currentOrientation[1];
+                        double yIn = supperwareInterface.currentOrientation[2];
+                        double zIn = supperwareInterface.currentOrientation[3];
+                        orientation.setFromQuaternion(wIn, xIn, yIn, zIn);
                         return 1;
                     } else {
                         // error or do nothing
@@ -93,11 +91,10 @@ public:
 
                         m1Interface.updateOrientation(queueString, queueBuffer);
                         if (m1Interface.anythingNewDetected) {
-                            M1OrientationYPR newOrientation;
-                            newOrientation.yaw = m1Interface.decoded.y;
-                            newOrientation.pitch = m1Interface.decoded.p;
-                            newOrientation.roll = m1Interface.decoded.r;
-                            orientation.setYPR(newOrientation);
+                            double yaw = m1Interface.decoded.y;
+                            double pitch = m1Interface.decoded.p;
+                            double roll = m1Interface.decoded.r;
+                            orientation.setFromEulerYXZRadians(yaw, pitch, roll);
 
                             // cleanup
                             queueBuffer.clear();
@@ -107,11 +104,10 @@ public:
                     } else if (getConnectedDevice().getDeviceName().find("wit") != std::string::npos) {
                         /// UPDATES FOR WITMOTION DEVICES
                         float* witOrientationAngles = witmotionInterface.updateOrientation(readBuffer, 128);
-                        M1OrientationYPR newOrientation;
-                        newOrientation.yaw = witOrientationAngles[0];
-                        newOrientation.pitch = witOrientationAngles[1];
-                        newOrientation.roll = witOrientationAngles[2];
-                        orientation.setYPR(newOrientation);
+                        double yaw = witOrientationAngles[0];
+                        double pitch = witOrientationAngles[1];
+                        double roll = witOrientationAngles[2];
+                        orientation.setFromEulerYXZRadians(yaw, pitch, roll, false);
                         return 1;
                     } else {
                         /// UPDATES FOR GENERIC DEVICES
@@ -131,20 +127,18 @@ public:
                             juce::StringArray receivedSerialData = juce::StringArray::fromTokens(receivedSerialDataLines[i], ",", "\""); // expect delimited characters of ,
                             
                             if(receivedSerialData.size() == 4) {
-                                M1OrientationQuat newOrientation;
-                                newOrientation.wIn = receivedSerialData[0].getFloatValue();
-                                newOrientation.xIn = receivedSerialData[1].getFloatValue();
-                                newOrientation.yIn = receivedSerialData[2].getFloatValue();
-                                newOrientation.zIn = receivedSerialData[3].getFloatValue();
-                                orientation.setQuat(newOrientation);
+                                double wIn = receivedSerialData[0].getFloatValue();
+                                double xIn = receivedSerialData[1].getFloatValue();
+                                double yIn = receivedSerialData[2].getFloatValue();
+                                double zIn = receivedSerialData[3].getFloatValue();
+                                orientation.setFromQuaternion(wIn, xIn, yIn, zIn);
                                 return 1;
                             } else if (receivedSerialData.size() == 3) {
                                 // TODO: for safety if previous string arrays were 4 float value captures maybe skip this? 
-                                M1OrientationYPR newOrientation;
-                                newOrientation.yaw = receivedSerialData[0].getFloatValue();
-                                newOrientation.pitch = receivedSerialData[1].getFloatValue();
-                                newOrientation.roll = receivedSerialData[2].getFloatValue();
-                                orientation.setYPR(newOrientation);
+                                double yaw = receivedSerialData[0].getFloatValue();
+                                double pitch = receivedSerialData[1].getFloatValue();
+                                double roll = receivedSerialData[2].getFloatValue();
+                                orientation.setFromEulerYXZRadians(yaw, pitch, roll, false);
                                 return 1;
                             } else {
                                 // ignore incomplete messages

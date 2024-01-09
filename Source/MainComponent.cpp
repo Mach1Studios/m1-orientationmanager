@@ -45,7 +45,7 @@ void MainComponent::draw()
 	M1OrientationManager& m1OrientationManager = M1OrientationManagerService::getInstance().m1OrientationManager;
 	std::vector<M1OrientationDeviceInfo> devices = m1OrientationManager.getDevices();
 
-	Orientation orientation = m1OrientationManager.getOrientation();
+	M1Orientation orientation = m1OrientationManager.getOrientation();
     M1OrientationDeviceInfo device = m1OrientationManager.getConnectedDevice();
 
 //#ifdef BUILD_DEBUG_UI
@@ -66,11 +66,11 @@ void MainComponent::draw()
     
     m.getCurrentFont()->drawString("ORIENTATION: ", offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRasDegrees().yaw), offsetX, offsetY);
+    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getAsEulerYXZDegrees().yaw), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getYPRasDegrees().pitch), offsetX, offsetY);
+    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getAsEulerYXZDegrees().pitch), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getYPRasDegrees().roll), offsetX, offsetY);
+    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getAsEulerYXZDegrees().roll), offsetX, offsetY);
     
     offsetY += 30;
     

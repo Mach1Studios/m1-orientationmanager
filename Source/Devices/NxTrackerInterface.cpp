@@ -47,12 +47,12 @@ std::vector<float> NxTrackerInterface::parseQuatData(std::vector<uint8_t> data) 
     return {n_q0, n_q1, n_q2, n_q3};
 }
 
-void NxTrackerInterface::updateOrientationQuat(M1OrientationQuat newValue) {
+void NxTrackerInterface::updateOrientationQuat(M1Orientation newValue) {
     // called from the notify thread in BLE
     currentOrientationQuat = newValue; // TODO: should currentOrientationQuat be std::atomic?
 }
 
-M1OrientationQuat NxTrackerInterface::getRotationQuat() {
+M1Orientation NxTrackerInterface::getRotationQuat() {
     if (deviceInterface->is_connected()) {
         deviceInterface->notify(NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID, NXTRACKER_ORIENTATION_DATA_GATT_CHARATERISTIC_UUID,
                                 [&](SimpleBLE::ByteArray rx_data) {
@@ -61,11 +61,10 @@ M1OrientationQuat NxTrackerInterface::getRotationQuat() {
                     std::vector<float> read_quat = parseQuatData(data);
                     
                     // TODO: fix this quaternion to work as expected
-                    M1OrientationQuat newQuat;
-                    newQuat.wIn = read_quat[0];
-                    newQuat.xIn = read_quat[1];
-                    newQuat.yIn = read_quat[2];
-                    newQuat.zIn = read_quat[3];
+                    M1Orientation newQuat = M1Orientation(read_quat[0],
+                                      read_quat[1],
+                                      read_quat[2],
+                                      read_quat[3]);
                     updateOrientationQuat(newQuat);
                 }
         );

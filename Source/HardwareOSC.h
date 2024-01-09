@@ -13,7 +13,7 @@ public:
     M1OrientationDeviceInfo connectedDevice;
     std::vector<M1OrientationDeviceInfo> devices;
     bool isConnected = false;
-    Orientation orientation;
+    M1Orientation orientation;
 
     bool connectOscReceiver(int new_port) {
         if (isConnected) {
@@ -29,8 +29,6 @@ public:
     }
 
     void oscMessageReceived(const juce::OSCMessage& message) override {
-        M1OrientationYPR newOrientationYPR;
-        M1OrientationQuat newOrientationQuat;
 
         /// GENERIC YPR
         
@@ -38,41 +36,42 @@ public:
         if (connectedDevice.osc_msg_addr_pttrn != "" && connectedDevice.osc_msg_addr_pttrn != "/orientation") {
             if (message.size() <= 3) {
                 // we still allow just yaw or just yaw & pitch messages
+                double yaw = 0, pitch = 0, roll = 0;
                 if (message[0].isFloat32()) {
-                    newOrientationYPR.yaw = message[0].getFloat32();
+                    yaw = message[0].getFloat32();
                 }
                 if (message.size() <= 2 && message[1].isFloat32()) {
-                    newOrientationYPR.pitch = message[1].getFloat32();
+                    pitch = message[1].getFloat32();
                 }
                 if (message.size() <= 3 && message[2].isFloat32()) {
-                    newOrientationYPR.roll = message[2].getFloat32();
+                    roll = message[2].getFloat32();
                 }
-                newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
-                orientation.setYPR(newOrientationYPR);
+                // TODO: check if these are indeed signed and normalized (the two true arguments)
+                orientation.setFromEulerYXZDegrees(yaw, pitch, roll, true);
             } else if (message.size() == 4) {
                 // we dont check for partial messages as quaternion requires all 4 for calculation
-                M1OrientationQuat newQuat;
+                double wIn = 0, xIn = 0, yIn = 0, zIn = 0;
                 if (message[0].isFloat32()) {
-                    newQuat.wIn = message[0].getFloat32();
+                    wIn = message[0].getFloat32();
                 } else {
                     // skip
                 }
                 if (message[1].isFloat32()) {
-                    newQuat.xIn = message[1].getFloat32();
+                    xIn = message[1].getFloat32();
                 } else {
                     // skip
                 }
                 if (message[2].isFloat32()) {
-                    newQuat.yIn = message[2].getFloat32();
+                    yIn = message[2].getFloat32();
                 } else {
                     // skip
                 }
                 if (message[3].isFloat32()) {
-                    newQuat.zIn = message[3].getFloat32();
+                    zIn = message[3].getFloat32();
                 } else {
                     // skip
                 }
-                orientation.setQuat(newQuat);
+                orientation.setFromQuaternion(wIn, xIn, yIn, zIn);
             } else {
                 // return warning or error that we do not know how to parse this message
             }
@@ -81,63 +80,64 @@ public:
         else if ((message.getAddressPattern().toString() == "/orientation" ||
              message.getAddressPattern().toString().toStdString().find("xyz") != std::string::npos ||
              message.getAddressPattern().toString().toStdString().find("ypr") != std::string::npos) && message.size() == 3) {
+            double yaw = 0, pitch = 0, roll = 0;
             if (message[0].isFloat32()) {
-                newOrientationYPR.yaw = message[0].getFloat32();
+                yaw = message[0].getFloat32();
             }
             if (message[1].isFloat32()) {
-                newOrientationYPR.pitch = message[1].getFloat32();
+                pitch = message[1].getFloat32();
             }
             if (message[2].isFloat32()) {
-                newOrientationYPR.roll = message[2].getFloat32();
+                roll = message[2].getFloat32();
             }
-            newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
-            orientation.setYPR(newOrientationYPR);
+            // TODO: check if these are indeed unsigned and normalized (the last two boolean arguments)
+            orientation.setFromEulerYXZDegrees(yaw, pitch, roll, false);
         }
         /// GENERIC QUATERNION
         else if ((message.getAddressPattern().toString().toStdString().find("quat") != std::string::npos || message.getAddressPattern().toString().toStdString().find("/quaternion") != std::string::npos) && message.size() == 4) {
-            M1OrientationQuat newQuat;
+            double wIn = 0, xIn = 0, yIn = 0, zIn = 0;
             if (message[0].isFloat32()) {
-                newQuat.wIn = message[0].getFloat32();
+                wIn = message[0].getFloat32();
             } else {
                 // skip
             }
             if (message[1].isFloat32()) {
-                newQuat.xIn = message[1].getFloat32();
+                xIn = message[1].getFloat32();
             } else {
                 // skip
             }
             if (message[2].isFloat32()) {
-                newQuat.yIn = message[2].getFloat32();
+                yIn = message[2].getFloat32();
             } else {
                 // skip
             }
             if (message[3].isFloat32()) {
-                newQuat.zIn = message[3].getFloat32();
+                zIn = message[3].getFloat32();
             } else {
                 // skip
             }
-            orientation.setQuat(newQuat);
+            orientation.setFromQuaternion(wIn, xIn, yIn, zIn);
         }
         /// BoseAR
         else if ((message.getAddressPattern().toString() == "/bosear/sensors/rotation_six_dof" || message.getAddressPattern().toString() == "/bosear/sensors/rotation_nine_dof") && message.size() == 3) {
             // [0] Pitch 0->270 up | 0->90 down
             // [1] Yaw 0->360
             // [2] Roll 0->270 left | 0->90 right
-            newOrientationYPR.yaw = message[1].getFloat32() / 360;
-            newOrientationYPR.pitch = (((((message[0].getFloat32() > 180.) ? abs(message[0].getFloat32() - 360.) : -message[0].getFloat32()))) * -1. + 90. ) / 180.;
-            newOrientationYPR.roll = (((((message[2].getFloat32() > 180.) ? abs(message[2].getFloat32() - 360.) : message[2].getFloat32()))) * -1. + 90. ) / 180.;
-            newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
-            orientation.setYPR(newOrientationYPR);
+            double yaw = message[1].getFloat32() / 360;
+            double pitch = (((((message[0].getFloat32() > 180.) ? abs(message[0].getFloat32() - 360.) : -message[0].getFloat32()))) * -1. + 90. ) / 180.;
+            double roll = (((((message[2].getFloat32() > 180.) ? abs(message[2].getFloat32() - 360.) : message[2].getFloat32()))) * -1. + 90. ) / 180.;
+//            newOrientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
+            orientation.setFromEulerYXZRadians(yaw, pitch, roll, false);
         }
         /// TouchOSC
         else if ((message.getAddressPattern().toString() == "/accxyz") && message.size() == 3) {
             // TODO: parse accelerometer into primitive rotation data
             // Warning: this does not yet represent orientation
-            newOrientationYPR.yaw = (((-1. - 1.) / (0. - 1.)) * ((message[0].getFloat32() - 360.) + 360.));
-            newOrientationYPR.pitch = (((-1. - 1.) / (-180. - 1.)) * ((message[1].getFloat32() - 180.) + 180.));
-            newOrientationYPR.roll = (((-1. - 1.) / (-180. - 1.)) * ((message[2].getFloat32() - 180.) + 180.));
-            newOrientationYPR.angleType = M1OrientationYPR::AngleType::SIGNED_NORMALLED;
-            orientation.setYPR(newOrientationYPR);
+            double yaw = (((-1. - 1.) / (0. - 1.)) * ((message[0].getFloat32() - 360.) + 360.));
+            double pitch = (((-1. - 1.) / (-180. - 1.)) * ((message[1].getFloat32() - 180.) + 180.));
+            double roll = (((-1. - 1.) / (-180. - 1.)) * ((message[2].getFloat32() - 180.) + 180.));
+//            newOrientationYPR.angleType = M1OrientationYPR::AngleType::SIGNED_NORMALLED;
+            orientation.setFromEulerYXZRadians(yaw, pitch, roll, true);
         }
     }
 

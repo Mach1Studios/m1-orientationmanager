@@ -29,7 +29,7 @@ public:
     bool set_peripheral_device(SimpleBLE::Peripheral&);
     
     void sendStartCommand();
-    M1OrientationQuat getRotationQuat();
+    M1Orientation getRotationQuat();
     void recenter();
     int getBatteryLevel();
     int battery_level;
@@ -38,8 +38,8 @@ public:
     
 private:
     
-    void updateOrientationQuat(M1OrientationQuat newValue);
-    M1OrientationQuat currentOrientationQuat;
+    void updateOrientationQuat(M1Orientation newValue);
+    M1Orientation currentOrientationQuat;
     
     std::vector<float> parseQuatData(std::vector<uint8_t> data);
 };

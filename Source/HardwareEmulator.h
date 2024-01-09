@@ -22,20 +22,20 @@ public:
     float yaw = 0;
     float pitch = 0;
     float roll = 0;
-    Orientation orientation;
-    M1OrientationYPR current;
-    M1OrientationYPR previous;
+    M1Orientation orientation;
+//    M1OrientationYPR current;
+    M1Orientation previousFramOrientation;
     
     int setup() override {
         refreshDevices();
         
         // setup angle bounds for device
-        current.angleType = M1OrientationYPR::DEGREES;
-        current.yaw_min = -180.0f; current.yaw_max = 180.0f;
-        current.pitch_min = -180.0f; current.pitch_max = 180.0f;
-        current.roll_min = -180.0f; current.roll_max = 180.0f;
-        
-		orientation.setYPR_type(M1OrientationYPR::SIGNED_NORMALLED);
+//        current.angleType = M1OrientationYPR::DEGREES;
+//        current.yaw_min = -180.0f; current.yaw_max = 180.0f;
+//        current.pitch_min = -180.0f; current.pitch_max = 180.0f;
+//        current.roll_min = -180.0f; current.roll_max = 180.0f;
+//        
+//		orientation.setYPR_type(M1OrientationYPR::SIGNED_NORMALLED);
 
         return 1;
     }
@@ -49,16 +49,11 @@ public:
             }
             pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
             
-            current.yaw = yaw;
-            current.pitch = pitch;
-            current.roll = roll;
+            // Not signed and not normalized
+            orientation.setFromEulerYXZDegrees(yaw, pitch, roll, false);
             
-            if (current.angleType == previous.angleType) {
-                orientation.offsetYPR(current - previous);
-            }
-
             // store previous value
-            previous = current;
+            previousFramOrientation = orientation;
                         
             return 1;
         } else {
