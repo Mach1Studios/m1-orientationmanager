@@ -49,13 +49,13 @@ bool M1OrientationManager::init(int serverPort, int helperPort) {
     originalAngles = EulerAngleSet(0, 0.5, 0); // Equivalent to (30, -20, 0) in degrees
     std::cout << "Original Angles (rad): " << originalAngles.yaw << ", " << originalAngles.pitch << ", " << originalAngles.roll << std::endl;
 
-    orientation.setFromEulerYXZRadians(originalAngles.yaw, originalAngles.pitch, originalAngles.roll);
+    orientation.setFromEulerYPRRadians(originalAngles.yaw, originalAngles.pitch, originalAngles.roll);
     quat = orientation.getAsQuaternion();
     std::cout << "Quaternion: " << quat.w << ", " << quat.x << ", " << quat.y << ", " << quat.z << std::endl;
 
     orientation.setFromQuaternion(quat);
     // Returning angles as signed and non normalized
-    retrievedAngles = orientation.getAsEulerYXZRadians(true);
+    retrievedAngles = orientation.getAsEulerYPRRadians(true);
     std::cout << "Retrieved Angles (rad): " << retrievedAngles.yaw << ", " << retrievedAngles.pitch << ", " << retrievedAngles.roll << std::endl;
 
     if (std::abs(originalAngles.yaw - retrievedAngles.yaw) < 1e-4 &&
@@ -70,23 +70,23 @@ bool M1OrientationManager::init(int serverPort, int helperPort) {
     M1Orientation orientation1, orientation2, resultOrientation;
 //    EulerAngleSet angles1(5, -20, 0), angles2(5, 45, 15), resultAngles;
     EulerAngleSet angles1(0.5, -0.5, 0), angles2(0, 0.7, 0), resultAngles;
-    orientation1.setFromEulerYXZRadians(angles1.yaw, angles1.pitch, angles1.roll);
+    orientation1.setFromEulerYPRRadians(angles1.yaw, angles1.pitch, angles1.roll);
 //
-//    orientation1.setFromEulerYXZDegrees(angles1.yaw, angles1.pitch, angles1.roll);
-    auto ori1_rad = orientation1.getAsEulerYXZRadians(true);
+//    orientation1.setFromEulerYPRDegrees(angles1.yaw, angles1.pitch, angles1.roll);
+    auto ori1_rad = orientation1.getAsEulerYPRRadians(true);
     std::cout << "Orientation 1 (rad): " << ori1_rad.yaw << ", " << ori1_rad.pitch << ", " << ori1_rad.roll << std::endl;
 
-//    orientation2.setFromEulerYXZDegrees(angles2.yaw, angles2.pitch, angles2.roll);
+//    orientation2.setFromEulerYPRDegrees(angles2.yaw, angles2.pitch, angles2.roll);
 
-    orientation2.setFromEulerYXZRadians(angles2.yaw, angles2.pitch, angles2.roll);
-    auto ori2_rad = orientation2.getAsEulerYXZRadians(true);
+    orientation2.setFromEulerYPRRadians(angles2.yaw, angles2.pitch, angles2.roll);
+    auto ori2_rad = orientation2.getAsEulerYPRRadians(true);
     std::cout << "Orientation 1 (rad): " << ori2_rad.yaw << ", " << ori2_rad.pitch << ", " << ori2_rad.roll << std::endl;
 
     resultOrientation = orientation1 + orientation2;
-    auto ori_r_rad = resultOrientation.getAsEulerYXZRadians(true);
+    auto ori_r_rad = resultOrientation.getAsEulerYPRRadians(true);
     std::cout << "Orientation combined (rad): " << ori_r_rad.yaw << ", " << ori_r_rad.pitch << ", " << ori_r_rad.roll << std::endl;
     
-    resultAngles = resultOrientation.getAsEulerYXZRadians(true);
+    resultAngles = resultOrientation.getAsEulerYPRRadians(true);
 
     std::cout << "Angles 1 (rad): " << angles1.yaw << ", " << angles1.pitch << ", " << angles1.roll << std::endl;
     std::cout << "Angles 2 (rad): " << angles2.yaw << ", " << angles2.pitch << ", " << angles2.roll << std::endl;
@@ -103,9 +103,9 @@ bool M1OrientationManager::init(int serverPort, int helperPort) {
     
     // Test 3: converting radians to euler back and forth
     
-    auto angles1_deg = orientation1.getAsEulerYXZDegrees();
-    orientation1.setFromEulerYXZDegrees(angles1_deg.yaw, angles1_deg.pitch, angles1_deg.roll);
-    auto angles1_2_rad = orientation1.getAsEulerYXZRadians();
+    auto angles1_deg = orientation1.getAsEulerYPRDegrees();
+    orientation1.setFromEulerYPRDegrees(angles1_deg.yaw, angles1_deg.pitch, angles1_deg.roll);
+    auto angles1_2_rad = orientation1.getAsEulerYPRRadians();
     if (std::abs(angles1_2_rad.yaw - angles1.yaw) < 1e-4 &&
         std::abs(angles1_2_rad.pitch - angles1.pitch) < 1e-4 &&
         std::abs(angles1_2_rad.roll - angles1.roll) < 1e-4) {
@@ -255,14 +255,14 @@ void M1OrientationManager::update() {
 
         // update orientation
         if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-            ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getAsEulerYXZNormalized(true);
+            ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getAsEulerYPRNormalized(true);
 //            ypr.angleType = M1OrientationYPR::SIGNED_NORMALLED;
             if (!getTrackingYawEnabled()) ypr.yaw = 0.0;
             if (!getTrackingPitchEnabled()) ypr.pitch = 0.0;
             if (!getTrackingRollEnabled()) ypr.roll = 0.0;
             
             // commented out to avoid double applying offset angles from the get()
-            orientation.setFromEulerYXZRadians(ypr.yaw, ypr.pitch, ypr.roll);
+            orientation.setFromEulerYPRRadians(ypr.yaw, ypr.pitch, ypr.roll);
         }
 	}
 
@@ -290,7 +290,7 @@ void M1OrientationManager::update() {
 	}
     
     M1Orientation finalOrientation = orientation + offset;
-    EulerAngleSet finalOrientationEuler = finalOrientation.getAsEulerYXZRadians();
+    EulerAngleSet finalOrientationEuler = finalOrientation.getAsEulerYPRRadians();
 
 	j["trackingEnabled"] = { bTrackingYawEnabled, bTrackingPitchEnabled, bTrackingRollEnabled };
 	j["orientation"] = { finalOrientationEuler.yaw,

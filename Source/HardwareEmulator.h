@@ -50,7 +50,7 @@ public:
             pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
             
             // Not signed and not normalized
-            orientation.setFromEulerYXZDegrees(yaw, pitch, roll, false);
+            orientation.setFromEulerYPRDegrees(yaw, pitch, roll, false);
             
             // store previous value
             previousFramOrientation = orientation;

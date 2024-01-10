@@ -66,11 +66,11 @@ void MainComponent::draw()
     
     m.getCurrentFont()->drawString("ORIENTATION: ", offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getAsEulerYXZDegrees().yaw), offsetX, offsetY);
+    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getAsEulerYPRDegrees().yaw), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getAsEulerYXZDegrees().pitch), offsetX, offsetY);
+    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getAsEulerYPRDegrees().pitch), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getAsEulerYXZDegrees().roll), offsetX, offsetY);
+    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getAsEulerYPRDegrees().roll), offsetX, offsetY);
     
     offsetY += 30;
     

@@ -88,7 +88,7 @@ public:
                 
                 // Supposedly using degrees here, but not checked yet
                 
-                orientation.setFromEulerYXZDegrees(yaw, pitch, roll);
+                orientation.setFromEulerYPRDegrees(yaw, pitch, roll);
 
                 // Update battery percentage
                 int b = metawearInterface.getBatteryLevel();

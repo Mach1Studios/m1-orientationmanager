@@ -65,7 +65,7 @@ public:
                         double yaw = supperwareInterface.currentOrientation[0];
                         double pitch = supperwareInterface.currentOrientation[1];
                         double roll = supperwareInterface.currentOrientation[2];
-                        orientation.setFromEulerYXZDegrees(yaw, pitch, roll);
+                        orientation.setFromEulerYPRDegrees(yaw, pitch, roll);
                         return 1;
                     } else if (supperwareInterface.currentOrientation.size() == 4) {
                         double wIn = supperwareInterface.currentOrientation[0];
@@ -94,7 +94,7 @@ public:
                             double yaw = m1Interface.decoded.y;
                             double pitch = m1Interface.decoded.p;
                             double roll = m1Interface.decoded.r;
-                            orientation.setFromEulerYXZRadians(yaw, pitch, roll);
+                            orientation.setFromEulerYPRRadians(yaw, pitch, roll);
 
                             // cleanup
                             queueBuffer.clear();
@@ -107,7 +107,7 @@ public:
                         double yaw = witOrientationAngles[0];
                         double pitch = witOrientationAngles[1];
                         double roll = witOrientationAngles[2];
-                        orientation.setFromEulerYXZRadians(yaw, pitch, roll, false);
+                        orientation.setFromEulerYPRRadians(yaw, pitch, roll, false);
                         return 1;
                     } else {
                         /// UPDATES FOR GENERIC DEVICES
@@ -138,7 +138,7 @@ public:
                                 double yaw = receivedSerialData[0].getFloatValue();
                                 double pitch = receivedSerialData[1].getFloatValue();
                                 double roll = receivedSerialData[2].getFloatValue();
-                                orientation.setFromEulerYXZRadians(yaw, pitch, roll, false);
+                                orientation.setFromEulerYPRRadians(yaw, pitch, roll, false);
                                 return 1;
                             } else {
                                 // ignore incomplete messages
