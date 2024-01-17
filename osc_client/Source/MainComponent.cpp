@@ -106,15 +106,15 @@ void MainComponent::timerCallback() {
     if (m1OrientationClient.isConnectedToServer() && isConnectedToOutput) {
         if (output_send_as_ypr) {
             output_osc_sender.send(juce::String("/"+current_osc_msg_address),
-                m1OrientationClient.getOrientation().getYPRasDegrees().yaw,
-                m1OrientationClient.getOrientation().getYPRasDegrees().pitch,
-                m1OrientationClient.getOrientation().getYPRasDegrees().roll);
+                (float)m1OrientationClient.getOrientation().getAsEulerYPRDegrees().yaw,
+                (float)m1OrientationClient.getOrientation().getAsEulerYPRDegrees().pitch,
+                (float)m1OrientationClient.getOrientation().getAsEulerYPRDegrees().roll);
         } else {
             output_osc_sender.send(juce::String("/"+current_osc_msg_address),
-                m1OrientationClient.getOrientation().getQuat().w,
-                m1OrientationClient.getOrientation().getQuat().x,
-                m1OrientationClient.getOrientation().getQuat().y,
-                m1OrientationClient.getOrientation().getQuat().z);
+                (float)m1OrientationClient.getOrientation().getAsQuaternion().w,
+                (float)m1OrientationClient.getOrientation().getAsQuaternion().x,
+                (float)m1OrientationClient.getOrientation().getAsQuaternion().y,
+                (float)m1OrientationClient.getOrientation().getAsQuaternion().z);
         }
     }
 }
@@ -152,7 +152,7 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
     auto& orientationControlButton = m.prepare<M1OrientationWindowToggleButton>({ m.getSize().width() - 40 - 5, 5, 40, 40 }).onClick([&](M1OrientationWindowToggleButton& b) {
         showOrientationControlMenu = !showOrientationControlMenu;
     })
-        .withInteractiveOrientationGimmick(m1OrientationClient.getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone, m1OrientationClient.getOrientation().getYPRasDegrees().yaw)
+        .withInteractiveOrientationGimmick(m1OrientationClient.getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone, m1OrientationClient.getOrientation().getAsEulerYPRDegrees().yaw)
         .draw();
     
     // TODO: move this to be to the left of the orientation client window button
@@ -230,9 +230,9 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
                                      std::pair<int, int>(0, 180)
             )
             .withYPR(
-                     m1OrientationClient.getOrientation().getYPRasDegrees().yaw,
-                     m1OrientationClient.getOrientation().getYPRasDegrees().pitch,
-                     m1OrientationClient.getOrientation().getYPRasDegrees().roll
+                     m1OrientationClient.getOrientation().getAsEulerYPRDegrees().yaw,
+                     m1OrientationClient.getOrientation().getAsEulerYPRDegrees().pitch,
+                     m1OrientationClient.getOrientation().getAsEulerYPRDegrees().roll
             ));
             orientationControlWindow->draw();
     }
@@ -268,14 +268,14 @@ void MainComponent::draw()
     
     offsetY += 30;
     
-    Orientation orientation = m1OrientationClient.getOrientation();
+    M1Orientation orientation = m1OrientationClient.getOrientation();
     m.getCurrentFont()->drawString("ORIENTATION: ", offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRasDegrees().yaw), offsetX, offsetY);
+    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getAsEulerYPRDegrees().yaw), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("P:  " + std::to_string(orientation.getYPRasDegrees().pitch), offsetX, offsetY);
+    m.getCurrentFont()->drawString("P:  " + std::to_string(orientation.getAsEulerYPRDegrees().pitch), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("R:  " + std::to_string(orientation.getYPRasDegrees().roll), offsetX, offsetY);
+    m.getCurrentFont()->drawString("R:  " + std::to_string(orientation.getAsEulerYPRDegrees().roll), offsetX, offsetY);
     
     offsetY += 30;
     
