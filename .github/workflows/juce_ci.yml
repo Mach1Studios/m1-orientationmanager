@@ -35,6 +35,9 @@ jobs:
         path: JUCE
         ref: 7.0.5
 
+    - name: Checkout submodules
+      uses: textbook/git-checkout-submodule-action@master
+
     - name: OM Configure (macos)
       if: runner.os == 'MacOS'
       shell: bash
