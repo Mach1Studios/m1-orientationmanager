@@ -87,21 +87,22 @@ jobs:
       shell: bash
       run: cmake --build build --config $BUILD_TYPE
 
-    - uses: akiojin/generate-mac-installer-github-action@v0.1.0
+    - name: OC Package (macos)
+      uses: akiojin/generate-mac-installer-github-action@v0.1.0
       with:
         root-directory: ${{ github.workspace }}/osc_client/build/M1-OrientationOSC_artefacts/Release
         bundle-path: M1-OrientationOSC.app
         identifier: ${{ env.OC_BUNDLE_ID }}
-        install-location: /Application/Mach1
+        install-location: /Application/Mach1/OSC-Tool
         version: ${{ env.VERSION }}
-        output-path: ${{ github.workspace }}/osc_client/build/m1-orientationmanager_artefacts/Release
+        output-directory: ${{ github.workspace }}/osc_client/build/m1-OrientationOSC_artefacts/Release
 
     - name: OC Notarize (macos)
       if: runner.os == 'MacOS'
       uses: cocoalibs/xcode-notarization-action@v1
       with:
         working-directory: osc_client
-        app-path: build/m1-M1-OrientationOSC_artefacts/M1-OrientationOSC.pkg
+        app-path: build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
         apple-id: ${{ secrets.MACOS_NOTARIZE_USER }}
         password: ${{ secrets.MACOS_NOTARIZE_PWD }}
         team-id: ${{ secrets.TEAM_ID }}
@@ -112,7 +113,7 @@ jobs:
       if: runner.os == 'Windows'
       working-directory: osc_client/build
       run: |
-        "%programfiles(x86)%\Inno Setup 6\iscc.exe" /DBuildDir="${{github.workspace}}\osc_client\build\m1-M1-OrientationOSC_artefacts\Release" "${{github.workspace}}\osc_client\Resources\InnoSetup.iss"
+        "%programfiles(x86)%\Inno Setup 6\iscc.exe" /DBuildDir="${{github.workspace}}\osc_client" "${{github.workspace}}\osc_client\Resources\InnoSetup.iss"
       shell: cmd
 
     - name: 'OC Upload Artifact (macos)'
