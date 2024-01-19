@@ -38,17 +38,14 @@ jobs:
     - name: OM Configure (macos)
       if: runner.os == 'MacOS'
       shell: bash
-      working-directory: ${{runner.workspace}}
       run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1
 
     - name: OM Configure (windows)
       if: runner.os == 'Windows'
       shell: bash
-      working-directory: ${{runner.workspace}}
       run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1
 
     - name: OM Build
-      working-directory: ${{runner.workspace}}
       shell: bash
       run: cmake --build build --config $BUILD_TYPE
 
