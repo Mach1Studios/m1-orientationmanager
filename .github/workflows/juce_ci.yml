@@ -102,7 +102,7 @@ jobs:
       uses: cocoalibs/xcode-notarization-action@v1
       with:
         working-directory: osc_client
-        app-path: build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
+        app-path: ${{ github.workspace }}/osc_client/build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
         apple-id: ${{ secrets.MACOS_NOTARIZE_USER }}
         password: ${{ secrets.MACOS_NOTARIZE_PWD }}
         team-id: ${{ secrets.TEAM_ID }}
