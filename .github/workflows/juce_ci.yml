@@ -35,8 +35,10 @@ jobs:
         path: JUCE
         ref: 7.0.5
 
-    - name: Checkout submodules
-      uses: textbook/git-checkout-submodule-action@master
+    - name: OM Checkout Remaining Submodules
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
 
     - name: OM Configure (macos)
       if: runner.os == 'MacOS'
