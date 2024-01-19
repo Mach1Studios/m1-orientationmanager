@@ -132,8 +132,8 @@ jobs:
     - name: 'OC Upload Artifact (windows)'
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v2
-      working-directory: osc_client
       with:
         name: M1-OrientationOSC (Windows)
+        working-directory: osc_client
         path: build\m1-M1-OrientationOSC_artefacts\Release\Output\M1-OrientationOSC_WIN.exe
         if-no-files-found: error
