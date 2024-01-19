@@ -74,17 +74,17 @@ jobs:
     - name: OC Configure (macos)
       if: runner.os == 'MacOS'
       shell: bash
-      working-directory: ${{runner.workspace}}/osc_client
+      working-directory: osc_client
       run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1
 
     - name: OC Configure (windows)
       if: runner.os == 'Windows'
       shell: bash
-      working-directory: ${{runner.workspace}}/osc_client
+      working-directory: osc_client
       run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1
 
     - name: OC Build
-      working-directory: ${{runner.workspace}}/osc_client
+      working-directory: osc_client
       shell: bash
       run: cmake --build build --config $BUILD_TYPE
 
@@ -104,8 +104,8 @@ jobs:
     - name: OC Notarize (macos)
       if: runner.os == 'MacOS'
       uses: cocoalibs/xcode-notarization-action@v1
-      working-directory: ${{runner.workspace}}/osc_client
       with:
+        working-directory: osc_client
         app-path: build/m1-M1-OrientationOSC_artefacts/M1-OrientationOSC.pkg
         apple-id: ${{ secrets.MACOS_NOTARIZE_USER }}
         password: ${{ secrets.MACOS_NOTARIZE_PWD }}
@@ -115,7 +115,7 @@ jobs:
 
     - name: OC InnoSetup Installer (windows)
       if: runner.os == 'Windows'
-      working-directory: ${{runner.workspace}}/osc_client/build
+      working-directory: osc_client/build
       run: |
         "%programfiles(x86)%\Inno Setup 6\iscc.exe" /DBuildDir="${{runner.workspace}}\osc_client\build\m1-M1-OrientationOSC_artefacts\Release" "${{runner.workspace}}\osc_client\Resources\InnoSetup.iss"
       shell: cmd
@@ -123,16 +123,16 @@ jobs:
     - name: 'OC Upload Artifact (macos)'
       if: runner.os == 'MacOS'
       uses: actions/upload-artifact@v2
-      working-directory: ${{runner.workspace}}/osc_client
       with:
         name: M1-OrientationOSC (MacOS)
+        working-directory: osc_client
         path: build/m1-M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
         if-no-files-found: error
 
     - name: 'OC Upload Artifact (windows)'
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v2
-      working-directory: ${{runner.workspace}}\osc_client
+      working-directory: osc_client
       with:
         name: M1-OrientationOSC (Windows)
         path: build\m1-M1-OrientationOSC_artefacts\Release\Output\M1-OrientationOSC_WIN.exe
