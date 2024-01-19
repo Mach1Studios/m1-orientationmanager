@@ -27,6 +27,8 @@ jobs:
       run: cmake --version
 
     - uses: actions/checkout@v3
+      with:
+          submodules: recursive
 
     - name: OM Submodule JUCE
       uses: actions/checkout@v3
@@ -34,11 +36,6 @@ jobs:
         repository: juce-framework/JUCE
         path: JUCE
         ref: 7.0.5
-
-    - name: OM Checkout Remaining Submodules
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
 
     - name: OM Configure (macos)
       if: runner.os == 'MacOS'
