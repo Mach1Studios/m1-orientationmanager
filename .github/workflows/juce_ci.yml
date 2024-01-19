@@ -1,10 +1,6 @@
 name: CMake
 
-on:
-  push:
-    branches:
-      - main
-      - cd-test
+on: [push]
 
 env:
   BUILD_TYPE: Release
@@ -92,10 +88,6 @@ jobs:
       run: cmake --build build --config $BUILD_TYPE
 
     - uses: akiojin/generate-mac-installer-github-action@v0.1.0
-      env:
-        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-        MACOS_INSTALLER_CERT: ${{ secrets.MACOS_INSTALLER_CERT }}
-        MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
       with:
         root-directory: ${{ github.workspace }}/osc_client/build/M1-OrientationOSC_artefacts/Release
         bundle-path: M1-OrientationOSC.app
@@ -120,7 +112,7 @@ jobs:
       if: runner.os == 'Windows'
       working-directory: osc_client/build
       run: |
-        "%programfiles(x86)%\Inno Setup 6\iscc.exe" /DBuildDir="${{runner.workspace}}\osc_client\build\m1-M1-OrientationOSC_artefacts\Release" "${{runner.workspace}}\osc_client\Resources\InnoSetup.iss"
+        "%programfiles(x86)%\Inno Setup 6\iscc.exe" /DBuildDir="${{github.workspace}}\osc_client\build\m1-M1-OrientationOSC_artefacts\Release" "${{github.workspace}}\osc_client\Resources\InnoSetup.iss"
       shell: cmd
 
     - name: 'OC Upload Artifact (macos)'
