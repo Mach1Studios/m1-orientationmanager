@@ -54,7 +54,7 @@ jobs:
     - name: OM Codesign (macos)
       if: runner.os == 'MacOS'
       shell: bash
-      run:  /usr/bin/codesign -v --force -o runtime --entitlements Resources/entitlements.mac.plist --sign $(APPLE_CODESIGN_CODE) --timestamp osc_client/Resources/m1-orientationmanager
+      run:  /usr/bin/codesign -v --force -o runtime --entitlements Resources/entitlements.mac.plist --sign ${{ secrets.APPLE_CODESIGN_CODE }} --timestamp osc_client/Resources/m1-orientationmanager
 
     # - name: 'OM Upload Artifact (macos)'
     #   if: runner.os == 'MacOS'
@@ -95,7 +95,7 @@ jobs:
     - name: OC Codesign (macos)
       if: runner.os == 'MacOS'
       shell: bash
-      run:  /usr/bin/codesign -v --force -o runtime --entitlements osc_client/Resources/M1-OrientationOSC.entitlements --sign $(APPLE_CODESIGN_CODE) --timestamp osc_client/build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.app
+      run:  /usr/bin/codesign -v --force -o runtime --entitlements osc_client/Resources/M1-OrientationOSC.entitlements --sign ${{ secrets.APPLE_CODESIGN_CODE }} --timestamp osc_client/build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.app
 
     - name: OC Package (macos)
       uses: akiojin/generate-mac-installer-github-action@v0.1.0
