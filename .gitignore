@@ -5,6 +5,7 @@ M1notifier/dist
 * - Notarized*
 *.ttf
 *.otf
+osc_client/Resources/m1-orientationmanager*
 
 # JUCE
 Builds

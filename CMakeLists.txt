@@ -104,6 +104,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         m1_orientation_client
         )
 
+option(M1_ORIENTATION_MANAGER_EMBEDDED "Build with m1-orientationmanager expected alongside this client" OFF)
+
 option(BUILD_DEBUG_UI "Build with debug GUI window" OFF)
 
 if (BUILD_DEBUG_UI)
@@ -167,3 +169,10 @@ endif()
 
 install(TARGETS ${CMAKE_PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+if (M1_ORIENTATION_MANAGER_EMBEDDED)
+    message(STATUS "Copying to OSC Client Resources: ${CMAKE_SOURCE_DIR}/osc_client/Resources")
+    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} 
+                       POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CMAKE_PROJECT_NAME}> ${CMAKE_SOURCE_DIR}/osc_client/Resources)
+endif()

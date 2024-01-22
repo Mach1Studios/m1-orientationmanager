@@ -103,8 +103,62 @@ option(M1_ORIENTATION_MANAGER_EMBEDDED "Build with m1-orientationmanager expecte
 
 if (M1_ORIENTATION_MANAGER_EMBEDDED)
     add_compile_definitions(M1_ORIENTATION_MANAGER_EMBEDDED=ON)
-    message(STATUS "Please embed or install the m1-orientationmanager: MacOS=`Contents/MacOS/m1-orientationmanager` Win= sibling to M1-OrientationOSC.exe")
-    message(STATUS "Please embed or install the settings.json: MacOS=`Contents/Resources/settings.json` Win= sibling to M1-OrientationOSC.exe")
+
+    message(STATUS "[Warning] Please make sure you build m1-orientationmanager first!")
+
+    # TODO: Make this process safer and not hardcoded copying
+    if(APPLE)
+        # Add settings.json
+        message(STATUS "Adding copy command for the settings.json file")
+        add_custom_command(
+            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${CMAKE_SOURCE_DIR}/Resources/settings.json
+                    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}_artefacts/$<CONFIG>/${CMAKE_PROJECT_NAME}.app/Contents/Resources/settings.json
+        )
+        # Add m1-orientationmanager executable
+        message(STATUS "Adding copy command for the m1-orientationmanager file")
+        add_custom_command(
+            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${CMAKE_SOURCE_DIR}/Resources/m1-orientationmanager
+                    $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>/m1-orientationmanager
+        )
+    elseif(MSVC OR WIN32 OR MINGW)
+        # Add settings.json
+        message(STATUS "Adding copy command for the settings.json file")
+        add_custom_command(
+            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${CMAKE_SOURCE_DIR}/Resources/settings.json
+                    $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>/settings.json
+        )
+        # Add m1-orientationmanager executable
+        message(STATUS "Adding copy command for the m1-orientationmanager file")
+        add_custom_command(
+            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${CMAKE_SOURCE_DIR}/Resources/m1-orientationmanager.exe
+                    $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>/m1-orientationmanager.exe
+        )
+    else()
+        # Add settings.json
+        message(STATUS "Adding copy command for the settings.json file")
+        add_custom_command(
+            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${CMAKE_SOURCE_DIR}/Resources/settings.json
+                    $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>/settings.json
+        )
+        # Add m1-orientationmanager executable
+        message(STATUS "Adding copy command for the m1-orientationmanager file")
+        add_custom_command(
+            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                    ${CMAKE_SOURCE_DIR}/Resources/m1-orientationmanager
+                    $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>/m1-orientationmanager
+        )
+    endif()
 endif()
 
 ### IDE Generator post-config ###

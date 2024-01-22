@@ -32,51 +32,53 @@ void MainComponent::initialise()
     juce::File settingsFile;
 
 #ifdef M1_ORIENTATION_MANAGER_EMBEDDED
-        // This tool only looks for m1-orientationmanager executables and "settings.json" file
-        if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-            // run process m1-orientationmanager.exe from the same folder
-            juce::ChildProcess orientationManagerProcess;
-            
-            juce::File m1orientationmanager_exe;
-            m1orientationmanager_exe = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentExecutableFile).getSiblingFile("m1-orientationmanager");
-            DBG("Opening m1-orientationmanager exec: " + m1orientationmanager_exe.getFullPathName().quoted());
+    // This tool only looks for local m1-orientationmanager executables and "settings.json" file
+    
+    // TODO: test for already running service first!!
+    
+    // run process m1-orientationmanager.exe from the same folder
+    juce::ChildProcess orientationManagerProcess;
+    
+    juce::File m1orientationmanager_exe;
+    m1orientationmanager_exe = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentExecutableFile).getSiblingFile("m1-orientationmanager");
+    DBG("Opening m1-orientationmanager exec: " + m1orientationmanager_exe.getFullPathName().quoted());
 
-            // runs as a clear external process to help the user understand the separation of services
-            if (m1orientationmanager_exe.startAsProcess()) {
-                DBG("Started m1-orientationmanager server");
-            } else {
-                // Failed to start the process
-                DBG("Failed to start the m1-orientationmanager");
-                exit(1);
-            }
-            
-            settingsFile = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getChildFile("Contents").getChildFile("Resources").getChildFile("settings.json");
-            DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
-        } else {
-            settingsFile = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile("settings.json");
-            DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
-        }
-
-        m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString());
+    // runs as a clear external process to help the user understand the separation of services
+    if (m1orientationmanager_exe.startAsProcess()) {
+        DBG("Started m1-orientationmanager server");
+    } else {
+        // Failed to start the process
+        DBG("Failed to start the m1-orientationmanager");
+        juce::JUCEApplicationBase::quit();
+    }
+    
+    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+        settingsFile = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getChildFile("Contents").getChildFile("Resources").getChildFile("settings.json");
+    } else {
+        settingsFile = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile("settings.json");
+    }
+    
+    DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
+    m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString());
 #else
-        // use the typical installation and service locations of m1-orientationmanager
-        
-        // We will assume the folders are properly created during the installation step
-        // Using common support files installation location
-        juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
+    // use the typical installation and service locations of m1-orientationmanager
+    
+    // We will assume the folders are properly created during the installation step
+    // Using common support files installation location
+    juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
 
-        if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-            // test for any mac OS
-            settingsFile = m1SupportDirectory.getChildFile("Application Support").getChildFile("Mach1");
-        } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-            // test for any windows OS
-            settingsFile = m1SupportDirectory.getChildFile("Mach1");
-        } else {
-            settingsFile = m1SupportDirectory.getChildFile("Mach1");
-        }
-        settingsFile = settingsFile.getChildFile("settings.json");
-        DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
-        m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString());
+    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+        // test for any mac OS
+        settingsFile = m1SupportDirectory.getChildFile("Application Support").getChildFile("Mach1");
+    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
+        // test for any windows OS
+        settingsFile = m1SupportDirectory.getChildFile("Mach1");
+    } else {
+        settingsFile = m1SupportDirectory.getChildFile("Mach1");
+    }
+    settingsFile = settingsFile.getChildFile("settings.json");
+    DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
+    m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString());
 #endif
     
 	m1OrientationClient.setStatusCallback(std::bind(&MainComponent::setStatus, this, std::placeholders::_1, std::placeholders::_2));
