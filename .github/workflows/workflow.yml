@@ -29,6 +29,12 @@ jobs:
     - name: Test cmake
       run: cmake --version
 
+    - name: "Update windows SDK"
+      if: runner.os == 'Windows'
+      uses: fbactions/setup-winsdk@v1
+      with:
+        winsdk-build-version: 19041
+
     - uses: actions/checkout@v3
       with:
           submodules: recursive
@@ -48,7 +54,7 @@ jobs:
     - name: OM Configure (windows)
       if: runner.os == 'Windows'
       shell: bash
-      run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1
+      run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1 -DCMAKE_SYSTEM_VERSION=10.0.19041.0
 
     - name: OM Build
       shell: bash
@@ -83,7 +89,7 @@ jobs:
       if: runner.os == 'Windows'
       shell: bash
       working-directory: osc_client
-      run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1
+      run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1 -DCMAKE_SYSTEM_VERSION=10.0.19041.0
 
     - name: OC Build
       working-directory: osc_client
