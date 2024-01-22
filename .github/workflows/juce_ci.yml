@@ -87,7 +87,7 @@ jobs:
       shell: bash
       run: cmake --build build --config $BUILD_TYPE
 
-    - name: OS Package (macos)
+    - name: OC Package (macos)
       if: runner.os == 'MacOS'
       shell: bash
       env:
