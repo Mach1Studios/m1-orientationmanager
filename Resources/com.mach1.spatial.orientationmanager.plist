@@ -9,9 +9,5 @@
 		<string>/Library/Application Support/Mach1/m1-orientationmanager</string>
 		<string>--no-gui</string>
 	</array>
-	<key>StandardErrorPath</key>
-	<string>/Library/Application Support/Mach1/m1-spatialsystem.log</string>
-	<key>StandardOutPath</key>
-	<string>/Library/Application Support/Mach1/m1-spatialsystem.log</string>
 </dict>
 </plist>
