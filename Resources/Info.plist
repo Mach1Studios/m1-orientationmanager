@@ -3,15 +3,15 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleExecutable</key>
-	<string>${EXECUTABLE_NAME}</string>
+	<string>m1-orientationmanager</string>
 	<key>CFBundleIconFile</key>
 	<string>Icon.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.mach1.spatial.orientationmanager</string>
 	<key>CFBundleName</key>
-	<string>${EXECUTABLE_NAME}</string>
+	<string>m1-orientationmanager</string>
 	<key>CFBundleDisplayName</key>
-	<string>${PRODUCT_NAME}</string>
+	<string>m1-orientationmanager</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
@@ -21,7 +21,7 @@
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
     <key>LSMinimumSystemVersion</key>
-    <string>${MACOSX_DEPLOYMENT_TARGET}</string>
+    <string>10.14</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Mach 1, Corp.</string>
     <key>NSAppTransportSecurity</key>    
@@ -33,5 +33,9 @@
     <string>This app requires Bluetooth to search and connect to Bluetooth enabled devices</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
     <string>This app requires Bluetooth to search and connect to Bluetooth enabled devices</string>
+    <key>NSCameraUsageDescription</key>
+    <string>m1-orientationmanager needs access to the camera for some IMU fusion implementations to reset the orientation during use.</string>
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>m1-orientationmanager wants to look for usb/serial devices connected by file.</string>
 </dict>
 </plist>
