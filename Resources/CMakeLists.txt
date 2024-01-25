@@ -11,5 +11,8 @@ message(STATUS "Font (default) size: ${DEFAULT_FONT_SIZE}")
 
 if(APPLE)
 	# MacOS: Add privacy permissions for access to bluetooth
-	target_link_options(${CMAKE_PROJECT_NAME} PRIVATE LINKER:-sectcreate,__TEXT,__info_plist,${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
+	message(STATUS "Attaching Info.plist found at ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
+	set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS 
+		"-sectcreate __TEXT __info_plist ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
+	)
 endif()
