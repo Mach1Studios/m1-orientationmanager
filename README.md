@@ -55,11 +55,7 @@ This repo also includes a flexible and simple UI app to show an example of inter
 This can be found in the [osc_client](osc_client) directory.
 
 ### Setup
-- Build via CMake or JUCE to compile the contents of [osc_client](osc_client) via the same methods described above
-- Copy the [settings.json](Resources/settings.json) to either:
-	- MacOS `/Library/Application Support/Mach1/settings.json` or on windows `\Documents and Settings\All Users\Application Data\Mach1\settings.json` and ensure that `useStandalone = false`
-	- Set `useStandalone = true` and install the `settings.json` next to the executable
-- Run the built m1-orientationmanager executable via the instructions above, the client will look for the server locally via http
+The setup for the OSC Tool can be [found here](https://github.com/Mach1Studios/m1-orientationmanager/tree/main/osc_client#build-via-cmake)
 
 ## Credits
 This project references and implements some design, UI and UX concepts from [nvsonic-head-tracker](https://github.com/trsonic/nvsonic-head-tracker) utility and expands upon it by handling and aggregating more connection types as well as creating a server/client design to handle dual direction communication between a network of clients.
