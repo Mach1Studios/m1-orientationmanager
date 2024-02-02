@@ -83,7 +83,7 @@ jobs:
       if: runner.os == 'MacOS'
       shell: bash
       working-directory: osc_client
-      run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1 -DWIN32_LEAN_AND_MEAN=1
+      run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1
 
     - name: OC Configure (windows)
       if: runner.os == 'Windows'
