@@ -99,6 +99,11 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         m1_orientation_client
         )
 
+if(MSVC OR WIN32 OR MINGW)
+    message(STATUS "Adding windows OS flag for httplib")
+    add_compile_definitions(WIN32_LEAN_AND_MEAN)    
+endif()
+
 option(M1_ORIENTATION_MANAGER_EMBEDDED "Build with m1-orientationmanager expected alongside this client" OFF)
 
 if (M1_ORIENTATION_MANAGER_EMBEDDED)

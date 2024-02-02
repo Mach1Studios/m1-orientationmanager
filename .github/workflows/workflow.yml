@@ -2,8 +2,10 @@ name: CMake
 
 on:
   push:
-    branches:    
-      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+    branches:
+      - 'test-cd'
 
 env:
   BUILD_TYPE: Release
@@ -89,7 +91,7 @@ jobs:
       if: runner.os == 'Windows'
       shell: bash
       working-directory: osc_client
-      run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1 -DWIN32_LEAN_AND_MEAN=1 -DCMAKE_SYSTEM_VERSION=10.0.19041.0
+      run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1 -DCMAKE_SYSTEM_VERSION=10.0.19041.0
 
     - name: OC Build
       working-directory: osc_client
