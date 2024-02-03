@@ -153,18 +153,9 @@ jobs:
         "%programfiles(x86)%\Inno Setup 6\iscc.exe" /DBuildDir="${{github.workspace}}\osc_client" "${{github.workspace}}\osc_client\Resources\InnoSetup.iss"
       shell: cmd
 
-    - name: 'OC Upload Artifact (macos)'
-      if: runner.os == 'MacOS'
-      uses: actions/upload-artifact@v2
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
-        name: M1-OrientationOSC (MacOS)
-        path: ${{ github.workspace }}/osc_client/build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
-        if-no-files-found: error
-
-    - name: 'OC Upload Artifact (windows)'
-      if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v2
-      with:
-        name: M1-OrientationOSC (Windows)
-        path: ${{ github.workspace }}\osc_client\Output\M1-OrientationOSC_WIN.exe
-        if-no-files-found: error
+        files: |
+          ${{ github.workspace }}/osc_client/build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
+          ${{ github.workspace }}\osc_client\Output\M1-OrientationOSC_WIN.exe
