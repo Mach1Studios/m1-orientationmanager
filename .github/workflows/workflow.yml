@@ -166,5 +166,5 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: M1-OrientationOSC (Windows)
-        path: ${{ github.workspace }}\osc_client\build\m1-M1-OrientationOSC_artefacts\Release\Output\M1-OrientationOSC_WIN.exe
+        path: ${{ github.workspace }}\osc_client\Output\M1-OrientationOSC_WIN.exe
         if-no-files-found: error
