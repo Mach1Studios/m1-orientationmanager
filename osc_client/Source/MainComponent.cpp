@@ -3,7 +3,9 @@
 
 #include <signal.h>
 #include <sys/types.h>
+#if !defined(JUCE_WINDOWS)
 #include <unistd.h>
+#endif
 
 //==============================================================================
 MainComponent::MainComponent()
