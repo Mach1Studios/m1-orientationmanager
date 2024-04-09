@@ -62,7 +62,7 @@ public:
 
 		if (m1OrientationManager.initFromSettings(settingsFile.getFullPathName().toStdString())) {
 			// For debug testing, you can set this to false to list all connectable BLE devices
-			hardwareBLE.displayOnlyKnownIMUs = true;
+			// hardwareBLE.displayOnlyKnownIMUs = true; // TODO: Reimplement with new scheme
 			hardwareBLE.setup();
 			hardwareSerial.setup();
 			hardwareOSC.setup();

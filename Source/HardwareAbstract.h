@@ -13,6 +13,9 @@ class HardwareAbstract {
 	std::mutex mtx;
 
 public:
+
+    using TrackingCallback = std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)>;
+
     virtual int setup() = 0;
     virtual int update() = 0;
     virtual int close() = 0;
@@ -32,7 +35,8 @@ public:
     virtual M1OrientationDeviceInfo getConnectedDevice() = 0;
     virtual M1OrientationTrackingResult getOrientation() = 0;
     virtual void calibrateDevice() = 0;
+    virtual void recenter() = 0;
 
-    virtual void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback) = 0;
-    
+    virtual void startTrackingUsingDevice(M1OrientationDeviceInfo device, TrackingCallback callback) = 0;
+
 };

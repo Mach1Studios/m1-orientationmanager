@@ -22,49 +22,35 @@ public:
     float yaw = 0;
     float pitch = 0;
     float roll = 0;
-    Orientation orientation;
-    M1OrientationYPR current;
-    M1OrientationYPR previous;
+    Mach1::Orientation orientation;  // intended to hold a range between -1 and 1
+    Mach1::Float3 current; // intended to hold euler degrees
+    Mach1::Float3 previous; // intended to hold euler degrees
     
     int setup() override {
         refreshDevices();
-        
-        // setup angle bounds for device
-        current.angleType = M1OrientationYPR::DEGREES;
-        current.yaw_min = -180.0f; current.yaw_max = 180.0f;
-        current.pitch_min = -180.0f; current.pitch_max = 180.0f;
-        current.roll_min = -180.0f; current.roll_max = 180.0f;
-        
-		orientation.setYPR_type(M1OrientationYPR::SIGNED_NORMALLED);
-
         return 1;
     }
 
     int update() override {
-        if (isConnected){
-            // increment values
-            yaw = std::fmod((yaw + 0.1), 360); // fmod 360 range
-            if (yaw > 180) {
-                yaw -= 360; // shift to -180
-            }
-            pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
-            
-            current.yaw = yaw;
-            current.pitch = pitch;
-            current.roll = roll;
-            
-            if (current.angleType == previous.angleType) {
-                orientation.offsetYPR(current - previous);
-            }
-
-            // store previous value
-            previous = current;
-                        
-            return 1;
-        } else {
-            // return for error handling
+        if (!isConnected){
             return -1;
         }
+
+        // increment values
+        yaw = std::fmod((yaw + 0.1), 360); // fmod 360 range
+        if (yaw > 180) {
+            yaw -= 360; // shift to -180
+        }
+
+        pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
+
+        current = {pitch, yaw, roll};
+        orientation.ApplyRotationDegrees(current - previous);
+
+        // store previous value
+        previous = current;
+
+        return 1;
     }
     
     void calibrateDevice() override {
@@ -98,7 +84,7 @@ public:
         return devices;
     }
 
-    void startTrackingUsingDevice(M1OrientationDeviceInfo device, std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback) override {
+    void startTrackingUsingDevice(M1OrientationDeviceInfo device, TrackingCallback statusCallback) override {
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
             
@@ -118,7 +104,11 @@ public:
     M1OrientationDeviceInfo getConnectedDevice() override {
         return connectedDevice;
     }
-    
+
+    void recenter() override {
+        orientation.Recenter();
+    }
+
     // Callback update from the SupperwareInterface object
 //    std::vector<float> trackerChanged(const HeadMatrix& headMatrix) override {
 //

@@ -12,6 +12,9 @@ Builds
 JuceLibraryCode
 !JuceLibraryCode/AppData.h
 
+# macOS
+.DS_Store
+
 # Media Files
 *.mp4
 *.wav
@@ -41,6 +44,8 @@ bld/
 build/
 build-dev/
 DerivedData/
+cmake-build-debug/
+cmake-build-release/
 
 ## Various settings
 *.pbxuser

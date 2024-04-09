@@ -8,6 +8,7 @@
 #include "m1_orientation_client/M1OrientationTypes.h"
 #include "m1_orientation_client/M1OrientationSettings.h"
 #include "HardwareAbstract.h"
+#include "m1_mathematics/Orientation.h"
 #include <thread>
 #include <map>
 
@@ -54,9 +55,9 @@ class M1OrientationManager :
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
 
-    std::map<M1OrientationDeviceType, HardwareAbstract*> hardwareImpl;
+    std::map<M1OrientationDeviceType, HardwareAbstract*> hardwareImpl; // TODO: EXC_BAD_ACCESS. Make abstraction over this.
     M1OrientationDeviceInfo currentDevice;
-    Orientation orientation;
+    Mach1::Orientation m_orientation; // TODO: This object seems pointless. Remove it.
 
 public:
     virtual ~M1OrientationManager();
@@ -66,7 +67,8 @@ public:
 	void startSearchingForDevices();
     void update();
 
-    Orientation getOrientation();
+    Mach1::Orientation GetCurrentOrientation();
+
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getConnectedDevice();
 

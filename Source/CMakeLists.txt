@@ -13,6 +13,8 @@ file(GLOB source_files  Config.h
                         HardwareOSC.h
                         HardwareCamera.h
                         HardwareEmulator.h
+                        BLEDeviceMap.h
+                        BLEDeviceMap.cpp
                         Devices/MetaWearInterface.h
                         Devices/MetaWearInterface.cpp
                         Devices/SupperwareInterface.h

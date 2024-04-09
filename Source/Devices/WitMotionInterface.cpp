@@ -15,13 +15,16 @@ WitMotionInterface::~WitMotionInterface()
 }
 
 float* WitMotionInterface::updateOrientation(char readBuffer[], int length){
-    if(isConnected){
-        for (int i = 0; i < length; i++) {
-            parseData(readBuffer[i]);
-        }
-        float* newOrientation = getAngle();
-        return newOrientation;
+    if(!isConnected){
+        return nullptr;
     }
+
+    for (int i = 0; i < length; i++) {
+        parseData(readBuffer[i]);
+    }
+
+    float* newOrientation = getAngle();
+    return newOrientation;
 }
 
 void WitMotionInterface::resetOrientation(){

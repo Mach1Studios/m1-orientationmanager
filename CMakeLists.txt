@@ -36,6 +36,9 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 add_subdirectory(JUCE)
 add_subdirectory(Modules)
 
+# add the math
+add_subdirectory(m1-mathematics)
+
 # PLUGIN/APP NAME (for dynamic naming schemes)
 set(CUSTOM_BUNDLE_ID "com.mach1.spatial.orientationmanager")
 set(CUSTOM_APP_CODE "M1OS")
@@ -102,6 +105,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         juce::juce_osc
         juce_murka
         m1_orientation_client
+        m1_mathematics
         )
 
 option(M1_ORIENTATION_MANAGER_EMBEDDED "Build with m1-orientationmanager expected alongside this client" OFF)

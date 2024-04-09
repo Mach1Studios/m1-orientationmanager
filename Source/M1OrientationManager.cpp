@@ -15,7 +15,7 @@ M1OrientationManager::~M1OrientationManager() {
     close();
 }
 
-std::vector<M1OrientationDeviceInfo> M1OrientationManager::getDevices() {
+std::vector <M1OrientationDeviceInfo> M1OrientationManager::getDevices() {
     std::vector<M1OrientationDeviceInfo> devices;
     for (const auto& hardware : hardwareImpl) {
 		hardware.second->lock();
@@ -168,7 +168,7 @@ void M1OrientationManager::startSearchingForDevices() {
 
 void M1OrientationManager::update() {
 	std::vector<M1OrientationDeviceInfo> devices = getDevices();
-	M1OrientationYPR ypr;
+    Mach1::Float3 newRot;
 
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
         if (!hardwareImpl[currentDevice.getDeviceType()]->update()) {
@@ -183,11 +183,20 @@ void M1OrientationManager::update() {
 
         // update orientation
         if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-            ypr = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.getYPRasSignedNormalled();
-            ypr.angleType = M1OrientationYPR::SIGNED_NORMALLED;
-            if (!getTrackingYawEnabled()) ypr.yaw = 0.0;
-            if (!getTrackingPitchEnabled()) ypr.pitch = 0.0;
-            if (!getTrackingRollEnabled()) ypr.roll = 0.0;
+            newRot = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.GetGlobalRotationAsEulerRadians();
+            newRot = newRot.Map(-M_PI, M_PI, -1, 1);
+
+            if (!getTrackingYawEnabled()) {
+                newRot[1] = 0;
+            }
+
+            if (!getTrackingPitchEnabled()) {
+                newRot[0] = 0;
+            }
+
+            if (!getTrackingRollEnabled()) {
+                newRot[2] = 0;
+            }
             
             // commented out to avoid double applying offset angles from the get()
 			//orientation.setYPR(ypr);
@@ -218,7 +227,7 @@ void M1OrientationManager::update() {
 	}
 
 	j["trackingEnabled"] = { bTrackingYawEnabled, bTrackingPitchEnabled, bTrackingRollEnabled };
-	j["orientation"] = { ypr.yaw, ypr.pitch, ypr.roll };
+	j["orientation"] = { newRot[1], newRot[0], newRot[2] };
 
 	j["player"]["frameRate"] = playerFrameRate;
 	j["player"]["positionInSeconds"] = playerPositionInSeconds;
@@ -230,8 +239,8 @@ void M1OrientationManager::update() {
 	mutex.unlock();
 }
 
-Orientation M1OrientationManager::getOrientation() {
-    return orientation;
+Mach1::Orientation M1OrientationManager::GetCurrentOrientation() {
+    return m_orientation;
 }
 
 void M1OrientationManager::addHardwareImplementation(M1OrientationDeviceType type, HardwareAbstract* impl) {
@@ -247,7 +256,8 @@ void M1OrientationManager::close() {
 }
 
 void M1OrientationManager::command_disconnect() {
-    orientation.resetOrientation();
+    m_orientation.Reset();
+
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
 		hardwareImpl[currentDevice.getDeviceType()]->lock();
 		hardwareImpl[currentDevice.getDeviceType()]->close();
@@ -257,7 +267,8 @@ void M1OrientationManager::command_disconnect() {
 }
 
 void M1OrientationManager::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
-    orientation.resetOrientation();
+    m_orientation.Reset();
+
     if (currentDevice != device){
 		hardwareImpl[device.getDeviceType()]->lock();
         hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress) {
@@ -284,13 +295,21 @@ void M1OrientationManager::command_setTrackingRollEnabled(bool enable) {
 }
 
 void M1OrientationManager::command_recenter() {
-    orientation.recenter();
     DBG("[REQ] Recenter requested from a client...");
+    m_orientation.Recenter();
+
+    if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
+//        hardwareImpl[currentDevice.getDeviceType()]->lock();
+        hardwareImpl[currentDevice.getDeviceType()]->recenter();
+//        hardwareImpl[currentDevice.getDeviceType()]->unlock();
+    }
+
 }
 
 void M1OrientationManager::command_refresh() {
     isDevicesRefreshRequested = true;
-    DBG("[REQ] Refresh requested from a client...");
+    // TODO: Gets printed so often that it's distracting.
+    // DBG("[REQ] Refresh requested from a client...");
 }
 
 bool is_number(const std::string& s) {

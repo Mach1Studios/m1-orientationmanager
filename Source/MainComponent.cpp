@@ -45,8 +45,12 @@ void MainComponent::draw()
 	M1OrientationManager& m1OrientationManager = M1OrientationManagerService::getInstance().m1OrientationManager;
 	std::vector<M1OrientationDeviceInfo> devices = m1OrientationManager.getDevices();
 
-	Orientation orientation = m1OrientationManager.getOrientation();
-    M1OrientationDeviceInfo device = m1OrientationManager.getConnectedDevice();
+	Mach1::Float3 orientation = m1OrientationManager.GetCurrentOrientation().GetGlobalRotationAsEulerDegrees();
+    float pitch = orientation[1];
+    float yaw = orientation[0];
+    float roll = orientation[2];
+
+    M1OrientationDeviceInfo connected_device = m1OrientationManager.getConnectedDevice();
 
 //#ifdef BUILD_DEBUG_UI
     m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
@@ -66,11 +70,11 @@ void MainComponent::draw()
     
     m.getCurrentFont()->drawString("ORIENTATION: ", offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRasDegrees().yaw), offsetX, offsetY);
+    m.getCurrentFont()->drawString("Y:  " + std::to_string(yaw), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("P: " + std::to_string(orientation.getYPRasDegrees().pitch), offsetX, offsetY);
+    m.getCurrentFont()->drawString("P: " + std::to_string(pitch), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("R:   " + std::to_string(orientation.getYPRasDegrees().roll), offsetX, offsetY);
+    m.getCurrentFont()->drawString("R:   " + std::to_string(roll), offsetX, offsetY);
     
     offsetY += 30;
     

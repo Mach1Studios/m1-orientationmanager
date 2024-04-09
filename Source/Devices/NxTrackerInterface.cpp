@@ -25,10 +25,16 @@ bool NxTrackerInterface::set_peripheral_device(SimpleBLE::Peripheral& peripheral
 }
 
 void NxTrackerInterface::sendStartCommand() {
-    if (deviceInterface != nullptr) {
-        std::string start_command = {0x32, 0x00, 0x00, 0x00, 0x01};
-        deviceInterface->write_request(NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID, NXTRACKER_START_WRITE_GATT_CHARACTERISTIC_UUID, start_command);
+    if (deviceInterface == nullptr) {
+        return;
     }
+
+    std::string start_command = {0x32, 0x00, 0x00, 0x00, 0x01};
+    deviceInterface->write_request(
+            NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID,
+            NXTRACKER_START_WRITE_GATT_CHARACTERISTIC_UUID,
+            start_command
+    );
 }
 
 std::vector<float> NxTrackerInterface::parseQuatData(std::vector<uint8_t> data) {
@@ -47,29 +53,23 @@ std::vector<float> NxTrackerInterface::parseQuatData(std::vector<uint8_t> data) 
     return {n_q0, n_q1, n_q2, n_q3};
 }
 
-void NxTrackerInterface::updateOrientationQuat(M1OrientationQuat newValue) {
-    // called from the notify thread in BLE
-    currentOrientationQuat = newValue; // TODO: should currentOrientationQuat be std::atomic?
-}
-
-M1OrientationQuat NxTrackerInterface::getRotationQuat() {
-    if (deviceInterface->is_connected()) {
-        deviceInterface->notify(NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID, NXTRACKER_ORIENTATION_DATA_GATT_CHARATERISTIC_UUID,
-                                [&](SimpleBLE::ByteArray rx_data) {
-                    std::string str = rx_data;
-                    std::vector<uint8_t> data(str.begin(), str.end()); // convert incoming data string to bytes
-                    std::vector<float> read_quat = parseQuatData(data);
-                    
-                    // TODO: fix this quaternion to work as expected
-                    M1OrientationQuat newQuat;
-                    newQuat.wIn = read_quat[0];
-                    newQuat.xIn = read_quat[1];
-                    newQuat.yIn = read_quat[2];
-                    newQuat.zIn = read_quat[3];
-                    updateOrientationQuat(newQuat);
-                }
-        );
+Mach1::Quaternion NxTrackerInterface::getRotationQuat() {
+    if (!deviceInterface->is_connected()) {
+        return currentOrientationQuat;
     }
+
+    deviceInterface->notify(
+        NXTRACKER_ORIENTATION_DATA_GATT_SERVICE_UUID,
+        NXTRACKER_ORIENTATION_DATA_GATT_CHARATERISTIC_UUID,
+        [&](SimpleBLE::ByteArray rx_data) {
+            std::string str = rx_data;
+            std::vector<uint8_t> data(str.begin(), str.end()); // convert incoming data string to bytes
+            std::vector<float> read_quat = parseQuatData(data);
+
+            currentOrientationQuat = {read_quat[0], -read_quat[2], read_quat[3], read_quat[1]};
+        }
+    );
+
     return currentOrientationQuat;
 }
 
@@ -79,13 +79,18 @@ void NxTrackerInterface::recenter() {
 
 int NxTrackerInterface::getBatteryLevel() {
     std::optional<SimpleBLE::ByteArray> rx_data = deviceInterface->read("180f", "2a19"); // battery UUID
-    if (rx_data.has_value()) {
-        std::string batt_value_ascii = rx_data.value();
-        std::vector<uint8_t> data(batt_value_ascii.begin(), batt_value_ascii.end()); // convert incoming data string to bytes
-        int battery_data = data[0];
-        if (battery_data >= 0 || battery_data <= 100) {
-            return battery_data;
-        }
+    if (!rx_data.has_value()) {
+        return 0;
+    }
+
+    int batt_value_other = rx_data.value().c_str()[0];
+
+    std::string batt_value_ascii = rx_data.value();
+    std::vector<uint8_t> data(batt_value_ascii.begin(), batt_value_ascii.end()); // convert incoming data string to bytes
+    int battery_data = data[0];
+
+    if (battery_data >= 0 || battery_data <= 100) {
+        return battery_data;
     }
 }
 
