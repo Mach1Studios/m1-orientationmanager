@@ -25,6 +25,3 @@
 [submodule "Source/httplib"]
 	path = Source/httplib
 	url = git@github.com:yhirose/cpp-httplib.git
-[submodule "m1-mathematics"]
-	path = m1-mathematics
-	url = git@github.com:Mach1Studios/m1-mathematics.git
