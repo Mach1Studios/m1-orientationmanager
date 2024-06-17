@@ -44,7 +44,7 @@ public:
 
         pitch = std::fmod((pitch + 0.1), 90); // fmod 90 range
 
-        current = {pitch, yaw, roll};
+        current = {yaw, pitch, roll};
         orientation.ApplyRotationDegrees(current - previous);
 
         // store previous value

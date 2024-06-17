@@ -49,7 +49,7 @@ public:
                     roll = message[2].getFloat32();
                 }
 
-                orientation.SetRotation(Mach1::Float3{pitch, yaw, roll}.EulerRadians());
+                orientation.SetRotation(Mach1::Float3{yaw, pitch, roll}.EulerRadians());
             }
 
             else if (message.size() == 4) {
@@ -95,7 +95,7 @@ public:
                 roll = message[2].getFloat32();
             }
 
-            orientation.SetRotation(Mach1::Float3{pitch, yaw, roll}.EulerRadians());
+            orientation.SetRotation(Mach1::Float3{yaw, pitch, roll}.EulerRadians());
         }
         /// GENERIC QUATERNION
         else if ((message.getAddressPattern().toString().toStdString().find("quat") != std::string::npos || message.getAddressPattern().toString().toStdString().find("/quaternion") != std::string::npos) && message.size() == 4) {
@@ -133,7 +133,7 @@ public:
             pitch = (((((message[0].getFloat32() > 180.) ? abs(message[0].getFloat32() - 360.) : -message[0].getFloat32()))) * -1. + 90. ) / 180.;
             roll = (((((message[2].getFloat32() > 180.) ? abs(message[2].getFloat32() - 360.) : message[2].getFloat32()))) * -1. + 90. ) / 180.;
 
-            orientation.SetRotation(Mach1::Float3{pitch, yaw, roll});
+            orientation.SetRotation(Mach1::Float3{yaw, pitch, roll});
         }
 
         /// TouchOSC
@@ -147,7 +147,7 @@ public:
             pitch = (((-1. - 1.) / (-180. - 1.)) * ((message[1].getFloat32() - 180.) + 180.));
             roll = (((-1. - 1.) / (-180. - 1.)) * ((message[2].getFloat32() - 180.) + 180.));
 
-            orientation.SetRotation(Mach1::Float3{pitch, yaw, roll}.Map(-1, 1, -M_PI, M_PI));
+            orientation.SetRotation(Mach1::Float3{yaw, pitch, roll}.Map(-1, 1, -M_PI, M_PI));
         }
     }
 

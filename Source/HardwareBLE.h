@@ -197,7 +197,7 @@ public:
         float pitch = -a[2];
         float roll = -a[1];
 
-        m_orientation.SetRotation(Mach1::Float3{pitch, yaw, roll}.EulerRadians());
+        m_orientation.SetRotation(Mach1::Float3{yaw, pitch, roll}.EulerRadians());
         info.batteryPercentage = meta_wear_iface.getBatteryLevel();
     }
 

@@ -71,7 +71,7 @@ public:
                 yaw = supperwareInterface.currentOrientation[0];
                 pitch = supperwareInterface.currentOrientation[1];
                 roll = supperwareInterface.currentOrientation[2];
-                orientation.SetRotation(Mach1::Float3{pitch, yaw, roll}.EulerRadians());
+                orientation.SetRotation(Mach1::Float3{yaw, pitch, roll}.EulerRadians());
                 return 1;
             } else if (supperwareInterface.currentOrientation.size() == 4) {
                 float w, x, y, z;
@@ -107,7 +107,7 @@ public:
                         pitch = m1Interface.decoded.p;
                         roll = m1Interface.decoded.r;
 
-                        orientation.SetRotation({pitch, yaw, roll});
+                        orientation.SetRotation({yaw, pitch, roll});
 
                         // cleanup
                         queueBuffer.clear();
@@ -122,7 +122,7 @@ public:
                     yaw = witOrientationAngles[0];
                     pitch = witOrientationAngles[1];
                     roll = witOrientationAngles[2];
-                    orientation.SetRotation({pitch, yaw, roll});
+                    orientation.SetRotation({yaw, pitch, roll});
                     return 1;
                 } else {
                     /// UPDATES FOR GENERIC DEVICES
@@ -155,7 +155,7 @@ public:
                             yaw = receivedSerialData[0].getFloatValue();
                             pitch = receivedSerialData[1].getFloatValue();
                             roll = receivedSerialData[2].getFloatValue();
-                            orientation.SetRotation(Mach1::Float3{pitch, yaw, roll});
+                            orientation.SetRotation(Mach1::Float3{yaw, pitch, roll});
                             return 1;
                         } else {
                             // ignore incomplete messages

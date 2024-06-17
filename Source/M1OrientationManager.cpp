@@ -186,19 +186,16 @@ void M1OrientationManager::update() {
             newRot = newRot.Map(-M_PI, M_PI, -1, 1);
 
             if (!getTrackingYawEnabled()) {
-                newRot[1] = 0;
+                newRot[0] = 0;
             }
 
             if (!getTrackingPitchEnabled()) {
-                newRot[0] = 0;
+                newRot[1] = 0;
             }
 
             if (!getTrackingRollEnabled()) {
                 newRot[2] = 0;
             }
-            
-            // commented out to avoid double applying offset angles from the get()
-			//orientation.setYPR(ypr);
         }
 	}
 
@@ -226,7 +223,7 @@ void M1OrientationManager::update() {
 	}
 
 	j["trackingEnabled"] = { bTrackingYawEnabled, bTrackingPitchEnabled, bTrackingRollEnabled };
-	j["orientation"] = { newRot[1], newRot[0], newRot[2] };
+	j["orientation"] = { newRot[0], newRot[1], newRot[2] };
 
 	j["player"]["frameRate"] = playerFrameRate;
 	j["player"]["positionInSeconds"] = playerPositionInSeconds;
