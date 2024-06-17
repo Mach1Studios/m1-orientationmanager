@@ -36,7 +36,6 @@ public:
     virtual M1OrientationTrackingResult getOrientation() = 0;
     virtual void calibrateDevice() = 0;
     virtual void recenter() = 0;
-
     virtual void startTrackingUsingDevice(M1OrientationDeviceInfo device, TrackingCallback callback) = 0;
-
+    virtual void setAdditionalDeviceSettings(std::string settingsChange) = 0; // used to send a blob string to be parsed for specific device class calls
 };

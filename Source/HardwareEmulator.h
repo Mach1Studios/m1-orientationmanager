@@ -108,9 +108,8 @@ public:
     void recenter() override {
         orientation.Recenter();
     }
-
-    // Callback update from the SupperwareInterface object
-//    std::vector<float> trackerChanged(const HeadMatrix& headMatrix) override {
-//
-//    }
+    
+    void setAdditionalDeviceSettings(std::string settingsChange) override {
+        // Fill device specific instructions here...
+    }
 };

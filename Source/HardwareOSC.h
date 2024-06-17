@@ -229,4 +229,7 @@ public:
         orientation.Recenter();
     }
 
+    void setAdditionalDeviceSettings(std::string settingsChange) override {
+        // Fill device specific instructions here...
+    }
 };

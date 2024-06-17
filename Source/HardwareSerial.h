@@ -266,4 +266,19 @@ public:
         orientation.Recenter();
     }
 
+    void setAdditionalDeviceSettings(std::string settingsChange) override {
+        // Fill device specific instructions here...
+        if (settingsChange.rfind("sw_chir=", 0) == 0) {
+            std::string new_sw_chirality;
+            new_sw_chirality = settingsChange.substr(settingsChange.find("sw_chir=") + std::string("sw_chir=").size());
+            DBG("Setting Update: Supperware Right Side Chirality = " + new_sw_chirality);
+            
+            // Expects the bool values sent via the command_updateDeviceSettings to be '0' or '1'
+            if ((bool)stoi(new_sw_chirality) == 0) {
+                supperwareInterface.setChirality(false);
+            } else if ((bool)stoi(new_sw_chirality) == 1) {
+                supperwareInterface.setChirality(true);
+            }
+        }
+    }
 };

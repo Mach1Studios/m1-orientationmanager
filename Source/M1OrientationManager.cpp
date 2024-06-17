@@ -149,7 +149,6 @@ bool M1OrientationManager::init(int serverPort, int helperPort) {
 	}).detach();
 
 	return true;
-    
 }
 
 void M1OrientationManager::startSearchingForDevices() {
@@ -303,7 +302,6 @@ void M1OrientationManager::command_recenter() {
         hardwareImpl[currentDevice.getDeviceType()]->recenter();
 //        hardwareImpl[currentDevice.getDeviceType()]->unlock();
     }
-
 }
 
 void M1OrientationManager::command_refresh() {
@@ -340,7 +338,6 @@ void M1OrientationManager::command_updateDeviceSettings(std::string additional_s
                     }
                 }
             }
-
         } else
         if (additional_settings.rfind("osc_p=", 0) == 0) {
             std::string new_port;
@@ -369,18 +366,8 @@ void M1OrientationManager::command_updateDeviceSettings(std::string additional_s
     // Supperware Device Settings
     if (currentDevice.getDeviceName().find("Supperware HT IMU") != std::string::npos) {
         if (additional_settings.rfind("sw_chir=", 0) == 0) {
-            std::string new_sw_chirality;
-            new_sw_chirality = additional_settings.substr(additional_settings.find("sw_chir=") + std::string("sw_chir=").size());
-            DBG("Setting Update: Supperware Right Side Chirality = " + new_sw_chirality);
-            
-            // Expects the bool values sent via the command_updateDeviceSettings to be '0' or '1'
-            if ((bool)stoi(new_sw_chirality) == 0) {
-                // TODO: call supperwareInterface.setChirality(false)
-            } else if ((bool)stoi(new_sw_chirality) == 1) {
-                // TODO: call supperwareInterface.setChirality(true)
-            }
-            
-            // TODO: parse calibrate
+            hardwareImpl[M1OrientationManagerDeviceTypeSerial]->setAdditionalDeviceSettings(additional_settings);
         }
+        // TODO: parse calibrate
     }
 }

@@ -245,5 +245,8 @@ public:
     void OnUnknownDeviceDisconnected(M1OrientationDeviceInfo info, SimpleBLE::Safe::Peripheral &peripheral) override {
 
     }
-
+    
+    void setAdditionalDeviceSettings(std::string settingsChange) override {
+        // Fill device specific instructions here...
+    }
 };

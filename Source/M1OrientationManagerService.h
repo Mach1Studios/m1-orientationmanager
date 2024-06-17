@@ -81,8 +81,6 @@ public:
 
 				juce::Thread::sleep(10);
 			}
-
 		}
 	}
-
 };
