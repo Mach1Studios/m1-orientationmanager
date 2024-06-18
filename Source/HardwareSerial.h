@@ -71,15 +71,15 @@ public:
                 yaw = supperwareInterface.currentOrientation[0];
                 pitch = supperwareInterface.currentOrientation[1];
                 roll = supperwareInterface.currentOrientation[2];
-                orientation.SetRotation(Mach1::Float3{yaw, pitch, roll}.EulerRadians());
+                orientation.SetRotation(Mach1::Float3{pitch, yaw, roll}.EulerRadians());
                 return 1;
             } else if (supperwareInterface.currentOrientation.size() == 4) {
                 float w, x, y, z;
                 w = supperwareInterface.currentOrientation[0];
                 x = supperwareInterface.currentOrientation[1];
-                y = supperwareInterface.currentOrientation[2];
+                y = supperwareInterface.currentOrientation[2] * -1.0f;
                 z = supperwareInterface.currentOrientation[3];
-                orientation.SetRotation({w, x, y, z});
+                orientation.SetRotation(Mach1::Quaternion{w, y, z, x} * -1.0f);
                 return 1;
             } else {
                 // error or do nothing
@@ -166,13 +166,13 @@ public:
         }
         return 1;
     }
-    
+
     void calibrateDevice() override {
         if ((getConnectedDevice().isDeviceName("Supperware HT IMU")) && supperwareInterface.getTrackerDriver().isConnected()) {
             supperwareInterface.calibrateCompass();
         }
     }
-    
+
     int close() override {
         comClose(connectedSerialPortIndex);
         isConnected = false;
@@ -188,7 +188,7 @@ public:
 
     void refreshDevices() override {
 		std::vector<M1OrientationDeviceInfo> devices;
-        
+
         int port_number = comEnumerate();
         for(int port_index=0; port_index < port_number; port_index++) {
             std::cout << "[Serial] Found device: " << comGetPortName(port_index) << std::endl;
@@ -206,7 +206,7 @@ public:
             completionEvent.signal();
         });
         completionEvent.wait();
-     
+
 		lock();
 		this->devices = devices;
 		unlock();
@@ -219,9 +219,9 @@ public:
     void startTrackingUsingDevice(M1OrientationDeviceInfo device, TrackingCallback statusCallback) override {
         auto matchedDevice = std::find_if(devices.begin(), devices.end(), M1OrientationDeviceInfo::find_id(device.getDeviceName()));
         if (matchedDevice != devices.end()) {
-            
+
             int comPort = matchedDevice - devices.begin(); // get the device index of all found serial devices
-            
+
             if (matchedDevice->getDeviceName().find("Supperware HT IMU") != std::string::npos) {
                 /// CONNECT SUPPERWARE
                 juce::WaitableEvent completionEvent;
@@ -230,7 +230,7 @@ public:
                     completionEvent.signal();
                 });
                 completionEvent.wait();
-                                
+
                 if (supperwareInterface.getTrackerDriver().isConnected()) {
                     // Set global ref for device's index (used for disconnect)
                     connectedSerialPortIndex = comPort;
@@ -272,7 +272,7 @@ public:
             std::string new_sw_chirality;
             new_sw_chirality = settingsChange.substr(settingsChange.find("sw_chir=") + std::string("sw_chir=").size());
             DBG("Setting Update: Supperware Right Side Chirality = " + new_sw_chirality);
-            
+
             // Expects the bool values sent via the command_updateDeviceSettings to be '0' or '1'
             if ((bool)stoi(new_sw_chirality) == 0) {
                 supperwareInterface.setChirality(false);
