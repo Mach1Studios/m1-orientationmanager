@@ -75,11 +75,16 @@ public:
                 return 1;
             } else if (supperwareInterface.currentOrientation.size() == 4) {
                 float w, x, y, z;
-                w = supperwareInterface.currentOrientation[0];
-                x = supperwareInterface.currentOrientation[1];
-                y = supperwareInterface.currentOrientation[2] * -1.0f;
-                z = supperwareInterface.currentOrientation[3];
-                orientation.SetRotation(Mach1::Quaternion{w, y, z, x} * -1.0f);
+                w = supperwareInterface.currentOrientation[0] * 1.0f;
+                x = supperwareInterface.currentOrientation[1] * 1.0f;
+                y = supperwareInterface.currentOrientation[2] * 1.0f;
+                z = supperwareInterface.currentOrientation[3] * -1.0f;
+                orientation.SetRotation(Mach1::Quaternion{
+                    w,
+                    x, // affects pitch
+                    z, // affects yaw
+                    y, // affects roll
+                });
                 return 1;
             } else {
                 // error or do nothing
