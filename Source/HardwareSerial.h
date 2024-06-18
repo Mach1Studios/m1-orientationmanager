@@ -71,7 +71,7 @@ public:
                 yaw = supperwareInterface.currentOrientation[0];
                 pitch = supperwareInterface.currentOrientation[1];
                 roll = supperwareInterface.currentOrientation[2];
-                orientation.SetRotation(Mach1::Float3{pitch, yaw, roll}.EulerRadians());
+                orientation.SetRotation(Mach1::Float3{yaw, pitch, roll}.EulerRadians());
                 return 1;
             } else if (supperwareInterface.currentOrientation.size() == 4) {
                 float w, x, y, z;
