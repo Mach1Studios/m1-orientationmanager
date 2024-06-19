@@ -193,9 +193,9 @@ public:
 
     void OnMetaWearUpdated(M1OrientationDeviceInfo info, SimpleBLE::Safe::Peripheral& peripheral) override {
         float *a = meta_wear_iface.getAngle(); // MMC = Y=0, P=2, R=1; values are in degrees
-        float yaw = a[0];
-        float pitch = -a[2];
-        float roll = -a[1];
+        float yaw = -a[2];
+        float pitch = a[0];
+        float roll = a[1];
 
         m_orientation.SetRotation(Mach1::Float3{yaw, pitch, roll}.EulerRadians());
         info.batteryPercentage = meta_wear_iface.getBatteryLevel();
