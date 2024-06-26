@@ -42,6 +42,18 @@ bool M1OrientationManager::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
+bool M1OrientationManager::getTrackingYawInverted() {
+    return bTrackingYawInverted;
+}
+
+bool M1OrientationManager::getTrackingPitchInverted() {
+    return bTrackingPitchInverted;
+}
+
+bool M1OrientationManager::getTrackingRollInverted() {
+    return bTrackingRollInverted;
+}
+
 bool M1OrientationManager::init(int serverPort, int helperPort) {
 	// check the port
     this->serverPort = serverPort;
@@ -223,6 +235,7 @@ void M1OrientationManager::update() {
 	}
 
 	j["trackingEnabled"] = { bTrackingYawEnabled, bTrackingPitchEnabled, bTrackingRollEnabled };
+    j["trackingInverted"] = { bTrackingYawInverted, bTrackingPitchInverted, bTrackingRollInverted };
 	j["orientation"] = { newRot[0], newRot[1], newRot[2] };
 
 	j["player"]["frameRate"] = playerFrameRate;
@@ -290,6 +303,18 @@ void M1OrientationManager::command_setTrackingRollEnabled(bool enable) {
     bTrackingRollEnabled = enable;
 }
 
+void M1OrientationManager::command_setTrackingYawInverted(bool invert) {
+    bTrackingYawInverted = invert;
+}
+
+void M1OrientationManager::command_setTrackingPitchInverted(bool invert) {
+    bTrackingPitchInverted = invert;
+}
+
+void M1OrientationManager::command_setTrackingRollInverted(bool invert) {
+    bTrackingRollInverted = invert;
+}
+
 void M1OrientationManager::command_recenter() {
     DBG("[REQ] Recenter requested from a client...");
     m_orientation.Recenter();
@@ -303,7 +328,6 @@ void M1OrientationManager::command_recenter() {
 
 void M1OrientationManager::command_refresh() {
     isDevicesRefreshRequested = true;
-    // TODO: Gets printed so often that it's distracting.
     // DBG("[REQ] Refresh requested from a client...");
 }
 
@@ -331,7 +355,6 @@ void M1OrientationManager::command_updateDeviceSettings(std::string additional_s
                     if (currentDevice == devices[i]) {
                         // update custom message pattern
                         devices[i].osc_msg_addr_pttrn = new_msg_address_pattern;
-                        
                     }
                 }
             }
