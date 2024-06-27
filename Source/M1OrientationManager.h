@@ -44,7 +44,6 @@ class M1OrientationManager :
 	float playerFrameRate = 0;
 	bool playerIsPlaying = false;
 	int playerLastUpdate = 0;
-
     bool isRunning = false;
     
     bool isDevicesRefreshRequested = false;
@@ -52,6 +51,9 @@ class M1OrientationManager :
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
+    bool bTrackingYawInverted = false;
+    bool bTrackingPitchInverted = false;
+    bool bTrackingRollInverted = false;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
 
@@ -75,11 +77,17 @@ public:
     bool getTrackingYawEnabled();
     bool getTrackingPitchEnabled();
     bool getTrackingRollEnabled();
+    bool getTrackingYawInverted();
+    bool getTrackingPitchInverted();
+    bool getTrackingRollInverted();
 
     void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
+    void command_setTrackingYawInverted(bool invert);
+    void command_setTrackingPitchInverted(bool invert);
+    void command_setTrackingRollInverted(bool invert);
     void command_updateDeviceSettings(std::string additional_settings);
     void command_recenter();
     void command_disconnect();
