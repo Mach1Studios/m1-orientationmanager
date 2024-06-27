@@ -110,6 +110,39 @@ bool M1OrientationManager::init(int serverPort, int helperPort) {
 			}
 		);
         
+        server.Post("/setTrackingYawInverted", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+            content_reader([&](const char *data, size_t data_length) {
+                auto j = nlohmann::json::parse(std::string(data, data_length));
+                bool invert = j.at(0);
+                command_setTrackingYawInverted(invert);
+                return true;
+                }
+            );
+            }
+        );
+
+        server.Post("/setTrackingPitchInverted", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+            content_reader([&](const char *data, size_t data_length) {
+                auto j = nlohmann::json::parse(std::string(data, data_length));
+                bool invert = j.at(0);
+                command_setTrackingPitchInverted(invert);
+                return true;
+                }
+            );
+            }
+        );
+
+        server.Post("/setTrackingRollInverted", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+            content_reader([&](const char *data, size_t data_length) {
+                auto j = nlohmann::json::parse(std::string(data, data_length));
+                bool invert = j.at(0);
+                command_setTrackingRollInverted(invert);
+                return true;
+                }
+            );
+            }
+        );
+        
         server.Post("/setDeviceSettings", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
             content_reader([&](const char *data, size_t data_length) {
                 auto j = nlohmann::json::parse(std::string(data, data_length));
@@ -207,6 +240,18 @@ void M1OrientationManager::update() {
 
             if (!getTrackingRollEnabled()) {
                 newRot[2] = 0;
+            }
+            
+            if (getTrackingYawInverted()) {
+                newRot[0] = -newRot[0];
+            }
+
+            if (getTrackingPitchInverted()) {
+                newRot[1] = -newRot[1];
+            }
+
+            if (getTrackingRollInverted()) {
+                newRot[2] = -newRot[2];
             }
         }
 	}
