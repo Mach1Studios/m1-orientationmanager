@@ -5,7 +5,10 @@ External orientation device manager and utilities geared toward aggregating diff
 
 ### Build via CMake
 - `cmake -Bbuild` Create project files by adding the appropriate `-G Xcode` or `-G "Visual Studio 16 2019"` to the end of this line
-- `cmake --build build`
+- `cmake --build build -DENABLE_DEBUG_EMULATOR_DEVICE=ON`
+
+#### CMake Options
+- `ENABLE_DEBUG_EMULATOR_DEVICE` compiler flag when building a non-release build type will enable an extra "emulator" device which can be useful for debug
 
 ### Build via .jucer
 - Compile the dependencies: `simpleble` and `metawear`:

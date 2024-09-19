@@ -7,6 +7,16 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
     cmake_policy(SET CMP0135 NEW)
 endif()
 
+# Add a debug emulator device for non-Release builds
+option(ENABLE_DEBUG_EMULATOR_DEVICE "Enable a Debug Emulator Device for non-Release builds" OFF)
+
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Release" AND ENABLE_DEBUG_EMULATOR_DEVICE)
+    add_definitions(-DINCLUDE_HARDWARE_EMULATOR)
+    message(STATUS "Device: Ading Debug Hardware Emulator enabled for non-Release builds")
+else()
+    message(STATUS "Device: Debug Hardware Emulator disabled")
+endif()
+
 include(FetchContent)
 
 # c++17 required for BLE

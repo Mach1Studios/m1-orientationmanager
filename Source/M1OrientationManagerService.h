@@ -10,7 +10,11 @@
 #include "HardwareBLE.h"
 #include "HardwareSerial.h"
 #include "HardwareOSC.h"
+#include "Config.h"
+
+#ifdef INCLUDE_HARDWARE_EMULATOR
 #include "HardwareEmulator.h"
+#endif
 
 #include "M1OrientationManager.h"
 
@@ -38,7 +42,9 @@ public:
 		HardwareBLE hardwareBLE;
 		HardwareSerial hardwareSerial;
 		HardwareOSC hardwareOSC;
+	#ifdef INCLUDE_HARDWARE_EMULATOR
 		HardwareEmulator hardwareEmulator;
+	#endif
 
 		// We will assume the folders are properly created during the installation step
 		// TODO: make this file path search for `Mach1` dir
@@ -66,13 +72,15 @@ public:
 			hardwareBLE.setup();
 			hardwareSerial.setup();
 			hardwareOSC.setup();
-			// Internal device emulator for debugging
+#ifdef INCLUDE_HARDWARE_EMULATOR
 			hardwareEmulator.setup();
-
+#endif
 			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeBLE, &hardwareBLE);
 			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeSerial, &hardwareSerial);
 			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeOSC, &hardwareOSC);
+#ifdef INCLUDE_HARDWARE_EMULATOR
 			m1OrientationManager.addHardwareImplementation(M1OrientationManagerDeviceTypeEmulator, &hardwareEmulator);
+#endif
 
 			m1OrientationManager.startSearchingForDevices();
 

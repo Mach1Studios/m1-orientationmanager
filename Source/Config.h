@@ -43,3 +43,7 @@
 #pragma message XSTR(BINARYDATA_FONT)
 #pragma message XSTR(BINARYDATA_FONT_SIZE)
 #pragma message XSTR(DEFAULT_FONT_SIZE)
+
+#ifdef ENABLE_DEBUG_EMULATOR_DEVICE
+    #define INCLUDE_HARDWARE_EMULATOR
+#endif
