@@ -86,6 +86,9 @@ void MainComponent::initialise()
 	m1OrientationClient.setStatusCallback(std::bind(&MainComponent::setStatus, this, std::placeholders::_1, std::placeholders::_2));
     
     m1logo.loadFromRawData(BinaryData::mach1logo_png, BinaryData::mach1logo_pngSize);
+    
+    // Telling Murka we're not in a plugin
+    m.isPlugin = false;
 }
 
 void MainComponent::update_osc_address_pattern(std::string new_pattern) {
@@ -108,17 +111,20 @@ void MainComponent::update_osc_destination(std::string new_address, int new_port
 
 void MainComponent::timerCallback() {
     if (m1OrientationClient.isConnectedToServer() && isConnectedToOutput) {
+        Mach1::Orientation oc_orientation = m1OrientationClient.getOrientation();
         if (output_send_as_ypr) {
+            Mach1::Float3 ori_vec_deg = oc_orientation.GetGlobalRotationAsEulerDegrees();
             output_osc_sender.send(juce::String("/"+current_osc_msg_address),
-                m1OrientationClient.getOrientation().getYPRasDegrees().yaw,
-                m1OrientationClient.getOrientation().getYPRasDegrees().pitch,
-                m1OrientationClient.getOrientation().getYPRasDegrees().roll);
+                                   ori_vec_deg.GetYaw(),
+                                   ori_vec_deg.GetPitch(),
+                                   ori_vec_deg.GetRoll());
         } else {
+            Mach1::Quaternion ori_quat = oc_orientation.GetGlobalRotationAsQuaternion();
             output_osc_sender.send(juce::String("/"+current_osc_msg_address),
-                m1OrientationClient.getOrientation().getQuat().w,
-                m1OrientationClient.getOrientation().getQuat().x,
-                m1OrientationClient.getOrientation().getQuat().y,
-                m1OrientationClient.getOrientation().getQuat().z);
+                                   ori_quat.GetW(),
+                                   ori_quat.GetX(),
+                                   ori_quat.GetY(),
+                                   ori_quat.GetZ());
         }
     }
 }
