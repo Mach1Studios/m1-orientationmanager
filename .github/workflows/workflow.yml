@@ -37,16 +37,12 @@ jobs:
       with:
         winsdk-build-version: 19041
 
-    - uses: actions/checkout@v3
+    - name: Checkout entire project
+      uses: actions/checkout@v4
       with:
-          submodules: recursive
-
-    - name: OM Submodule JUCE
-      uses: actions/checkout@v3
-      with:
-        repository: juce-framework/JUCE
-        path: JUCE
-        ref: 7.1.2
+        submodules: 'recursive'
+        lfs: true
+        fetch-depth: 1
 
     - name: OM Configure (macos)
       if: runner.os == 'MacOS'
