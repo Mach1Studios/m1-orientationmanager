@@ -11,7 +11,7 @@ env:
   BUILD_TYPE: Release
   OM_BUNDLE_ID: com.mach1.spatial.orientationmanager
   OC_BUNDLE_ID: com.mach1.orientation.osc
-  CMAKE_VERSION: 3.22.x
+  CMAKE_VERSION: 3.25.x
   VERSION: 0.9.1
 
 jobs:
