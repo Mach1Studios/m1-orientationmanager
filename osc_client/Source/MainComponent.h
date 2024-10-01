@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 
+#include "MurkaBasicWidgets.h"
 #include "juce_murka/JuceMurkaBaseComponent.h"
 
 #include "Config.h"
@@ -10,8 +11,6 @@
 #include "m1_orientation_client/UI/M1Label.h"
 #include "m1_orientation_client/UI/M1OrientationWindowToggleButton.h"
 #include "m1_orientation_client/UI/M1OrientationClientWindow.h"
-
-using namespace murka;
 
 //==============================================================================
 /*
@@ -32,8 +31,6 @@ public:
     void initialise() override;
     void draw() override;
 
-    std::string status;
-
     void timerCallback() override;
     
     bool isConnectedToOutput = false;
@@ -46,24 +43,25 @@ public:
     std::string current_osc_msg_address = "";
     bool output_send_as_ypr = true;
     
+    // Orientation Manager/Client
+    M1OrientationClient m1OrientationClient;
+    M1OrientationClientWindow* orientationControlWindow;
+    bool showOrientationControlMenu = false;
+    bool showedOrientationControlBefore = false;
+    void setStatus(bool success, std::string message);
+    Mach1::Orientation currentOrientation;
+
+    void draw_orientation_client(murka::Murka &m, M1OrientationClient &m1OrientationClient);
+    
 private:
     //==============================================================================
     MurImage m1logo;
     
     void update_osc_address_pattern(std::string new_address_pattern);
     void update_osc_destination(std::string ip_address, int port);
-    
-    // Orientation Manager/Client
-    void setStatus(bool success, std::string message);
-    M1OrientationClient m1OrientationClient;
-    Mach1::Orientation currentOrientation;
-    
-    M1OrientationClientWindow* orientationControlWindow;
-    bool showOrientationControlMenu = false;
-    bool showedOrientationControlBefore = false;
-    bool showMonitorModeDropdown = false;
-    
-    void update_orientation_client_window(murka::Murka &m, M1OrientationClient &m1OrientationOSCClient, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };
+
+// (This function is called by the app startup code to create our main component)
+juce::Component* createMainContentComponent() { return (juce::OpenGLAppComponent*)new MainComponent(); }

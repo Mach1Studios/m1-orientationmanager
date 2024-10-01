@@ -19,11 +19,20 @@ MainComponent::MainComponent()
     // initial osc output start
     update_osc_address_pattern(requested_osc_msg_address);
     update_osc_destination(requested_osc_ip_address, requested_osc_port);
+    
+    // print build time for debug
+    juce::String date(__DATE__);
+    juce::String time(__TIME__);
+    DBG("[OSCCLIENT] Build date: " + date + " | Build time: " + time);
 }
 
 MainComponent::~MainComponent()
 {
+    m1OrientationClient.command_disconnect();
+    m1OrientationClient.close();
     stopTimer();
+    murka::JuceMurkaBaseComponent::shutdown();
+    juce::OpenGLAppComponent::shutdownOpenGL();
 }
 
 //==============================================================================
@@ -59,9 +68,6 @@ void MainComponent::initialise()
     } else {
         settingsFile = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile("settings.json");
     }
-    
-    DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
-    m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString());
 #else
     // use the typical installation and service locations of m1-orientationmanager
     
@@ -79,10 +85,11 @@ void MainComponent::initialise()
         settingsFile = m1SupportDirectory.getChildFile("Mach1");
     }
     settingsFile = settingsFile.getChildFile("settings.json");
-    DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
-    m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString());
 #endif
     
+    m1OrientationClient.setClientType("osc-client"); // Needs to be set before the init() function
+    DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
+    m1OrientationClient.initFromSettings(settingsFile.getFullPathName().toStdString());
 	m1OrientationClient.setStatusCallback(std::bind(&MainComponent::setStatus, this, std::placeholders::_1, std::placeholders::_2));
     
     m1logo.loadFromRawData(BinaryData::mach1logo_png, BinaryData::mach1logo_pngSize);
@@ -129,15 +136,17 @@ void MainComponent::timerCallback() {
     }
 }
 
-void MainComponent::update_orientation_client_window(murka::Murka &m, M1OrientationClient &m1OrientationClient, M1OrientationClientWindow* orientationControlWindow, bool &showOrientationControlMenu, bool showedOrientationControlBefore) {
+void MainComponent::draw_orientation_client(murka::Murka &m, M1OrientationClient &m1OrientationClient) {
     std::vector<M1OrientationClientWindowDeviceSlot> slots;
-    
+
     std::vector<M1OrientationDeviceInfo> devices = m1OrientationClient.getDevices();
     for (int i = 0; i < devices.size(); i++) {
         std::string icon = "";
-        if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial && devices[i].getDeviceName().find("Bluetooth-Incoming-Port") != std::string::npos) {
+        if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial && devices[i].
+            getDeviceName().find("Bluetooth-Incoming-Port") != std::string::npos) {
             icon = "bt";
-        } else if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial && devices[i].getDeviceName().find("Mach1-") != std::string::npos) {
+        } else if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeSerial &&
+                   devices[i].getDeviceName().find("Mach1-") != std::string::npos) {
             icon = "bt";
         } else if (devices[i].getDeviceType() == M1OrientationDeviceType::M1OrientationManagerDeviceTypeBLE) {
             icon = "bt";
@@ -150,109 +159,38 @@ void MainComponent::update_orientation_client_window(murka::Murka &m, M1Orientat
         } else {
             icon = "wifi";
         }
-        
+
         std::string name = devices[i].getDeviceName();
-        slots.push_back({ icon, name, name == m1OrientationClient.getCurrentDevice().getDeviceName(), i, [&](int idx)
-            {
+        slots.push_back({
+            icon,
+            name,
+            name == m1OrientationClient.getCurrentDevice().getDeviceName(),
+            i,
+            [&](int idx) {
                 m1OrientationClient.command_startTrackingUsingDevice(devices[idx]);
             }
         });
     }
     
-    auto& orientationControlButton = m.prepare<M1OrientationWindowToggleButton>({ m.getSize().width() - 40 - 5, 5, 40, 40 }).onClick([&](M1OrientationWindowToggleButton& b) {
-        showOrientationControlMenu = !showOrientationControlMenu;
-    })
-        .withInteractiveOrientationGimmick(m1OrientationClient.getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone, m1OrientationClient.getOrientation().getYPRasDegrees().yaw)
-        .draw();
+    //m.getSize().width() - 218 - 5 , 5, 218, 240
+    float rightSide_LeftBound_x = m.getSize().width() / 2 + 40;
+    float settings_topBound_y = m.getSize().height() * 0.23f + 18;
+
+    // trigger a server side refresh for listed devices while menu is open
+    m1OrientationClient.command_refresh();
+    //bool showOrientationSettingsPanelInsideWindow = (m1OrientationClient.getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone);
     
-    // TODO: move this to be to the left of the orientation client window button
-    if (std::holds_alternative<bool>(m1OrientationClient.getCurrentDevice().batteryPercentage)) {
-        // it's false, which means the battery percentage is unknown
-    } else {
-        // it has a battery percentage value
-        int battery_value = std::get<int>(m1OrientationClient.getCurrentDevice().batteryPercentage);
-        m.getCurrentFont()->drawString("Battery: " + std::to_string(battery_value), m.getWindowWidth() - 100, m.getWindowHeight() - 100);
-    }
-    
-    if (orientationControlButton.hovered && (m1OrientationClient.getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone)) {
-        std::string deviceReportString = "CONNECTED DEVICE: " + m1OrientationClient.getCurrentDevice().getDeviceName();
-        auto font = m.getCurrentFont();
-        auto bbox = font->getStringBoundingBox(deviceReportString, 0, 0);
-        //m.setColor(40, 40, 40, 200);
-        // TODO: fix this bounding box (doesnt draw the same place despite matching settings with Label.draw
-        //m.drawRectangle(     m.getSize().width() - 40 - 10 /* padding */ - bbox.width - 5, 5, bbox.width + 10, 40);
-        m.setColor(230, 230, 230);
-        m.prepare<M1Label>({ m.getSize().width() - 40 - 10 /* padding */ - bbox.width - 5, 5 + 10, bbox.width + 10, 40 }).text(deviceReportString).withTextAlignment(TEXT_CENTER).draw();
-    }
-    
-    if (showOrientationControlMenu) {
-        // trigger a server side refresh for listed devices while menu is open
-        m1OrientationClient.command_refresh();
-        
-        // Let's draw the stuff
-        bool showOrientationSettingsPanelInsideWindow = (m1OrientationClient.getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone);
-        orientationControlWindow = &(m.prepare<M1OrientationClientWindow>({ m.getSize().width() - 218 - 5 , 5, 218, 240 + 100 * showOrientationSettingsPanelInsideWindow })
-            .withDeviceList(slots)
-            .withSettingsPanelEnabled(showOrientationSettingsPanelInsideWindow)
-            .withOscSettingsEnabled((m1OrientationClient.getCurrentDevice().getDeviceType() == M1OrientationManagerDeviceTypeOSC))
-            .withSupperwareSettingsEnabled(m1OrientationClient.getCurrentDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos)
-            .onClickOutside([&]() {
-                if (!orientationControlButton.hovered) { // Only switch showing the orientation control if we didn't click on the button
-                    showOrientationControlMenu = !showOrientationControlMenu;
-                }
-            })
-            .onSupperwareSettingsChanged([&](bool isRightEarChirality) {
-                std::string chir_cmd;
-                if (isRightEarChirality) {
-                    chir_cmd = "1";
-                } else {
-                    chir_cmd = "0";
-                }
-                m1OrientationClient.command_setAdditionalDeviceSettings("sw_chir="+chir_cmd);
-            })
-            .onDisconnectClicked([&]() {
-                m1OrientationClient.command_disconnect();
-            })
-            .onRecenterClicked([&]() {
-                m1OrientationClient.command_recenter();
-            })
-            .onOscSettingsChanged([&](int requested_osc_port, std::string requested_osc_msg_address) {
-                m1OrientationClient.command_setAdditionalDeviceSettings("osc_add="+requested_osc_msg_address);
-                m1OrientationClient.command_setAdditionalDeviceSettings("osc_p="+std::to_string(requested_osc_port));
-            })
-            .onYPRSwitchesClicked([&](int whichone) {
-                if (whichone == 0)
-					// yaw clicked
-					m1OrientationClient.command_setTrackingYawEnabled(!m1OrientationClient.getTrackingYawEnabled());
-                if (whichone == 1)
-					// pitch clicked
-					m1OrientationClient.command_setTrackingPitchEnabled(!m1OrientationClient.getTrackingPitchEnabled());
-                if (whichone == 2)
-                    // roll clicked
-					m1OrientationClient.command_setTrackingRollEnabled(!m1OrientationClient.getTrackingRollEnabled());
-            })
-            .withYPRTrackingSettings(
-                                     m1OrientationClient.getTrackingYawEnabled(),
-                                     m1OrientationClient.getTrackingPitchEnabled(),
-                                     m1OrientationClient.getTrackingRollEnabled(),
-                                     std::pair<int, int>(0, 180),
-                                     std::pair<int, int>(0, 180),
-                                     std::pair<int, int>(0, 180)
-            )
-            .withYPR(
-                     m1OrientationClient.getOrientation().getYPRasDegrees().yaw,
-                     m1OrientationClient.getOrientation().getYPRasDegrees().pitch,
-                     m1OrientationClient.getOrientation().getYPRasDegrees().roll
-            ));
-            orientationControlWindow->draw();
-    }
+    m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-2);
+    orientationControlWindow = &(m.prepare<M1OrientationClientWindow>({ rightSide_LeftBound_x, settings_topBound_y, 300, 400}));
+    orientationControlWindow->withDeviceSlots(slots);
+    orientationControlWindow->withOrientationClient(m1OrientationClient);
+    orientationControlWindow->draw();
 }
 
 //==============================================================================
 
 void MainComponent::setStatus(bool success, std::string message)
 {
-	this->status = message;
 	std::cout << success << " , " << message << std::endl;
 }
 
@@ -278,14 +216,14 @@ void MainComponent::draw()
     
     offsetY += 30;
     
-    Orientation orientation = m1OrientationClient.getOrientation();
+    Mach1::Orientation orientation = m1OrientationClient.getOrientation();
     m.getCurrentFont()->drawString("ORIENTATION: ", offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.getYPRasDegrees().yaw), offsetX, offsetY);
+    m.getCurrentFont()->drawString("Y:  " + std::to_string(orientation.GetGlobalRotationAsEulerDegrees().GetYaw()), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("P:  " + std::to_string(orientation.getYPRasDegrees().pitch), offsetX, offsetY);
+    m.getCurrentFont()->drawString("P:  " + std::to_string(orientation.GetGlobalRotationAsEulerDegrees().GetPitch()), offsetX, offsetY);
     offsetY += 15;
-    m.getCurrentFont()->drawString("R:  " + std::to_string(orientation.getYPRasDegrees().roll), offsetX, offsetY);
+    m.getCurrentFont()->drawString("R:  " + std::to_string(orientation.GetGlobalRotationAsEulerDegrees().GetRoll()), offsetX, offsetY);
     
     offsetY += 30;
     
@@ -310,7 +248,7 @@ void MainComponent::draw()
     
     m.setColor(ENABLED_PARAM);
     auto& ip_address_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&requested_osc_ip_address);
-    ip_address_field.widgetBgColor.a = 0;
+    //ip_address_field.widgetBgColor.a = 0;
     ip_address_field.drawBounds = false;
     ip_address_field.hint = requested_osc_ip_address;
     ip_address_field.draw();
@@ -325,7 +263,7 @@ void MainComponent::draw()
 
     m.setColor(ENABLED_PARAM);
     auto& ip_port_field = m.prepare<murka::TextField>({offsetX, offsetY, 100, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
-    ip_port_field.widgetBgColor.a = 0;
+    //ip_port_field.widgetBgColor.a = 0;
     ip_port_field.drawBounds = false;
     ip_port_field.hint = std::to_string(requested_osc_port);
     ip_port_field.draw();
@@ -344,7 +282,7 @@ void MainComponent::draw()
     
     m.setColor(ENABLED_PARAM);
     auto& msg_address_pattern_field = m.prepare<murka::TextField>({offsetX, offsetY, 200, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
-    msg_address_pattern_field.widgetBgColor.a = 0;
+    //msg_address_pattern_field.widgetBgColor.a = 0;
     msg_address_pattern_field.drawBounds = false;
     msg_address_pattern_field.hint = "/"+requested_osc_msg_address;
     msg_address_pattern_field.draw();
@@ -374,8 +312,8 @@ void MainComponent::draw()
     m.setColor(200, 255);
     m.drawImage(m1logo, 15, m.getSize().height() - 20, 161 / 4, 39 / 4);
     
-    // orientation button
-    update_orientation_client_window(m, m1OrientationClient, orientationControlWindow, showOrientationControlMenu, showedOrientationControlBefore);
+    // orientation client window
+    draw_orientation_client(m, m1OrientationClient);
 }
 
 void MainComponent::paint(juce::Graphics& g)

@@ -3,6 +3,11 @@ External orientation device manager and utilities geared toward aggregating diff
 
 ## Setup
 
+It is recommended to build via CMake, there is an included `Makefile` that can be used to run the following commands: 
+- `make configure && make build`
+or
+- `make dev` and then open the configured IDE project files
+
 ### Build via CMake
 - `cmake -Bbuild` Create project files by adding the appropriate `-G Xcode` or `-G "Visual Studio 16 2019"` to the end of this line
 - `cmake --build build -DENABLE_DEBUG_EMULATOR_DEVICE=ON`

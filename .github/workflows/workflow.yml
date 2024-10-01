@@ -11,9 +11,9 @@ env:
   BUILD_TYPE: Release
   OM_BUNDLE_ID: com.mach1.spatial.orientationmanager
   OC_BUNDLE_ID: com.mach1.orientation.osc
-  JUCE_VERSION: 7.0.5
+  JUCE_VERSION: 7.1.2
   CMAKE_VERSION: 3.21.x
-  VERSION: 0.9.0
+  VERSION: 0.9.1
 
 jobs:
   build:
@@ -46,7 +46,7 @@ jobs:
       with:
         repository: juce-framework/JUCE
         path: JUCE
-        ref: 7.0.5
+        ref: 7.1.2
 
     - name: OM Configure (macos)
       if: runner.os == 'MacOS'

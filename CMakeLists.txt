@@ -42,10 +42,6 @@ option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects
 #static linking in Windows
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-# Adds the Mach1 math
-# (Please ensure this is added before the `m1_orientation_client` JUCE module)
-add_subdirectory(Modules/m1_orientation_client/libs/m1-mathematics)
-
 # add JUCE and other custom modules
 add_subdirectory(JUCE)
 add_subdirectory(Modules)

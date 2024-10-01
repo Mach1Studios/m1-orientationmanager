@@ -12,7 +12,8 @@
 #endif
 
 #include <JuceHeader.h>
-#include "MainComponent.h"
+
+juce::Component* createMainContentComponent();
 
 //==============================================================================
 class M1OrientationDeviceClientTestApplication  : public juce::JUCEApplication
@@ -28,12 +29,12 @@ public:
     //==============================================================================
     void initialise (const juce::String& commandLine) override
     {
-        mainWindow.reset (new MainWindow (getApplicationName()));
+        juce::ignoreUnused (commandLine);
+        mainWindow = std::make_unique<MainWindow> (getApplicationName());
     }
 
     void shutdown() override
     {
-        mainWindow = nullptr; // (deletes our window)
     }
 
     //==============================================================================
@@ -44,9 +45,7 @@ public:
 
     void anotherInstanceStarted (const juce::String& commandLine) override
     {
-        // When another instance of the app is launched while this one is running,
-        // this method is invoked, and the commandLine parameter tells you what
-        // the other instance's command-line arguments were.
+        juce::ignoreUnused (commandLine);
     }
 
     //==============================================================================
@@ -56,6 +55,8 @@ public:
     */
     class MainWindow    : public juce::DocumentWindow
     {
+        juce::Component* component;
+
     public:
         MainWindow (juce::String name)
             : DocumentWindow (name,
@@ -63,8 +64,10 @@ public:
                                                           .findColour (juce::ResizableWindow::backgroundColourId),
                               DocumentWindow::allButtons)
         {
+            component = createMainContentComponent();
+
             setUsingNativeTitleBar (true);
-            setContentOwned (new MainComponent(), true);
+            setContentOwned (component, true);
 
            #if JUCE_IOS || JUCE_ANDROID
             setFullScreen (true);
@@ -78,9 +81,7 @@ public:
 
         void closeButtonPressed() override
         {
-            // This is called when the user tries to close this window. Here, we'll just
-            // ask the app to quit when this happens, but you can change this to do
-            // whatever you need.
+            ((juce::OpenGLAppComponent*)component)->shutdown();
             JUCEApplication::getInstance()->systemRequestedQuit();
         }
 

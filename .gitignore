@@ -353,7 +353,7 @@ m1stereospatialize/m1-stereospatialize/Builds/*
 */Builds/
 */Builds/*
 */config.make
-*/Makefile
+!Makefile
 *.xcconfig
 *.plist
 */*.app/*
