@@ -97,6 +97,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
         juce::juce_osc
         juce_murka
         m1_orientation_client
+        m1_mathematics
         )
 
 if(MSVC OR WIN32 OR MINGW)
