@@ -33,6 +33,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # add JUCE and other custom modules
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../JUCE juce-build)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Modules/m1_orientation_client/libs/m1-mathematics m1-mathematics-build) # (Please ensure this is added before the `m1_orientation_client` JUCE module)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Modules modules-build)
 
 # PLUGIN/APP NAME (for dynamic naming schemes)

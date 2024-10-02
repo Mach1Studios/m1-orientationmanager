@@ -130,16 +130,20 @@ jobs:
 
         productbuild --sign "$MACOS_INSTALLER_CERTIFICATE_NAME" --distribution distribution.xml --package-path ${DIST_DIR} ${DIST_DIR}/M1-OrientationOSC.pkg
 
-    - name: OC Notarize (macos)
+    - name: Notarize Release Build
       if: runner.os == 'MacOS'
-      uses: cocoalibs/xcode-notarization-action@v1
+      uses: lando/notarize-action@v2
       with:
-        app-path: ${{ github.workspace }}/osc_client/build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
-        apple-id: ${{ secrets.MACOS_NOTARIZE_USER }}
-        password: ${{ secrets.MACOS_NOTARIZE_PWD }}
-        team-id: ${{ secrets.TEAM_ID }}
-        # Further Parameters:
-        staple: 'true' # if you wish to skip running stapler
+        product-path: ${{ github.workspace }}/osc_client/build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
+        appstore-connect-username: ${{ secrets.MACOS_NOTARIZE_USER }}
+        appstore-connect-password: ${{ secrets.MACOS_NOTARIZE_PWD }}
+        appstore-connect-team-id: ${{ secrets.TEAM_ID }}
+
+    - name: Staple Release Build
+      if: runner.os == 'MacOS'
+      uses: BoundfoxStudios/action-xcode-staple@v1
+      with:
+        product-path: ${{ github.workspace }}/osc_client/build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
 
     - name: OC InnoSetup Installer (windows)
       if: runner.os == 'Windows'

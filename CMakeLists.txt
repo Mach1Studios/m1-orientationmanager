@@ -44,6 +44,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # add JUCE and other custom modules
 add_subdirectory(JUCE)
+add_subdirectory(Modules/m1_orientation_client/libs/m1-mathematics) # (Please ensure this is added before the `m1_orientation_client` JUCE module)
 add_subdirectory(Modules)
 
 # PLUGIN/APP NAME (for dynamic naming schemes)
