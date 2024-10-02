@@ -153,8 +153,8 @@ jobs:
       shell: cmd
 
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           ${{ github.workspace }}/osc_client/build/M1-OrientationOSC_artefacts/Release/M1-OrientationOSC.pkg
-          ${{ github.workspace }}\osc_client\Output\M1-OrientationOSC_WIN.exe
+          ${{ github.workspace }}/osc_client/Output/M1-OrientationOSC_WIN.exe
