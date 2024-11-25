@@ -168,28 +168,6 @@ bool M1OrientationManager::init(int serverPort, int helperPort) {
 			command_disconnect();
 			}
 		);
-
-		server.Post("/setPlayerPosition", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(std::string(data, data_length));
-				playerPositionInSeconds = j.at(0);
-				playerLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-				return true;
-				}
-			);
-			}
-		);
-
-		server.Post("/setPlayerIsPlaying", [&](const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
-			content_reader([&](const char *data, size_t data_length) {
-				auto j = nlohmann::json::parse(std::string(data, data_length));
-				playerIsPlaying = j.at(0);
-				playerLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-				return true;
-				}
-			);
-			}
-		);
 		server.listen("localhost", this->serverPort);
 	}).detach();
 
@@ -282,11 +260,6 @@ void M1OrientationManager::update() {
 	j["trackingEnabled"] = { bTrackingYawEnabled, bTrackingPitchEnabled, bTrackingRollEnabled };
     j["trackingInverted"] = { bTrackingYawInverted, bTrackingPitchInverted, bTrackingRollInverted };
 	j["orientation"] = { newRot[0], newRot[1], newRot[2] };
-
-	j["player"]["frameRate"] = playerFrameRate;
-	j["player"]["positionInSeconds"] = playerPositionInSeconds;
-	j["player"]["isPlaying"] = playerIsPlaying;
-	j["player"]["lastUpdate"] = playerLastUpdate;
 
 	mutex.lock();
 	stringForClient = j.dump();

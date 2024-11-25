@@ -39,11 +39,6 @@ class M1OrientationManager :
 
     std::vector<M1OrientationClientConnection> clients;
     int serverPort = 0;
-
-	float playerPositionInSeconds = 0;
-	float playerFrameRate = 0;
-	bool playerIsPlaying = false;
-	int playerLastUpdate = 0;
     bool isRunning = false;
     
     bool isDevicesRefreshRequested = false;
