@@ -5,11 +5,12 @@ Mach1::BLEDeviceMap::BLEDeviceMap() : m_adapters(), m_active_adapter(nullptr), m
 
     auto ble_list = SimpleBLE::Safe::Adapter::get_adapters();
 
-    if (!ble_list.has_value() || ble_list->empty()) {
-        throw std::runtime_error("[BLE] No adapter was found.");
-    }
-
-    m_adapters = std::move(ble_list.value());
+	if (!ble_list.has_value() || ble_list->empty()) {
+		std::cout << "[BLE] Warning: No adapter was found. BLE functionality will be disabled.\r\n";
+		return;
+	}
+	
+	m_adapters = std::move(ble_list.value());
 
     m_active_adapter = &m_adapters[0];
 
@@ -28,8 +29,11 @@ Mach1::BLEDeviceMap::BLEDeviceMap() : m_adapters(), m_active_adapter(nullptr), m
 }
 
 void Mach1::BLEDeviceMap::Refresh() {
-    Clear();
-    m_active_adapter->scan_for(BLEDeviceScanTimeout);
+	Clear();
+
+	if (m_active_adapter) {
+		m_active_adapter->scan_for(BLEDeviceScanTimeout);
+	}
 }
 
 void Mach1::BLEDeviceMap::UpdateConnectedDevice() {

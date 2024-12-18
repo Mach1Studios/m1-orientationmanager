@@ -76,7 +76,7 @@ namespace Mach1 {
     private:
 
         std::vector<SimpleBLE::Safe::Adapter> m_adapters;
-        SimpleBLE::Safe::Adapter* m_active_adapter;
+        SimpleBLE::Safe::Adapter* m_active_adapter = nullptr;
 
         std::unordered_map<M1OrientationDeviceInfo, SimpleBLE::Safe::Peripheral, M1OrientationDeviceInfo::Hash> m_devices;
 
