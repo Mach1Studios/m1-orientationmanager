@@ -15,15 +15,6 @@ or
 #### CMake Options
 - `ENABLE_DEBUG_EMULATOR_DEVICE` compiler flag when building a non-release build type will enable an extra "emulator" device which can be useful for debug
 
-### Build via .jucer
-- Compile the dependencies: `simpleble` and `metawear`:
-- `cd Builds/MacOSX/` or `cd Builds/VisualStudio2019`
-- `cmake ../../Source/SimpleBLE/simpleble -B../../Source/SimpleBLE/simpleble -DCMAKE_OSX_DEPLOYMENT_TARGET="10.15"`
-- `cmake --build ../../Source/SimpleBLE/simpleble`
-- `cmake ../../Source/Devices/MetaWear -B../../Source/Devices/MetaWear/build -DCMAKE_OSX_DEPLOYMENT_TARGET="10.15"`
-- `cmake --build ../../Source/Devices/MetaWear/build --config Release`
-- Open the `m1-orientationmanager.jucer` and compile as needed
-
 ## Install
 Currently this helper service executable is expected in a common data directory of each local machine, and where applicable to be managed by a service agent or LaunchAgent.
 
