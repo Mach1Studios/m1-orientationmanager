@@ -1,27 +1,27 @@
 [submodule "Source/SimpleBLE"]
 	path = Source/SimpleBLE
-	url = git@github.com:OpenBluetoothToolbox/SimpleBLE.git
+	url = https://github.com/OpenBluetoothToolbox/SimpleBLE.git
 [submodule "Source/rs232"]
 	path = Source/rs232
-	url = git@github.com:Marzac/rs232.git
+	url = https://github.com/Marzac/rs232.git
 [submodule "Modules/m1_orientation_client"]
 	path = Modules/m1_orientation_client
-	url = git@github.com:Mach1Studios/m1_orientation_client.git
+	url = https://github.com/Mach1Studios/m1_orientation_client.git
 [submodule "Modules/juce_murka"]
 	path = Modules/juce_murka
-	url = git@github.com:Kiberchaika/juce_murka.git
+	url = https://github.com/Kiberchaika/juce_murka.git
 [submodule "Source/Devices/ht-api-juce"]
 	path = Source/Devices/ht-api-juce
-	url = git@github.com:himwho/ht-api-juce.git
+	url = https://github.com/himwho/ht-api-juce.git
 [submodule "Source/Devices/MetaWear"]
 	path = Source/Devices/MetaWear
-	url = git@github.com:Mach1Studios/MetaWear-SDK-Cpp.git
+	url = https://github.com/Mach1Studios/MetaWear-SDK-Cpp.git
 [submodule "JUCE"]
 	path = JUCE
-	url = git@github.com:juce-framework/JUCE.git
+	url = https://github.com/juce-framework/JUCE.git
 [submodule "Source/json"]
 	path = Source/json
-	url = git@github.com:nlohmann/json.git
+	url = https://github.com/nlohmann/json.git
 [submodule "Source/httplib"]
 	path = Source/httplib
-	url = git@github.com:yhirose/cpp-httplib.git
+	url = https://github.com/yhirose/cpp-httplib.git
