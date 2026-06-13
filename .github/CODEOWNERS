@@ -1,0 +1,8 @@
+# Enable branch protection with "Require review from Code Owners" for these paths.
+/Source/Devices/ @himwho
+/Source/HardwareBLE.h @himwho
+/Source/HardwareSerial.h @himwho
+/Source/BLEDeviceMap.h @himwho
+/Source/BLEDeviceMap.cpp @himwho
+/test/device-fixtures/ @himwho
+/.github/workflows/ @himwho

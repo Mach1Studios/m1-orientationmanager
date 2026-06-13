@@ -1,4 +1,5 @@
-file(GLOB source_files  Config.h
+file(GLOB source_files CONFIGURE_DEPENDS
+                        Config.h
                         httplib/httplib.h
                         json/single_include/nlohmann/json.hpp
                         Main.cpp
@@ -14,17 +15,13 @@ file(GLOB source_files  Config.h
                         HardwareCamera.h
                         HardwareEmulator.h
                         BLEDeviceMap.h
-                        BLEDeviceMap.cpp
-                        Devices/MetaWearInterface.h
-                        Devices/MetaWearInterface.cpp
-                        Devices/SupperwareInterface.h
-                        Devices/SupperwareInterface.cpp
-                        Devices/WitMotionInterface.h
-                        Devices/WitMotionInterface.cpp
-                        Devices/M1Interface.h
-                        Devices/M1Interface.cpp
-                        Devices/NxTrackerInterface.h
-                        Devices/NxTrackerInterface.cpp)
+                        BLEDeviceMap.cpp)
+
+file(GLOB device_source_files CONFIGURE_DEPENDS
+                        Devices/*.h
+                        Devices/*.cpp)
+
+list(APPEND source_files ${device_source_files})
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${source_files})
 

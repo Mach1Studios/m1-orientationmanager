@@ -48,6 +48,8 @@ Design and architecture of the project is described in the [Source](Source) dire
 
 _Please feel free to open an issue requesting a new device with device details_
 
+Use the device request / device bug issue forms so the automation can triage the report and optionally scaffold a draft PR with fixture placeholders.
+
 ## OSC Tool
 This repo also includes a flexible and simple UI app to show an example of interfacing with the m1-orientationmanager background service and output the calculated orientation via OSC to any IP + port for use with other software. 
 

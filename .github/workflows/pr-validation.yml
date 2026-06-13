@@ -1,0 +1,105 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - edited
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  BUILD_TYPE: Release
+  CMAKE_VERSION: 3.25.x
+
+permissions:
+  contents: read
+
+jobs:
+  device-pr-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate device PR body and gates
+        env:
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python3 scripts/validate_device_pr.py
+
+      - name: Validate device fixture manifests
+        run: python3 scripts/validate_device_fixtures.py
+
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - windows-2019
+    steps:
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.13
+        with:
+          cmake-version: ${{ env.CMAKE_VERSION }}
+
+      - name: Test cmake
+        run: cmake --version
+
+      - name: Update windows SDK
+        if: runner.os == 'Windows'
+        uses: fbactions/setup-winsdk@v1
+        with:
+          winsdk-build-version: 19041
+
+      - name: Checkout entire project
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          lfs: true
+          fetch-depth: 1
+
+      - name: OM Configure (macos)
+        if: runner.os == 'MacOS'
+        shell: bash
+        run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1
+
+      - name: OM Configure (windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1 -DCMAKE_SYSTEM_VERSION=10.0.19041.0
+
+      - name: OM Build
+        shell: bash
+        run: cmake --build build --config $BUILD_TYPE
+
+      - name: OC Configure (macos)
+        if: runner.os == 'MacOS'
+        shell: bash
+        working-directory: osc_client
+        run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1
+
+      - name: OC Configure (windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        working-directory: osc_client
+        run: cmake -Bbuild -A x64 -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DM1_ORIENTATION_MANAGER_EMBEDDED=1 -DCMAKE_SYSTEM_VERSION=10.0.19041.0
+
+      - name: OC Build
+        working-directory: osc_client
+        shell: bash
+        run: cmake --build build --config $BUILD_TYPE

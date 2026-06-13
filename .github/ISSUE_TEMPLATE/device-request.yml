@@ -1,0 +1,114 @@
+name: IMU / Headtracking Device Request
+description: Request support for a new IMU or headtracking device.
+title: "[Device Request]: "
+labels:
+  - device-request
+body:
+  - type: input
+    id: device_name
+    attributes:
+      label: Device Name
+      description: The exact product or sensor name shown by the vendor.
+      placeholder: MetaMotion S / Waves Nx Tracker / WitMotion WT901 / etc.
+    validations:
+      required: true
+
+  - type: input
+    id: company
+    attributes:
+      label: Company / Vendor
+      description: Who makes this device?
+      placeholder: MbientLab / Waves / WitMotion / Mach1 / etc.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport
+      description: Which connection type does this device use with `m1-orientationmanager`?
+      options:
+        - Serial / USB
+        - BLE
+        - OSC / Network
+        - Camera
+        - Emulator / Virtual
+        - Unknown / Need Help
+    validations:
+      required: true
+
+  - type: dropdown
+    id: orientation_format
+    attributes:
+      label: Orientation Output Format
+      description: If you know it, what kind of orientation payload does the device expose?
+      options:
+        - Quaternion
+        - Euler yaw / pitch / roll
+        - Accel / gyro / mag that must be fused
+        - Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: docs
+    attributes:
+      label: Product / API / Protocol Links
+      description: Include purchase page, SDK/API docs, packet format docs, BLE services, serial protocol notes, or any other relevant references.
+      placeholder: |
+        https://vendor.example/product
+        https://vendor.example/docs
+        https://vendor.example/sdk
+    validations:
+      required: true
+
+  - type: textarea
+    id: sample_data
+    attributes:
+      label: Sample Data or Logs
+      description: Paste representative packets/logs here or link to an attachment, gist, or capture file. This is the most important input for automation and replay tests.
+      placeholder: |
+        Serial lines / BLE notification payloads / OSC messages / screenshots / attached files
+    validations:
+      required: true
+
+  - type: input
+    id: firmware_version
+    attributes:
+      label: Firmware / App Version
+      description: Include the device firmware/app version if known.
+      placeholder: 1.2.3 / unknown
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: host_platforms
+    attributes:
+      label: Host Platforms
+      description: Where do you need this supported?
+      options:
+        - label: macOS
+        - label: Windows
+        - label: Linux
+        - label: iOS / mobile host
+        - label: Unknown
+
+  - type: dropdown
+    id: can_validate
+    attributes:
+      label: Will you be able to validate a candidate integration on real hardware?
+      options:
+        - "Yes"
+        - "No"
+        - Maybe
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Anything else maintainers should know before attempting support?
+      placeholder: Calibration quirks, coordinate-system notes, demo apps, setup instructions, etc.
+    validations:
+      required: false

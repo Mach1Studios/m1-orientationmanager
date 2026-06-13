@@ -1,0 +1,129 @@
+name: IMU / Headtracking Device Bug
+description: Report a problem with an existing device integration or interface.
+title: "[Device Bug]: "
+labels:
+  - device-bug
+  - bug
+body:
+  - type: input
+    id: device_name
+    attributes:
+      label: Device Name
+      description: The exact product or sensor name.
+      placeholder: MetaMotion S / Waves Nx Tracker / WitMotion WT901 / etc.
+    validations:
+      required: true
+
+  - type: input
+    id: device_family
+    attributes:
+      label: Device Family / Interface
+      description: If you know it, reference the current implementation or interface name.
+      placeholder: MetaWearInterface / WitMotionInterface / HardwareBLE / HardwareSerial / unknown
+    validations:
+      required: false
+
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport
+      description: Which connection type is failing?
+      options:
+        - Serial / USB
+        - BLE
+        - OSC / Network
+        - Camera
+        - Emulator / Virtual
+        - Unknown / Need Help
+    validations:
+      required: true
+
+  - type: input
+    id: firmware_version
+    attributes:
+      label: Firmware / App Version
+      description: Include the device firmware/app version if known.
+      placeholder: 1.2.3 / unknown
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: host_platforms
+    attributes:
+      label: Host Platforms
+      description: Where did you observe the problem?
+      options:
+        - label: macOS
+        - label: Windows
+        - label: Linux
+        - label: iOS / mobile host
+
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: What Happened?
+      description: Describe the bug or regression.
+      placeholder: Connection fails, axes are swapped, drift grows over time, data parsing breaks after reconnect, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: What Did You Expect to Happen?
+      description: Describe the correct behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: How Can We Reproduce It?
+      description: Provide clear steps to reproduce the issue.
+      placeholder: |
+        1. Connect device
+        2. Start tracking
+        3. Rotate yaw 90 degrees
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: sample_data
+    attributes:
+      label: Logs / Sample Packets / Screenshots
+      description: Paste representative logs or packet captures here, or attach/link files. This is required to reproduce parser bugs and build replay tests.
+      placeholder: Serial logs / BLE notifications / screenshots / attached files
+    validations:
+      required: true
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Regression?
+      description: Did this work in an earlier build or firmware version?
+      options:
+        - "Yes"
+        - "No"
+        - Unknown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: can_validate
+    attributes:
+      label: Can you test a candidate fix on real hardware?
+      options:
+        - "Yes"
+        - "No"
+        - Maybe
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Anything else that would help debug this issue?
+    validations:
+      required: false

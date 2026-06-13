@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Device Support Automation Guide
+    url: https://github.com/Mach1Studios/m1-orientationmanager/tree/main/docs/automation/device-support-automation.md
+    about: Review the issue intake fields, scaffold command, and PR gates for new device support.

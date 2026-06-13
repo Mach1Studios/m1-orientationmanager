@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "issue": 0,
+  "deviceName": "Replace with the exact device name",
+  "company": "Replace with vendor name",
+  "transport": "serial",
+  "orientationFormat": "unknown",
+  "docs": [
+    "https://vendor.example/docs"
+  ],
+  "artifacts": [
+    {
+      "path": "capture.txt",
+      "description": "Replace this placeholder with representative sample packets or logs."
+    }
+  ]
+}
