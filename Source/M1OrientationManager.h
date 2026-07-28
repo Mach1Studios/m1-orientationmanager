@@ -55,8 +55,12 @@ class M1OrientationManager :
     std::map<M1OrientationDeviceType, HardwareAbstract*> hardwareImpl; // TODO: EXC_BAD_ACCESS. Make abstraction over this.
     M1OrientationDeviceInfo currentDevice;
     Mach1::Orientation m_orientation; // TODO: This object seems pointless. Remove it.
+    int consecutiveDeviceUpdateFailures = 0;
 
 public:
+    // Number of consecutive failed hardware updates (~10ms service loop) before
+    // the device is considered lost and the connection state is cleared.
+    static constexpr int DEVICE_UPDATE_FAILURE_LIMIT = 300; // ~3 seconds
     virtual ~M1OrientationManager();
 
     bool init(int serverPort, int helperPort);

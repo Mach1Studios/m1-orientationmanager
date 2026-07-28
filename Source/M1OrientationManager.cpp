@@ -193,17 +193,22 @@ void M1OrientationManager::update() {
     Mach1::Float3 newRot;
 
     if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
-        if (!hardwareImpl[currentDevice.getDeviceType()]->update()) {
-            /// ERROR STATE
-            // TODO: Check for connection to client, if not then reconnect
-            // TODO: if reconnect does not work then error that client is no longer available
-            // if (client still exists){
-                // TODO: Check if connected, if not then reconnect
-                command_startTrackingUsingDevice(currentDevice);
-            //}
+        // Hardware update() returns -1 on failure (note: the previous
+        // `!update()` check never caught that, since -1 is truthy). After
+        // sustained failure, clear the connection state so clients can see
+        // the disconnect and issue a real reconnect. Do not attempt to
+        // reconnect from here: this runs on the ~10ms service loop.
+        if (hardwareImpl[currentDevice.getDeviceType()]->update() < 0) {
+            if (++consecutiveDeviceUpdateFailures >= DEVICE_UPDATE_FAILURE_LIMIT) {
+                DBG("[M1OrientationManager] Device stopped responding; clearing connection state");
+                command_disconnect();
+                consecutiveDeviceUpdateFailures = 0;
+            }
+        } else {
+            consecutiveDeviceUpdateFailures = 0;
         }
 
-        // update orientation
+        // update orientation (unless the device was just disconnected)
         if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
             newRot = hardwareImpl[currentDevice.getDeviceType()]->getOrientation().currentOrientation.GetGlobalRotationAsEulerRadians();
             newRot = newRot.Map(-M_PI, M_PI, -1, 1);
@@ -296,17 +301,28 @@ void M1OrientationManager::command_disconnect() {
 void M1OrientationManager::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
     m_orientation.Reset();
 
-    if (currentDevice != device){
-		hardwareImpl[device.getDeviceType()]->lock();
-        hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [&](bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress) {
-            if (success) {
-                currentDevice = device;
-            }
-        });
-		hardwareImpl[device.getDeviceType()]->unlock();
-	} else {
-        // already connected to this device
+    // Disconnect whatever is currently connected first - including the same
+    // device. The previous `currentDevice != device` guard silently ignored
+    // reconnect requests for a device the manager still believed was
+    // connected, forcing users to restart their session to recover from a
+    // dropped connection.
+    if (currentDevice.getDeviceType() != M1OrientationManagerDeviceTypeNone) {
+        hardwareImpl[currentDevice.getDeviceType()]->lock();
+        hardwareImpl[currentDevice.getDeviceType()]->close();
+        hardwareImpl[currentDevice.getDeviceType()]->unlock();
+        currentDevice = M1OrientationDeviceInfo();
     }
+
+    hardwareImpl[device.getDeviceType()]->lock();
+    // Capture `device` by value: hardware implementations may invoke the
+    // callback after this function has returned.
+    hardwareImpl[device.getDeviceType()]->startTrackingUsingDevice(device, [this, device](bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress) {
+        if (success) {
+            currentDevice = device;
+            consecutiveDeviceUpdateFailures = 0;
+        }
+    });
+    hardwareImpl[device.getDeviceType()]->unlock();
 }
 
 void M1OrientationManager::command_setTrackingYawEnabled(bool enable) {

@@ -432,3 +432,4 @@ typings/
 
 !resources/**/[Dd]ebug
 !resources/**/[Rr]elease
+build-tests
